@@ -85,15 +85,22 @@ Known limits: whoever holds the operator token is the operator. There are no acc
 
 ## Before you install
 
-A private network is a prerequisite, not an option. Without one, port 8790 is open to anything that reaches the machine, and the operator token is the only lock left.
+To try it on your own machine:
 
 | You need | Why |
 |---|---|
-| A tailnet (Tailscale or equivalent), with ACLs | It decides who reaches the port. Your phone, your workstation and the machines that run sessions sit on it. |
 | Node 22 or newer, and pnpm (`corepack enable pnpm`) | The control plane and the screen. |
 | Docker, running | One container per session. Legion checks it before every launch and refuses cleanly if it does not answer. |
-| A Claude credential | `CLAUDE_CODE_OAUTH_TOKEN` (from `claude setup-token`) or `ANTHROPIC_API_KEY`. Without one, sessions run in mock mode and produce no code. |
-| A domain and a Caddy front end, for the phone | HTTPS for the PWA and Web Push. See [the TLS guide](docs/wiki/guides/tls.md). |
+| A Claude credential | `CLAUDE_CODE_OAUTH_TOKEN` (from `claude setup-token`) or `ANTHROPIC_API_KEY`. Without one, sessions run in mock mode and produce no code; `make mock` shows the screen without Docker either. |
+
+To follow it from your phone, or to run it on a server, add:
+
+| You need | Why |
+|---|---|
+| A tailnet (Tailscale or equivalent), with ACLs | It decides who reaches the port. Your phone, your workstation and the machines that run sessions sit on it. Beyond your own machine, a private network is a prerequisite, not an option. |
+| A domain and a Caddy front end | HTTPS for the PWA and Web Push. See [the TLS guide](docs/wiki/guides/tls.md). |
+
+Even locally the server listens on every interface, so on a shared network (office, café) port 8790 is reachable by the other machines on it and the operator token is the only lock.
 
 ## Quickstart
 
