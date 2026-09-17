@@ -1,0 +1,71 @@
+/* The live channel list: a page column, not the app rail. */
+.ch-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-height: 0;
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--sp-5);
+  background: var(--recess);
+  border-right: 1px solid var(--border-separator);
+}
+
+.ch-list-section {
+  min-width: 0;
+}
+
+/* The count right of the subheading: channels in this section. */
+.ch-list-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-5) var(--sp-4) var(--sp-2);
+}
+
+.ch-list-section-count {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Subheader of a group asking the same question: one level DEEPER in the section, not parallel, so no
+   rule of its own; `.ui-list` rows already separate. */
+.ch-list-group-head {
+  padding: var(--sp-3) var(--sp-6) var(--sp-1);
+}
+
+/* A row is a row (rule 15): geometry comes from `ui/list`; only a title truncating in a narrow column
+   is set here. */
+.ch-list-item .ui-list-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The state MARK: colour carries meaning, geometry does not move between rows. The contract's three
+   tones (run / wait / neutral). */
+.ch-list-mark {
+  display: inline-flex;
+  color: var(--ink-3);
+}
+
+.ch-list-mark > svg {
+  width: var(--icon-row);
+  height: var(--icon-row);
+}
+
+.ch-list-mark[data-state="waiting"] {
+  color: var(--wait);
+}
+
+.ch-list-mark[data-state="running"] {
+  color: var(--run);
+}
+
+/* The footer: what the list does not show. Stuck to the bottom, set off by a rule. */
+.ch-list-foot {
+  margin-top: auto;
+  padding: var(--sp-6) var(--sp-4) var(--sp-2);
+  border-top: 1px solid var(--border-separator);
+}

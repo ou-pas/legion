@@ -1,0 +1,56 @@
+/* The fleet grid: cards side by side, comparable; below ~980 px they stack. `align-items: start`:
+   an expanded card does not grow its neighbour. */
+.ir-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(430px, 1fr));
+  gap: var(--sp-8);
+  align-items: start;
+}
+
+/* The card's disclosures are registry rows, not bare text (operator feedback, 02/09). Same
+   horizontal inset as the panel's other rows, an honest hover (the whole row clicks), a rule
+   between the two disclosures. */
+.ir-fold > .ui-disclosure-head {
+  padding: var(--sp-5) var(--sp-8);
+}
+.ir-fold > .ui-disclosure-head:hover {
+  background: var(--recess);
+}
+.ir-fold + .ir-fold > .ui-disclosure-head {
+  border-top: 1px solid var(--border-separator);
+}
+/* The expanded content is a drawer: inset background and dotted rule, as in the mock-up; open, it
+   stands apart from the card instead of blending in. */
+.ir-fold > .ui-disclosure-body {
+  margin-top: 0;
+  border-top: 1px dashed var(--border-separator);
+  background: var(--recess);
+}
+
+/* Expanded settings: a two-column grid. The steppers (sessions, CPU) share the first row, RAM
+   spans the full width below (its slider needs travel). Stacking wasted a screen for three fields. */
+.ir-settings {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-6) var(--sp-8);
+  align-items: start;
+  padding: var(--sp-6) var(--sp-8) var(--sp-7);
+}
+
+.ir-settings > .ir-field-ram {
+  grid-column: 1 / -1;
+}
+
+/* The expanded inventory's header row: the session image and cleanup. */
+.ir-inv-head {
+  padding: var(--sp-5) var(--sp-8) var(--sp-3);
+}
+
+/* A docker object name is long (`legion-browser-net-iRvQoryWgMYq`): it gives way to the owner
+   rather than push the row out of the card. */
+.ir-inv-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

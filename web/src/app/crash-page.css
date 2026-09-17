@@ -1,0 +1,59 @@
+/* The board and its text come from `ui/empty.css`; this file only centres it in the content area
+   and styles the detail disclosure. */
+.app-crash {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* `dvh`, NOT `100%`: this page's parent has no defined height, so a percentage resolves against
+     `auto` and is worth nothing (the same trap as the channel fallback, measured 14/09). Two thirds
+     of the viewport put the board at eye level without reserving an empty screen below it. */
+  min-height: 66dvh;
+  padding: var(--sp-9) var(--sp-6);
+}
+
+.app-crash-actions {
+  align-items: center;
+}
+
+/* The detail is discreet by construction. "Importing a module script failed" means nothing to the
+   reader and everything to whoever reports it: read when looked for, never before. */
+.app-crash-detail {
+  max-width: var(--measure);
+  font-size: var(--fs-sm);
+  color: var(--ink-3);
+  text-align: center;
+}
+
+.app-crash-detail > summary {
+  cursor: pointer;
+  list-style: none;
+  /* The contract's target floor: this disclosure is sometimes the only thing a finger aims at on
+     this screen, and that finger was just blocked. */
+  min-height: var(--h-control-sm);
+  display: inline-flex;
+  align-items: center;
+}
+
+.app-crash-detail > summary::-webkit-details-marker {
+  display: none;
+}
+
+.app-crash-detail > summary:hover {
+  color: var(--ink-2);
+}
+
+.app-crash-detail > code {
+  display: block;
+  margin-top: var(--sp-4);
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--recess);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-2);
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+  /* An error message carries file names without spaces: without this it overflows its box instead
+     of wrapping. */
+  overflow-wrap: anywhere;
+  text-align: left;
+}

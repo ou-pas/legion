@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FIL — direction UI/UX Legion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   FIL — monde visuel
+   ============================================================ */
+:root{
+  --bg:#16130f;
+  --surface:#1c1815;
+  --raised:#231e1a;
+  --raised-2:#2a241f;
+  --line:rgba(242,236,226,.085);
+  --line-strong:rgba(242,236,226,.16);
+
+  --ink:#f4eee4;
+  --ink-2:#c1b8ab;
+  --ink-3:#9c9387;
+
+  --amber:#e5a95f;
+  --amber-soft:rgba(229,169,95,.14);
+  --sage:#9ec48d;
+  --teal:#7fb8ae;
+  --clay:#e2836b;
+  --clay-soft:rgba(226,131,107,.13);
+
+  --focus:#e5a95f;
+  --radius:10px;
+  --ease:cubic-bezier(.16,1,.3,1);
+
+  --sans:"Instrument Sans",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,monospace;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:15px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:rgba(229,169,95,.3);color:#fff6e8}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:4px}
+button:focus:not(:focus-visible){outline:none}
+
+/* scrollbars thémées */
+*{scrollbar-width:thin;scrollbar-color:#3b332c transparent}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#3b332c;border-radius:99px;border:3px solid var(--bg);background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:#514639;background-clip:padding-box}
+
+svg{display:block;flex:none}
+.i{width:16px;height:16px;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.i-sm{width:13px;height:13px}
+.i-lg{width:18px;height:18px}
+
+/* ============================================================
+   Bandeau de présentation
+   ============================================================ */
+.brief{border-bottom:1px solid var(--line);padding:22px 44px 18px}
+.brief-top{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap}
+.brief h1{
+  font-family:var(--sans);
+  font-optical-sizing:auto;
+  font-size:31px;font-weight:500;letter-spacing:.14em;
+  line-height:1;
+}
+.brief-meta{color:var(--ink-3);font-size:12.5px;letter-spacing:.06em;text-transform:uppercase}
+.thesis{
+  font-family:var(--sans);font-size:19px;line-height:1.5;font-weight:300;
+  color:var(--ink);max-width:74ch;margin-top:10px;
+}
+.thesis em{font-style:italic;color:var(--amber);font-weight:400}
+.conseq{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin-top:16px;max-width:1240px}
+.conseq li{font-size:12.5px;line-height:1.5;color:var(--ink-2);padding-top:10px;border-top:1px solid var(--line)}
+.conseq b{color:var(--ink);font-weight:600}
+
+/* ============================================================
+   Onglets
+   ============================================================ */
+.tabs{display:flex;gap:2px;padding:0 44px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tab{
+  appearance:none;background:none;border:0;cursor:pointer;
+  font-family:var(--sans);font-size:13.5px;color:var(--ink-3);
+  padding:14px 16px 13px;position:relative;white-space:nowrap;
+  transition:color .15s;
+}
+.tab:hover{color:var(--ink-2)}
+.tab[aria-selected="true"]{color:var(--ink);font-weight:500}
+.tab[aria-selected="true"]::after{
+  content:"";position:absolute;left:16px;right:16px;bottom:-1px;height:1.5px;background:var(--amber);
+}
+
+/* ============================================================
+   Coquille applicative
+   ============================================================ */
+.panel{display:none}
+.panel.on{display:block}
+.app{
+  height:clamp(560px,calc(100vh - 300px),760px);
+  display:grid;grid-template-columns:216px minmax(0,1fr);
+  overflow:hidden;
+}
+.app.with-thread{grid-template-columns:216px 384px minmax(0,1fr)}
+
+/* — rail des vues — */
+.rail{border-right:1px solid var(--line);padding:22px 14px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.rail-title{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);padding:0 10px 9px}
+.rail-title.mt{margin-top:22px}
+.viewbtn{
+  appearance:none;background:none;border:0;cursor:pointer;width:100%;
+  display:flex;align-items:center;gap:9px;
+  font-family:var(--sans);font-size:13.5px;color:var(--ink-2);
+  padding:7px 10px;border-radius:8px;text-align:left;
+  transition:background .14s,color .14s;
+}
+.viewbtn:hover{background:var(--raised);color:var(--ink)}
+.viewbtn[aria-current="true"]{background:var(--raised-2);color:var(--ink);font-weight:500}
+.viewbtn .cnt{margin-left:auto;font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.viewbtn[aria-current="true"] .cnt{color:var(--amber)}
+.rail-note{margin-top:auto;padding:14px 10px 0;font-size:11.5px;line-height:1.5;color:var(--ink-3);border-top:1px solid var(--line)}
+.rail-note b{color:var(--ink-2);font-weight:500;font-variant-numeric:tabular-nums}
+
+/* — colonne liste — */
+.col-list{display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.app.with-thread .col-list{border-right:1px solid var(--line)}
+.list-head{padding:26px 40px 16px;display:flex;align-items:flex-end;gap:20px}
+.app.with-thread .list-head{padding:22px 22px 14px}
+.list-head h2{font-family:var(--sans);font-size:26px;font-weight:400;line-height:1.1;letter-spacing:-.01em}
+.app.with-thread .list-head h2{font-size:19px}
+.list-sub{font-size:12.5px;color:var(--ink-3);margin-top:6px}
+.list-tools{margin-left:auto;display:flex;gap:8px;align-items:center}
+.ghost{
+  appearance:none;background:none;border:1px solid var(--line-strong);cursor:pointer;
+  font-family:var(--sans);font-size:12.5px;color:var(--ink-2);
+  padding:6px 11px;border-radius:8px;display:flex;align-items:center;gap:7px;
+  transition:background .14s,color .14s,border-color .14s;
+}
+.ghost:hover{background:var(--raised);color:var(--ink);border-color:var(--line-strong)}
+.ghost:disabled{opacity:.4;cursor:not-allowed;background:none;color:var(--ink-3)}
+
+.scroller{flex:1;overflow-y:auto;padding-bottom:26px}
+.group-h{
+  display:flex;align-items:center;gap:10px;
+  padding:22px 40px 8px;font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);
+}
+.app.with-thread .group-h{padding:18px 22px 6px}
+.group-h .rule{flex:1;height:1px;background:var(--line)}
+.group-h .n{font-variant-numeric:tabular-nums}
+
+/* — rangée de fil — */
+.row{
+  display:grid;grid-template-columns:20px 30px minmax(0,1fr);gap:0 12px;
+  padding:14px 40px 15px;cursor:pointer;position:relative;
+  border-bottom:1px solid var(--line);
+  transition:background .14s;
+}
+.row > .r-top,.row > .r-subject,.row > .r-excerpt,.row > .r-await{grid-column:3}
+.app:not(.with-thread) .row,.app:not(.with-thread) .group-h{max-width:1060px}
+.app.with-thread .row{padding:13px 22px 14px;grid-template-columns:14px 26px minmax(0,1fr)}
+.row:hover{background:rgba(242,236,226,.028)}
+.row.is-sel{background:var(--raised)}
+.row:focus-visible{outline:2px solid var(--focus);outline-offset:-2px;border-radius:0}
+.row .ava{grid-column:2;grid-row:1/5}
+.row .caret{grid-column:1;grid-row:1/5;align-self:start;margin-top:9px;color:var(--amber);opacity:0;transition:opacity .14s}
+.row.is-sel .caret{opacity:1}
+.ava{
+  align-self:start;margin-top:2px;
+  width:30px;height:30px;border-radius:50%;display:grid;place-items:center;
+  background:var(--raised-2);color:var(--ink-2);
+  font-size:11px;font-weight:600;letter-spacing:.02em;
+  border:1px solid var(--line);
+}
+.app.with-thread .ava{width:26px;height:26px;font-size:10px}
+.ava.goal{background:none;color:var(--amber);border-color:rgba(229,169,95,.35)}
+.r-top{display:flex;align-items:baseline;gap:9px;min-width:0}
+.r-agent{white-space:nowrap;font-size:12.5px;font-weight:600;color:var(--ink-2);letter-spacing:.01em}
+.r-ctx{font-size:12px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r-age{margin-left:auto;font-size:12px;color:var(--ink-3);white-space:nowrap;font-variant-numeric:tabular-nums}
+.r-subject{
+  font-family:var(--sans);font-optical-sizing:auto;
+  font-size:17px;line-height:1.32;font-weight:400;color:var(--ink);
+  margin:2px 0 3px;letter-spacing:-.005em;
+}
+.app.with-thread .r-subject{font-size:15.5px}
+.row.is-done .r-subject{color:var(--ink-2)}
+.r-excerpt{
+  font-size:13px;line-height:1.5;color:var(--ink-2);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  max-width:74ch;
+}
+.r-await{display:flex;align-items:center;gap:7px;margin-top:8px;font-size:12.5px;color:var(--ink-3)}
+.r-await.act{color:var(--amber)}
+.r-await.err{color:var(--clay)}
+.r-await.live{color:var(--teal)}
+.r-await code{font-family:var(--mono);font-size:11.5px}
+
+/* archivage — le seul moment de mouvement authored */
+.row.is-arch{
+  overflow:hidden;
+  transition:height .42s var(--ease),padding .42s var(--ease),opacity .28s ease-out,
+             transform .42s var(--ease),filter .34s ease-out;
+}
+.row.is-arch.go{height:0!important;padding-top:0;padding-bottom:0;opacity:0;transform:translateX(-18px);filter:blur(7px)}
+
+/* — barre de raccourcis — */
+.keybar{
+  display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+  padding:11px 40px;border-top:1px solid var(--line);
+  font-size:12px;color:var(--ink-3);background:var(--bg);
+}
+.app.with-thread .keybar{padding:10px 22px;gap:11px;font-size:11.5px}
+.kb{display:flex;align-items:center;gap:6px}
+kbd{
+  font-family:var(--sans);font-size:11px;font-weight:600;color:var(--ink-2);
+  min-width:19px;height:19px;padding:0 5px;border-radius:5px;
+  background:var(--raised-2);border:1px solid var(--line-strong);border-bottom-width:1.5px;
+  display:inline-grid;place-items:center;line-height:1;
+}
+
+/* — état vide — */
+.empty{
+  flex:1;display:none;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:40px;gap:14px;
+}
+.empty.on{display:flex}
+.empty > svg{width:64px;height:64px;stroke:var(--line-strong);stroke-width:1;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.empty h3{font-family:var(--sans);font-size:26px;font-weight:300;letter-spacing:-.01em}
+.empty p{font-size:13.5px;color:var(--ink-3);max-width:44ch;line-height:1.6}
+.empty p b{color:var(--ink-2);font-weight:500;font-variant-numeric:tabular-nums}
+
+/* ============================================================
+   Fil ouvert
+   ============================================================ */
+.col-thread{display:flex;flex-direction:column;min-width:0;overflow:hidden;background:var(--surface)}
+.th-head{padding:20px 40px 15px;border-bottom:1px solid var(--line);display:flex;gap:20px;align-items:flex-start}
+.th-head h2{
+  font-family:var(--sans);font-optical-sizing:auto;
+  font-size:28px;font-weight:400;line-height:1.2;letter-spacing:-.015em;max-width:24ch;
+}
+.th-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:9px;font-size:12.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.th-meta .sep{width:3px;height:3px;border-radius:50%;background:var(--line-strong)}
+.th-meta code{font-family:var(--mono);font-size:11.5px;color:var(--ink-2)}
+.th-acts{margin-left:auto;display:flex;gap:8px;flex:none}
+.iconbtn{
+  appearance:none;background:none;border:1px solid var(--line-strong);cursor:pointer;
+  width:32px;height:32px;border-radius:8px;display:grid;place-items:center;color:var(--ink-2);
+  transition:background .14s,color .14s;
+}
+.iconbtn:hover{background:var(--raised);color:var(--ink)}
+.iconbtn:disabled{opacity:.38;cursor:not-allowed;background:none}
+
+.th-scroll{flex:1;overflow-y:auto;padding:0 40px 18px}
+.msg{display:grid;grid-template-columns:30px minmax(0,1fr);gap:14px;padding:12px 0}
+.th-scroll > .msg:first-child{padding-top:16px}
+.msg + .msg{border-top:1px solid var(--line)}
+.m-head{display:flex;align-items:baseline;gap:9px;margin-bottom:5px}
+.m-who{font-size:13px;font-weight:600;color:var(--ink)}
+.m-who.me{color:var(--amber)}
+.m-when{font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.m-kind{font-size:11.5px;color:var(--ink-3);font-family:var(--mono)}
+.m-body{font-size:14.5px;line-height:1.62;color:var(--ink-2);max-width:68ch;font-variant-numeric:proportional-nums}
+.m-body strong{color:var(--ink);font-weight:500}
+.m-body code{font-family:var(--mono);font-size:12.5px;color:var(--ink);background:rgba(242,236,226,.05);padding:1.5px 5px;border-radius:5px}
+.msg.sys .m-body{font-size:13px;color:var(--ink-3);max-width:70ch}
+.msg.sys .ava{background:none;border-style:dashed;color:var(--ink-3);width:30px;height:30px;margin-top:0}
+.msg .ava{grid-row:1/3;align-self:start;margin-top:1px}
+
+/* alerte inline (fs_denied / throttle) — hairline, pas de barre colorée */
+.inline-note{
+  display:flex;gap:9px;align-items:flex-start;
+  border:1px solid var(--line);border-radius:var(--radius);
+  padding:9px 12px;max-width:68ch;font-size:12.8px;color:var(--ink-2);line-height:1.5;
+}
+.inline-note svg{margin-top:2px;color:var(--amber)}
+.inline-note code{font-family:var(--mono);font-size:12px;color:var(--ink)}
+
+/* groupe d'outils replié */
+.toolgroup{border:1px solid var(--line);border-radius:var(--radius);max-width:68ch;overflow:hidden}
+.tg-btn{
+  appearance:none;width:100%;background:none;border:0;cursor:pointer;
+  display:flex;align-items:center;gap:10px;padding:10px 13px;
+  font-family:var(--sans);font-size:13.5px;color:var(--ink-2);text-align:left;
+  transition:background .14s;
+}
+.tg-btn:hover{background:rgba(242,236,226,.03);color:var(--ink)}
+.tg-btn .chev{transition:transform .2s var(--ease)}
+.tg-btn[aria-expanded="true"] .chev{transform:rotate(90deg)}
+.tg-btn .dur{margin-left:auto;white-space:nowrap;font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.tg-list{display:none;border-top:1px solid var(--line);padding:4px 0}
+.tg-list.on{display:block}
+.tg-row{display:flex;align-items:center;gap:10px;padding:6px 13px;font-size:12.5px;color:var(--ink-3)}
+.tg-row .op{font-weight:600;color:var(--ink-2);min-width:52px;font-size:12px}
+.tg-row .pth{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tg-row .ms{margin-left:auto;font-variant-numeric:tabular-nums;font-size:11.5px}
+.tg-row.den .pth,.tg-row.den .op{color:var(--clay)}
+
+/* pièces jointes */
+.attach{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.att{
+  display:flex;align-items:center;gap:9px;text-decoration:none;
+  border:1px solid var(--line-strong);border-radius:9px;padding:8px 12px;
+  background:none;cursor:pointer;font-family:var(--sans);text-align:left;
+  transition:background .14s,border-color .14s;
+}
+.att:hover{background:var(--raised)}
+.att svg{color:var(--ink-3)}
+.att b{display:block;font-size:13px;font-weight:500;color:var(--ink);line-height:1.3}
+.att span{display:block;font-size:11.5px;color:var(--ink-3);font-variant-numeric:tabular-nums;line-height:1.4}
+
+/* bloc de décision */
+.decision{border:1px solid rgba(229,169,95,.32);border-radius:var(--radius);padding:14px 16px;max-width:68ch;background:rgba(229,169,95,.045)}
+.decision.err{border-color:rgba(226,131,107,.34);background:var(--clay-soft)}
+.d-title{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:600;color:var(--amber);margin-bottom:7px}
+.decision.err .d-title{color:var(--clay)}
+.d-text{font-size:13.5px;line-height:1.55;color:var(--ink-2);max-width:62ch}
+.d-text code{font-family:var(--mono);font-size:12.5px;color:var(--ink);background:rgba(0,0,0,.28);padding:2px 6px;border-radius:5px}
+.d-acts{display:flex;gap:9px;align-items:center;margin-top:14px;flex-wrap:wrap}
+.btn{
+  appearance:none;border:1px solid transparent;cursor:pointer;
+  font-family:var(--sans);font-size:13px;font-weight:600;
+  padding:8px 15px;border-radius:8px;display:inline-flex;align-items:center;gap:8px;
+  transition:background .14s,color .14s,border-color .14s,opacity .14s;
+}
+.btn-primary{background:var(--amber);color:#241a0c}
+.btn-primary:hover{background:#f0b76e}
+.btn-quiet{background:none;border-color:var(--line-strong);color:var(--ink-2)}
+.btn-quiet:hover{background:var(--raised);color:var(--ink)}
+.btn-danger{background:none;border-color:rgba(226,131,107,.45);color:var(--clay)}
+.btn-danger:hover{background:var(--clay-soft)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-primary:disabled:hover{background:var(--amber)}
+.d-hint{font-size:12px;color:var(--ink-3);margin-left:2px}
+
+/* spinner (chargement) */
+.spin{animation:spin 900ms linear infinite;transform-origin:center}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-msg{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--ink-3);padding:4px 0}
+.skel{height:9px;border-radius:99px;background:linear-gradient(90deg,rgba(242,236,226,.09),rgba(242,236,226,.05));margin-top:9px}
+
+/* composeur */
+.composer{border-top:1px solid var(--line);padding:12px 40px 14px;background:var(--bg)}
+.cp-wrap{border:1px solid var(--line-strong);border-radius:var(--radius);background:var(--surface);transition:border-color .16s}
+.cp-wrap:focus-within{border-color:rgba(229,169,95,.5)}
+.composer textarea{
+  width:100%;background:none;border:0;resize:none;outline:none;
+  font-family:var(--sans);font-size:14px;line-height:1.55;color:var(--ink);
+  padding:11px 14px 2px;caret-color:var(--amber);
+}
+.composer textarea::placeholder{color:var(--ink-3)}
+.cp-foot{display:flex;align-items:center;gap:12px;padding:6px 10px 9px 14px}
+.cp-note{font-size:12px;color:var(--ink-3)}
+.cp-foot .btn{margin-left:auto;padding:6px 13px}
+
+/* ============================================================
+   Vue par statut
+   ============================================================ */
+.board-wrap{display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.board{flex:1;overflow:auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;padding:0 24px 20px}
+.bcol{min-width:0;padding:0 14px}
+.bcol + .bcol{border-left:1px solid var(--line)}
+.bcol-h{display:flex;align-items:center;gap:8px;padding:6px 4px 10px;position:sticky;top:0;background:var(--bg);z-index:1}
+.bcol-h span{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+.bcol-h .n{margin-left:auto;font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.bitem{
+  display:block;width:100%;text-align:left;background:none;border:0;cursor:pointer;
+  font-family:var(--sans);padding:12px 6px 13px;border-top:1px solid var(--line);
+  transition:background .14s;
+}
+.bitem:hover{background:rgba(242,236,226,.03)}
+.bitem .s{font-family:var(--sans);font-size:15px;line-height:1.3;color:var(--ink);font-weight:400;letter-spacing:-.005em}
+.bitem.dim .s{color:var(--ink-2)}
+.bitem .m{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:7px;font-size:12px;color:var(--ink-3)}
+.bitem .m > span{white-space:nowrap}
+.bitem .m .w{color:var(--amber);display:flex;align-items:center;gap:5px}
+.bitem .m .w.err{color:var(--clay)}
+.bitem .m .w.live{color:var(--teal)}
+
+/* ============================================================
+   Fil de goal
+   ============================================================ */
+.dod-wrap{position:sticky;top:0;z-index:3;background:var(--surface);padding:16px 0 12px;border-bottom:1px solid var(--line);margin-bottom:2px}
+.dod{border:1px solid var(--line);border-radius:var(--radius);padding:6px 4px;max-width:68ch;margin-top:2px}
+.dod-h{display:flex;align-items:center;gap:10px;padding:8px 14px 9px;font-size:13px;color:var(--ink-2)}
+.dod-h b{color:var(--ink);font-weight:600}
+.dod-h .cnt{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--amber);font-weight:600;font-size:13px}
+.dod-i{
+  display:flex;align-items:flex-start;gap:11px;width:100%;text-align:left;
+  background:none;border:0;cursor:pointer;font-family:var(--sans);
+  padding:9px 14px;border-top:1px solid var(--line);
+  font-size:13.5px;line-height:1.5;color:var(--ink-2);transition:background .14s;
+}
+.dod-i:hover{background:rgba(242,236,226,.03)}
+.box{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--line-strong);flex:none;margin-top:2px;display:grid;place-items:center;transition:background .16s,border-color .16s}
+.dod-i[aria-pressed="true"] .box{background:var(--sage);border-color:var(--sage)}
+.box svg{opacity:0;color:#16130f;stroke-width:2.6;width:11px;height:11px}
+.dod-i[aria-pressed="true"] .box svg{opacity:1}
+.dod-i[aria-pressed="true"] .lbl{color:var(--ink-3);text-decoration:line-through;text-decoration-color:var(--line-strong);text-underline-offset:2px}
+
+.rails{border-top:1px solid var(--line);padding:14px 40px 13px;display:flex;gap:22px;align-items:flex-end;flex-wrap:wrap;background:var(--bg)}
+.rail-item{flex:0 1 auto;min-width:118px}
+.rail-item .rl{font-size:12px;color:var(--ink-3);display:flex;gap:8px;align-items:baseline}
+.rail-item .rl b{margin-left:auto;color:var(--ink-2);font-weight:500;font-variant-numeric:tabular-nums;font-size:12.5px}
+.meter{height:3px;border-radius:99px;background:rgba(242,236,226,.09);margin-top:7px;overflow:hidden}
+.meter i{display:block;height:100%;border-radius:99px;background:var(--teal)}
+.rails .kill{margin-left:auto}
+
+/* ============================================================
+   Palette de commandes + toast
+   ============================================================ */
+.overlay{
+  position:fixed;inset:0;background:rgba(10,8,6,.62);
+  display:none;align-items:flex-start;justify-content:center;padding-top:14vh;z-index:60;
+}
+.overlay.on{display:flex}
+.palette{
+  width:min(560px,92vw);background:var(--raised);border:1px solid var(--line-strong);
+  border-radius:14px;overflow:hidden;
+  box-shadow:0 26px 60px -28px rgba(0,0,0,.86),0 4px 12px -6px rgba(0,0,0,.6);
+}
+.pal-in{display:flex;align-items:center;gap:11px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.pal-in input{
+  flex:1;background:none;border:0;outline:none;caret-color:var(--amber);
+  font-family:var(--sans);font-size:15px;color:var(--ink);
+}
+.pal-in input::placeholder{color:var(--ink-3)}
+.pal-res{max-height:320px;overflow-y:auto;padding:6px}
+.pal-row{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:8px;font-size:13.5px;color:var(--ink-2);cursor:pointer}
+.pal-row:hover,.pal-row.hi{background:var(--raised-2);color:var(--ink)}
+.pal-row .ag{margin-left:auto;font-size:11.5px;color:var(--ink-3)}
+.pal-empty{padding:22px 14px;text-align:center;font-size:13px;color:var(--ink-3)}
+
+.toast{
+  position:fixed;left:50%;bottom:34px;transform:translate(-50%,14px);
+  display:flex;align-items:center;gap:14px;
+  background:var(--raised);border:1px solid var(--line-strong);border-radius:10px;
+  padding:11px 13px 11px 16px;font-size:13px;color:var(--ink);
+  box-shadow:0 18px 40px -22px rgba(0,0,0,.85),0 3px 8px -4px rgba(0,0,0,.55);
+  opacity:0;pointer-events:none;transition:opacity .22s ease-out,transform .34s var(--ease);z-index:70;
+}
+.toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.toast button{
+  appearance:none;background:none;border:0;cursor:pointer;font-family:var(--sans);
+  font-size:13px;font-weight:600;color:var(--amber);display:flex;align-items:center;gap:7px;
+}
+.toast button:hover{color:#f2bd79}
+
+.back-bar{display:none}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width:1360px){
+  .brief{padding:22px 28px 18px}
+  .tabs{padding:0 28px}
+  .list-head,.group-h,.row,.keybar{padding-left:28px;padding-right:28px}
+  .th-head,.th-scroll,.composer,.rails{padding-left:28px;padding-right:28px}
+  .app.with-thread{grid-template-columns:200px 344px minmax(0,1fr)}
+}
+@media (max-width:700px){
+  body{font-size:14.5px}
+  .brief{padding:20px 18px 16px}
+  .brief h1{font-size:26px}
+  .thesis{font-size:17px}
+  .conseq{grid-template-columns:1fr;gap:12px;margin-top:16px}
+  .tabs{padding:0 10px}
+  .tab{padding:12px 11px}
+  .app,.app.with-thread{grid-template-columns:1fr;height:calc(100vh - 150px);min-height:560px}
+  .rail{display:none}
+  .list-head,.group-h,.row,.keybar,.th-head,.th-scroll,.composer,.rails,.board{padding-left:18px;padding-right:18px}
+  .app.with-thread .list-head,.app.with-thread .group-h,.app.with-thread .row,.app.with-thread .keybar{padding-left:18px;padding-right:18px}
+  .app.with-thread .col-list{border-right:0}
+  .app.with-thread .row{grid-template-columns:20px 30px minmax(0,1fr)}
+  .app.with-thread .r-subject{font-size:17px}
+  .app.with-thread .ava{width:30px;height:30px;font-size:11px}
+  .app[data-m="thread"] .col-list{display:none}
+  .app[data-m="list"] .col-thread{display:none}
+  .back-bar{
+    display:flex;align-items:center;gap:8px;padding:11px 18px;border-bottom:1px solid var(--line);
+    background:none;border-top:0;border-left:0;border-right:0;cursor:pointer;
+    font-family:var(--sans);font-size:13px;color:var(--ink-2);width:100%;
+  }
+  .th-head{padding-top:14px;gap:12px;align-items:flex-start}
+  .composer textarea{min-height:54px}
+  .th-head h2{font-size:23px;max-width:none}
+  .th-acts{margin-left:auto}
+  .keybar{display:none}
+  .board{grid-template-columns:1fr}
+  .bcol + .bcol{border-left:0;border-top:1px solid var(--line);padding-top:8px;margin-top:8px}
+  .rails{gap:18px;padding-bottom:16px}
+  .rails .kill{margin-left:0;width:100%}
+  .list-head{flex-direction:column;align-items:flex-start;gap:12px}
+  .list-tools{margin-left:0}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ BANDEAU ============ -->
+<header class="brief">
+  <div class="brief-top">
+    <h1>FIL</h1>
+    <span class="brief-meta">Direction UI/UX · Legion · Opérateur unique</span>
+  </div>
+  <p class="thesis">Une tâche <em>est</em> une conversation avec une décision au bout : Legion devient une boîte de réception de fils, triée par qui attend quoi de qui — jamais par statut.</p>
+  <ul class="conseq">
+    <li><b>L’Inbox et la page Tâche fusionnent</b> en une seule route. Deux écrans disparaissent, le dashboard d’accueil aussi : la liste est l’accueil.</li>
+    <li><b>Le modèle de données change</b> : les événements de session doivent se projeter en messages (auteur, horodatage, pièces jointes, repliage des outils). C’est une couche à écrire et à maintenir à chaque nouvel événement.</li>
+    <li><b>On perd la vue d’ensemble immédiate</b> : plus de compteurs globaux au chargement, le Board devient une vue enregistrée qu’il faut ouvrir. On échange la supervision panoramique contre la vitesse de triage.</li>
+  </ul>
+</header>
+
+<nav class="tabs" role="tablist" aria-label="Écrans de la direction">
+  <button class="tab" role="tab" aria-selected="true" data-tab="boite">Boîte de fils</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="fil">Fil ouvert</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="statut">Vue « Par statut »</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="goal">Fil de goal</button>
+</nav>
+
+<!-- ============ ÉCRAN 1 — BOÎTE ============ -->
+<section class="panel on" id="p-boite" role="tabpanel">
+  <div class="app" id="app-boite">
+    <aside class="rail" id="rail-boite"></aside>
+    <div class="col-list">
+      <div class="list-head">
+        <div>
+          <h2 id="bx-title">À traiter</h2>
+          <div class="list-sub" id="bx-sub">Trié par ce qui t’attend depuis le plus longtemps · projet Démo (mock), lecture seule</div>
+        </div>
+        <div class="list-tools">
+          <button class="ghost" id="bx-search">
+            <svg class="i i-sm" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            Chercher <kbd>⌘K</kbd>
+          </button>
+          <button class="ghost" id="bx-archall">
+            <svg class="i i-sm" viewBox="0 0 24 24"><path d="M3 7h18v3H3z"/><path d="M5 10v9h14v-9"/><path d="M10 14h4"/></svg>
+            Tout archiver
+          </button>
+        </div>
+      </div>
+      <div class="scroller" id="bx-list" role="listbox" aria-label="Fils"></div>
+      <div class="empty" id="bx-empty">
+        <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M8 30 16 12h32l8 18"/><path d="M8 30v20a4 4 0 0 0 4 4h40a4 4 0 0 0 4-4V30H42a4 4 0 0 0-4 4 4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4 4 4 0 0 0-4-4H8Z"/></svg>
+        <h3>Plus rien ne t’attend</h3>
+        <p>Les <b>4</b> fils de cette vue sont archivés. Les agents continuent de tourner : ils reviendront ici seulement s’ils ont besoin d’une décision.</p>
+        <button class="ghost" id="bx-restore">
+          <svg class="i i-sm" viewBox="0 0 24 24"><path d="M4 10h11a5 5 0 1 1 0 10H9"/><path d="m8 6-4 4 4 4"/></svg>
+          Rétablir la vue
+        </button>
+      </div>
+      <div class="keybar" id="bx-keybar">
+        <span class="kb"><kbd>j</kbd><kbd>k</kbd> naviguer</span>
+        <span class="kb"><kbd>e</kbd> archiver</span>
+        <span class="kb"><kbd>r</kbd> répondre</span>
+        <span class="kb"><kbd>a</kbd> approuver</span>
+        <span class="kb"><kbd>⏎</kbd> ouvrir le fil</span>
+        <span class="kb"><kbd>⌘</kbd><kbd>K</kbd> chercher</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ÉCRAN 2 — FIL OUVERT ============ -->
+<section class="panel" id="p-fil" role="tabpanel">
+  <div class="app with-thread" id="app-fil" data-m="thread">
+    <aside class="rail" id="rail-fil"></aside>
+    <div class="col-list">
+      <div class="list-head">
+        <div>
+          <h2>Bloqués sur moi</h2>
+          <div class="list-sub">4 fils · le plus ancien depuis 2 j</div>
+        </div>
+      </div>
+      <div class="scroller" id="fl-list" role="listbox" aria-label="Fils bloqués"></div>
+      <div class="keybar">
+        <span class="kb"><kbd>j</kbd><kbd>k</kbd> naviguer</span>
+        <span class="kb"><kbd>r</kbd> répondre</span>
+        <span class="kb"><kbd>a</kbd> approuver</span>
+      </div>
+    </div>
+    <div class="col-thread" id="fl-thread"></div>
+  </div>
+</section>
+
+<!-- ============ ÉCRAN 3 — PAR STATUT ============ -->
+<section class="panel" id="p-statut" role="tabpanel">
+  <div class="app" id="app-statut">
+    <aside class="rail" id="rail-statut"></aside>
+    <div class="board-wrap">
+      <div class="list-head">
+        <div>
+          <h2>Par statut</h2>
+          <div class="list-sub">Une vue enregistrée sur la même boîte : les fils, projetés sur le statut de leur tâche. Ce qui t’attend reste marqué.</div>
+        </div>
+        <div class="list-tools">
+          <button class="ghost" id="st-filter" aria-pressed="false">
+            <svg class="i i-sm" viewBox="0 0 24 24"><path d="M4 6h16"/><path d="M7 12h10"/><path d="M10 18h4"/></svg>
+            Ne montrer que ce qui m’attend
+          </button>
+          <button class="ghost" id="st-open" disabled>
+            <svg class="i i-sm" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+            Ouvrir le fil
+          </button>
+        </div>
+      </div>
+      <div class="board" id="st-board"></div>
+      <div class="keybar">
+        <span>Ce n’est pas une page : c’est la boîte, pivotée. Archiver ici archive le fil, répondre ici répond dans le fil.</span>
+        <span class="kb" style="margin-left:auto"><kbd>⏎</kbd> ouvrir le fil sélectionné</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ÉCRAN 4 — FIL DE GOAL ============ -->
+<section class="panel" id="p-goal" role="tabpanel">
+  <div class="app with-thread" id="app-goal" data-m="thread">
+    <aside class="rail" id="rail-goal"></aside>
+    <div class="col-list">
+      <div class="list-head">
+        <div>
+          <h2>Mes goals</h2>
+          <div class="list-sub">4 fils · l’orchestrateur y parle comme un agent</div>
+        </div>
+      </div>
+      <div class="scroller" id="gl-list" role="listbox" aria-label="Goals"></div>
+      <div class="keybar">
+        <span class="kb"><kbd>j</kbd><kbd>k</kbd> changer de goal</span>
+      </div>
+    </div>
+    <div class="col-thread" id="gl-thread"></div>
+  </div>
+</section>
+
+<!-- ============ PALETTE ============ -->
+<div class="overlay" id="pal-overlay">
+  <div class="palette" role="dialog" aria-label="Chercher un fil">
+    <div class="pal-in">
+      <svg class="i" viewBox="0 0 24 24" style="color:var(--ink-3)"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="pal-input" placeholder="Chercher un fil, un agent, un chemin…" autocomplete="off">
+      <kbd>esc</kbd>
+    </div>
+    <div class="pal-res" id="pal-res"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <span id="toast-msg">Fil archivé</span>
+  <button id="toast-undo">
+    <svg class="i i-sm" viewBox="0 0 24 24"><path d="M4 10h11a5 5 0 1 1 0 10H9"/><path d="m8 6-4 4 4 4"/></svg>
+    Annuler
+  </button>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- icônes (SVG dessinés, trait 1.5, un seul style) ---------- */
+const ICONS = {
+  caret:'<path d="m9 6 6 6-6 6"/>',
+  gate:'<path d="M12 3 4 6v6c0 5 3.4 8.4 8 9 4.6-.6 8-4 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/>',
+  ask:'<path d="M20 15a3 3 0 0 1-3 3H8l-4 3V6a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v9Z"/><path d="M9.5 9a2.5 2.5 0 1 1 3 2.5v1"/><path d="M12.5 15.2h.01"/>',
+  alert:'<path d="M12 4.5 2.8 20h18.4L12 4.5Z"/><path d="M12 10v4.2"/><path d="M12 17.4h.01"/>',
+  live:'<path d="M12 3a9 9 0 1 1-6.4 2.6"/>',
+  clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 1.8"/>',
+  check:'<path d="m5 12.5 4.5 4.5L19 7"/>',
+  reply:'<path d="M10 8 4 13l6 5"/><path d="M4 13h9a7 7 0 0 1 7 7v1"/>',
+  archive:'<path d="M3 7h18v3H3z"/><path d="M5 10v9h14v-9"/><path d="M10 14h4"/>',
+  branch:'<circle cx="7" cy="6" r="2.5"/><circle cx="7" cy="18" r="2.5"/><circle cx="17" cy="8" r="2.5"/><path d="M7 8.5v7"/><path d="M17 10.5c0 3.5-3 4.5-6.5 5"/>',
+  pr:'<circle cx="7" cy="7" r="2.5"/><circle cx="7" cy="18" r="2.5"/><circle cx="17" cy="17" r="2.5"/><path d="M7 9.5v6"/><path d="M17 14.5V9a3 3 0 0 0-3-3h-2.5"/><path d="m13.5 3.5-2 2.5 2 2.5"/>',
+  diff:'<path d="M9 4v10"/><path d="M4 9h10"/><path d="M15 19h6"/>',
+  file:'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5"/>',
+  send:'<path d="M4.5 12 20 4.5 15 20l-3.5-5.5L4.5 12Z"/>',
+  x:'<path d="M6 6l12 12M18 6 6 18"/>',
+  ext:'<path d="M14 4h6v6"/><path d="M20 4 11 13"/><path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/>',
+  stop:'<rect x="5" y="5" width="14" height="14" rx="3"/>',
+  pause:'<path d="M9 5v14"/><path d="M15 5v14"/>',
+  goal:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/>',
+  spin:'<path d="M12 3a9 9 0 1 1-6.4 2.6" class="spin"/>'
+};
+const svg=(n,cls)=>'<svg class="i '+(cls||'')+'" viewBox="0 0 24 24" aria-hidden="true">'+ICONS[n]+'</svg>';
+
+/* ---------- données réelles du projet démo ---------- */
+const AG={'senior-dev':'sd','spec':'sp','review-coordinator':'rc','writer':'wr','orchestrateur':'or'};
+
+const THREADS=[
+ {id:'stripe',agent:'senior-dev',ctx:'review · session détruite · $2.87',
+  subject:'Refonte du tunnel de paiement Stripe Checkout',
+  excerpt:'La migration est prête pour review. Elle change le parcours de paiement en production — je ne merge pas sans ton accord.',
+  await:'gate',awaitLabel:'Approuver le gate avant merge',age:'2 j',group:'toi',status:'review',blocked:true},
+
+ {id:'exportpdf',agent:'senior-dev',ctx:'doing · session en attente · $0.42',
+  subject:'Export PDF des rapports mensuels',
+  excerpt:'Pagination du PDF d’export : une page par commande (plus lisible, fichier plus lourd) ou un tableau continu (compact) ?',
+  await:'ask',awaitLabel:'Répondre — la session est en pause',age:'6 h',group:'toi',status:'doing',blocked:true},
+
+ {id:'notifs',agent:'spec',ctx:'review · commit en cours · $0.96',
+  subject:'Spec : notifications de livraison',
+  excerpt:'Pour les notifications de livraison : on notifie aussi par SMS, ou email seulement pour la v1 ?',
+  await:'ask',awaitLabel:'Répondre — la session est en pause',age:'3 h',group:'toi',status:'review',blocked:true},
+
+ {id:'factures',agent:'senior-dev',ctx:'review · session échouée · $0.35',
+  subject:'Générer les factures PDF en masse',
+  excerpt:'Timeout after 600s — heap out of memory at 512 invoices. La session s’est arrêtée à la 512ᵉ facture.',
+  await:'err',awaitLabel:'Session échouée — décider de la suite',age:'1 j',group:'toi',status:'review',blocked:true},
+
+ {id:'recherche',agent:'senior-dev',ctx:'doing · claude-sonnet-4-5 · $0.11',
+  subject:'Ajouter la recherche par référence de commande',
+  excerpt:'Lecture de OrderSearch.tsx, puis indexation des références. Rien à décider pour l’instant.',
+  await:'live',awaitLabel:'senior-dev travaille · outil Read en cours',age:'12 min',group:'agents',status:'doing'},
+
+ {id:'implem',agent:'senior-dev',ctx:'todo · étape 2 du goal Programme de fidélité',
+  subject:'Implémenter · Programme de fidélité',
+  excerpt:'En file derrière la spec approuvée. L’orchestrateur démarrera la session dès qu’un slot se libère.',
+  await:'wait',awaitLabel:'En file — démarrage automatique',age:'4 h',group:'agents',status:'todo'},
+
+ {id:'tva',agent:'senior-dev',ctx:'todo · complexité haute · priorité haute',
+  subject:'Corriger le calcul de TVA sur les commandes UE',
+  excerpt:'Aucune session ouverte. Le fil commence dès que tu l’assignes.',
+  await:'none',awaitLabel:'Personne n’a démarré ce fil',age:'6 j',group:'dormants',status:'todo'},
+
+ {id:'vitest',agent:'senior-dev',ctx:'todo · complexité moyenne',
+  subject:'Migrer les tests front vers Vitest',
+  excerpt:'Aucune session ouverte. Le fil commence dès que tu l’assignes.',
+  await:'none',awaitLabel:'Personne n’a démarré ce fil',age:'6 j',group:'dormants',status:'todo'},
+
+ {id:'warnings',agent:'writer',ctx:'todo · complexité faible · priorité basse',
+  subject:'Nettoyer les warnings de build',
+  excerpt:'Aucune session ouverte. Le fil commence dès que tu l’assignes.',
+  await:'none',awaitLabel:'Personne n’a démarré ce fil',age:'9 j',group:'dormants',status:'todo'},
+
+ {id:'webhook',agent:'senior-dev',ctx:'done · session détruite · $1.24',
+  subject:'Corriger le webhook Stripe qui doublonnait les commandes',
+  excerpt:'Webhook rendu idempotent, test d’intégration ajouté. Le critère 1 du goal est validé.',
+  await:'done',awaitLabel:'Clos hier · rien à faire',age:'1 j',group:'clos',status:'done',done:true},
+
+ {id:'deps',agent:'writer',ctx:'done · claude-haiku-4-5 · $0.04',
+  subject:'Mettre à jour les dépendances de sécurité',
+  excerpt:'Mise à jour des dépendances avec correctifs de sécurité, aucun breaking change.',
+  await:'done',awaitLabel:'Clos hier · rien à faire',age:'1 j',group:'clos',status:'done',done:true},
+
+ {id:'fidelite',agent:'spec',ctx:'done · gate approuvé · $0.78',
+  subject:'Spécifier · Programme de fidélité',
+  excerpt:'Spec versée dans /agents/spec/spec.md et approuvée. L’étape 2 peut démarrer.',
+  await:'done',awaitLabel:'Clos avant-hier · rien à faire',age:'2 j',group:'clos',status:'done',done:true}
+];
+
+const GOALS=[
+ {id:'g-paiement',agent:'orchestrateur',ctx:'active · 2 tâches · $6.42',subject:'Fiabiliser le tunnel de paiement',
+  excerpt:'Étape 3 lancée : migrer vers Stripe Checkout hébergé. Le fil de la tâche est en review.',
+  await:'live',awaitLabel:'2 critères sur 4 validés',age:'4 j',goal:true},
+ {id:'g-build',agent:'orchestrateur',ctx:'completed · 2 tâches',subject:'Réduire le temps de build du front',
+  excerpt:'Build CI à 74 s, aucune dépendance inutilisée. Goal atteint, plus rien à décider.',
+  await:'done',awaitLabel:'Terminé · 2 critères sur 2',age:'8 j',goal:true},
+ {id:'g-pg',agent:'orchestrateur',ctx:'stopped-stuck · rail atteint',subject:'Migrer la base vers Postgres 17',
+  excerpt:'3 itérations sans progrès sur la bascule sans coupure. Je me suis arrêté et j’attends une décision.',
+  await:'err',awaitLabel:'Arrêté sur rail — relancer ou abandonner',age:'11 j',goal:true},
+ {id:'g-fid',agent:'orchestrateur',ctx:'draft · aucun budget engagé',subject:'Programme de fidélité',
+  excerpt:'Brouillon : 2 critères écrits, aucune prévision approuvée. Rien ne tourne.',
+  await:'none',awaitLabel:'Brouillon — à activer',age:'3 j',goal:true}
+];
+
+const GROUPS=[
+ {key:'toi',label:'Ça t’attend'},
+ {key:'agents',label:'Ça avance sans toi'},
+ {key:'dormants',label:'Personne n’y touche'},
+ {key:'clos',label:'Clos récemment'}
+];
+
+const AWAIT_ICON={gate:'gate',ask:'ask',err:'alert',live:'live',wait:'clock',none:'clock',done:'check'};
+const AWAIT_CLS={gate:'act',ask:'act',err:'err',live:'live',wait:'',none:'',done:''};
+
+/* ---------- état en mémoire (aucun storage) ---------- */
+const state={
+  view:'traiter',
+  archived:new Set(),
+  sel:{boite:0,fil:0,goal:0},
+  openThread:'stripe',
+  openGoal:'g-paiement',
+  boardFilter:false,
+  boardPick:null,
+  dod:{d1:true,d2:true,d3:false,d4:false},
+  killArmed:false
+};
+const VIEWS=[
+  {key:'traiter',label:'À traiter',filter:t=>true},
+  {key:'bloques',label:'Bloqués sur moi',filter:t=>t.blocked},
+  {key:'goals',label:'Mes goals',filter:null},
+  {key:'archives',label:'Archivés',filter:null}
+];
+
+const el=s=>document.querySelector(s);
+const visible=()=>{
+  if(state.view==='goals')return GOALS.slice();
+  if(state.view==='archives')return THREADS.filter(t=>state.archived.has(t.id));
+  const v=VIEWS.find(v=>v.key===state.view);
+  const gi=k=>GROUPS.findIndex(g=>g.key===k);
+  return THREADS.filter(t=>!state.archived.has(t.id)&&v.filter(t))
+                .sort((a,b)=>gi(a.group)-gi(b.group));
+};
+
+/* ---------- rail ---------- */
+function renderRail(host,active,onPick){
+  const counts={
+    traiter:THREADS.filter(t=>!state.archived.has(t.id)).length,
+    bloques:THREADS.filter(t=>t.blocked&&!state.archived.has(t.id)).length,
+    goals:GOALS.length,
+    archives:state.archived.size
+  };
+  host.innerHTML=
+   '<div class="rail-title">Vues enregistrées</div>'+
+   VIEWS.map(v=>'<button class="viewbtn" data-v="'+v.key+'" aria-current="'+(v.key===active)+'">'+
+     svg(v.key==='goals'?'goal':v.key==='archives'?'archive':'ask','i-sm')+
+     '<span>'+v.label+'</span><span class="cnt">'+counts[v.key]+'</span></button>').join('')+
+   '<div class="rail-title mt">Projet</div>'+
+   '<button class="viewbtn" aria-current="true">'+svg('file','i-sm')+'<span>Démo (mock)</span></button>'+
+   '<button class="viewbtn">'+svg('file','i-sm')+'<span>Default</span></button>'+
+   '<div class="rail-note">4 agents scopés · 8 sessions<br>Quota 5 h à <b>72 %</b>, reprise 13:29<br><b>$3.08</b> dépensés aujourd’hui</div>';
+  host.querySelectorAll('[data-v]').forEach(b=>b.addEventListener('click',()=>onPick(b.dataset.v)));
+}
+
+/* ---------- rangée ---------- */
+function rowHTML(t,i,sel){
+  const cls=AWAIT_CLS[t.await]||'';
+  return '<div class="row'+(i===sel?' is-sel':'')+(t.done?' is-done':'')+'" role="option" aria-selected="'+(i===sel)+'" tabindex="'+(i===sel?0:-1)+'" data-id="'+t.id+'" data-i="'+i+'">'+
+   '<span class="caret">'+svg('caret','i-sm')+'</span>'+
+   '<span class="ava'+(t.goal?' goal':'')+'">'+(t.goal?svg('goal','i-sm'):AG[t.agent])+'</span>'+
+   '<div class="r-top"><span class="r-agent">'+t.agent+'</span><span class="r-ctx">'+t.ctx+'</span><span class="r-age">'+t.age+'</span></div>'+
+   '<div class="r-subject">'+t.subject+'</div>'+
+   '<div class="r-excerpt">'+t.excerpt+'</div>'+
+   '<div class="r-await '+cls+'">'+svg(AWAIT_ICON[t.await],'i-sm')+'<span>'+t.awaitLabel+'</span></div>'+
+   '</div>';
+}
+
+function renderList(host,items,sel,grouped){
+  if(!grouped){host.innerHTML=items.map((t,i)=>rowHTML(t,i,sel)).join('');return;}
+  let out='',i=0;
+  GROUPS.forEach(g=>{
+    const sub=items.filter(t=>t.group===g.key);
+    if(!sub.length)return;
+    out+='<div class="group-h"><span>'+g.label+'</span><span class="rule"></span><span class="n">'+sub.length+'</span></div>';
+    sub.forEach(t=>{out+=rowHTML(t,i,sel);i++;});
+  });
+  host.innerHTML=out;
+}
+
+/* ---------- écran 1 ---------- */
+const bxList=el('#bx-list'),bxEmpty=el('#bx-empty'),bxKeybar=el('#bx-keybar');
+function paintBoite(){
+  const items=visible();
+  renderRail(el('#rail-boite'),state.view,v=>{state.view=v;state.sel.boite=0;paintBoite();});
+  el('#bx-title').textContent=VIEWS.find(v=>v.key===state.view).label;
+  const subs={
+    traiter:'Trié par ce qui t’attend depuis le plus longtemps · projet Démo (mock), lecture seule',
+    bloques:'Les fils dont une session est suspendue tant que tu n’as pas répondu',
+    goals:'Chaque goal est un fil : l’orchestrateur y écrit ses décisions',
+    archives:'Sortis de la boîte — les sessions continuent, elles reviendront si besoin'
+  };
+  el('#bx-sub').textContent=subs[state.view];
+  const isEmpty=items.length===0;
+  bxEmpty.classList.toggle('on',isEmpty);
+  bxList.style.display=isEmpty?'none':'';
+  bxKeybar.style.display=isEmpty?'none':'';
+  el('#bx-archall').disabled=isEmpty||state.view==='archives';
+  if(state.sel.boite>=items.length)state.sel.boite=Math.max(0,items.length-1);
+  renderList(bxList,items,state.sel.boite,state.view==='traiter');
+  bindRows(bxList,'boite');
+}
+function bindRows(host,screen){
+  host.querySelectorAll('.row').forEach(r=>{
+    r.addEventListener('click',()=>{
+      const i=+r.dataset.i;
+      state.sel[screen]=i;
+      if(screen==='boite'){paintBoite();focusSel(bxList,i);openFromBoite(r.dataset.id);}
+      if(screen==='fil'){state.openThread=r.dataset.id;paintFil();el('#app-fil').dataset.m='thread';}
+      if(screen==='goal'){state.openGoal=r.dataset.id;paintGoal();el('#app-goal').dataset.m='thread';}
+    });
+  });
+}
+function focusSel(host,i){const r=host.querySelector('.row[data-i="'+i+'"]');if(r){r.focus({preventScroll:true});r.scrollIntoView({block:'nearest'});}}
+function openFromBoite(id){
+  if(GOALS.some(g=>g.id===id)){state.openGoal=id;paintGoal();switchTab('goal');return;}
+  if(['stripe','exportpdf','factures','notifs'].includes(id)){state.openThread=id;state.sel.fil=['stripe','exportpdf','notifs','factures'].indexOf(id);paintFil();switchTab('fil');}
+}
+
+/* archivage — moment de mouvement authored */
+let lastArch=null,toastTimer=null;
+function archive(index,silent){
+  const items=visible();const t=items[index];if(!t||t.goal)return;
+  const row=bxList.querySelector('.row[data-i="'+index+'"]');
+  lastArch=t.id;
+  const done=()=>{state.archived.add(t.id);paintBoite();
+    const it=visible();if(it.length)focusSel(bxList,Math.min(state.sel.boite,it.length-1));};
+  if(row){
+    row.style.height=row.offsetHeight+'px';row.classList.add('is-arch');
+    requestAnimationFrame(()=>{requestAnimationFrame(()=>{row.classList.add('go');});});
+    setTimeout(done,430);
+  }else done();
+  if(!silent)showToast('Fil archivé — « '+t.subject.slice(0,38)+(t.subject.length>38?'…':'')+' »');
+}
+function showToast(msg,undoable){
+  const tst=el('#toast');el('#toast-msg').textContent=msg;
+  el('#toast-undo').style.display=(undoable===false)?'none':'';
+  tst.classList.add('on');clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>tst.classList.remove('on'),4200);
+}
+el('#toast-undo').addEventListener('click',()=>{
+  if(lastArch){state.archived.delete(lastArch);lastArch=null;}
+  else{state.archived.clear();}
+  paintBoite();el('#toast').classList.remove('on');
+});
+el('#bx-archall').addEventListener('click',()=>{
+  visible().forEach(t=>state.archived.add(t.id));lastArch=null;paintBoite();
+  showToast(state.view==='bloques'?'4 fils archivés':'Vue vidée');
+});
+el('#bx-restore').addEventListener('click',()=>{state.archived.clear();lastArch=null;paintBoite();});
+
+/* ---------- écran 2 : contenu des fils ---------- */
+const FIL_ORDER=['stripe','exportpdf','notifs','factures'];
+
+function msg(o){
+  return '<div class="msg'+(o.sys?' sys':'')+'">'+
+    '<span class="ava'+(o.sys?'':'')+'">'+(o.sys?svg('clock','i-sm'):AG[o.who]||'R')+'</span>'+
+    '<div><div class="m-head"><span class="m-who'+(o.me?' me':'')+'">'+(o.name||o.who)+'</span>'+
+    '<span class="m-when">'+o.when+'</span>'+(o.kind?'<span class="m-kind">'+o.kind+'</span>':'')+'</div>'+
+    o.body+'</div></div>';
+}
+
+const THREAD_BODY={
+ stripe:()=>{
+  return msg({sys:1,name:'session',when:'lun. 14:02',kind:'init · status',
+    body:'<div class="m-body">Session démarrée sur <code>claude-sonnet-4-5</code> — réseau <strong>limité</strong>, aucune clé API transmise au container.</div>'})
+  +msg({sys:1,name:'session',when:'lun. 14:02',kind:'repo_ready',
+    body:'<div class="m-body">Dépôt <strong>front</strong> cloné dans <code>./repos/front</code>, branche <code>legion/checkout</code>.</div>'})
+  +msg({who:'senior-dev',when:'lun. 14:03',kind:'12 outils',
+    body:'<div class="toolgroup"><button class="tg-btn" aria-expanded="false" data-tg="tg1">'+svg('caret','i-sm chev')+
+      '<span><strong style="color:var(--ink);font-weight:600">7 fichiers lus, 3 modifiés</strong> dans src/checkout</span>'+
+      '<span class="dur">4 min 12 s</span></button>'+
+      '<div class="tg-list" id="tg1">'+
+      ['Read|/repos/front/src/checkout/PaymentForm.tsx|3 821 ms','Read|/repos/front/src/checkout/useCart.ts|412 ms','Read|/repos/front/src/api/orders.ts|298 ms','Edit|/repos/front/src/checkout/PaymentForm.tsx|1 204 ms','Edit|/repos/front/src/api/checkoutSession.ts|944 ms','Bash|pnpm test src/checkout|61 800 ms']
+        .map(r=>{const p=r.split('|');return '<div class="tg-row"><span class="op">'+p[0]+'</span><span class="pth">'+p[1]+'</span><span class="ms">'+p[2]+'</span></div>';}).join('')+
+      '<div class="tg-row den"><span class="op">Write</span><span class="pth">/repos/front/package.json</span><span class="ms">refusé</span></div>'+
+      '</div></div>'})
+  +msg({sys:1,name:'garde-fou',when:'lun. 14:05',kind:'fs_denied',
+    body:'<div class="inline-note">'+svg('alert','i-sm')+'<div>Écriture refusée sur <code>/repos/front/package.json</code> — hors des dossiers accordés à <strong>senior-dev</strong>. L’agent a continué sans la dépendance.</div></div>'})
+  +msg({who:'senior-dev',when:'lun. 14:07',
+    body:'<div class="m-body">J’ai remplacé le formulaire de carte maison par une redirection vers <strong>Stripe Checkout hébergé</strong>. Le montant est recalculé côté serveur avant la création de la session, et la commande n’est confirmée qu’à la réception du webhook — c’est ce qui ferme le critère 2 du goal.</div>'})
+  +msg({who:'operateur',name:'Opérateur',me:1,when:'lun. 14:08',
+    body:'<div class="m-body">Garde le fallback carte pour les commandes B2B, on le retire au prochain lot.</div>'})
+  +msg({who:'senior-dev',when:'lun. 14:09',kind:'repo_push',
+    body:'<div class="m-body">Compris — fallback B2B conservé derrière un flag. <strong>7 fichiers</strong> poussés sur <code>legion/checkout</code>.</div>'+
+      '<div class="attach">'+
+      '<button class="att">'+svg('diff','i-sm')+'<span><b>Diff · 7 fichiers</b><span>+212 −158 · commit 5f0be31</span></span></button>'+
+      '<button class="att">'+svg('pr','i-sm')+'<span><b>PR #418 — front</b><span>ouverte, en attente de review</span></span></button>'+
+      '<button class="att">'+svg('file','i-sm')+'<span><b>checkout-migration.md</b><span>artifact obligatoire · 4,1 ko</span></span></button>'+
+      '</div>'})
+  +msg({who:'senior-dev',when:'lun. 14:12',kind:'task_status → review',
+    body:'<div class="m-body">La migration est prête pour review — elle change le parcours de paiement en production.</div>'+
+      '<div class="decision" id="dec-stripe" style="margin-top:14px">'+
+      '<div class="d-title">'+svg('gate','i-sm')+'Gate d’approbation · en attente depuis 2 j</div>'+
+      '<div class="d-text">Approuver déclenche le merge de <code>legion/checkout</code> et détruit le container. Refuser renvoie le fil à l’agent.</div>'+
+      '<div class="d-acts">'+
+        '<button class="btn btn-primary" id="btn-approve">'+svg('check','i-sm')+'Approuver le merge</button>'+
+        '<button class="btn btn-quiet" id="btn-refuse">'+svg('x','i-sm')+'Refuser</button>'+
+        '<span class="d-hint">ou <kbd>a</kbd> depuis la boîte</span>'+
+      '</div></div>'});
+ },
+ exportpdf:()=>{
+  return msg({sys:1,name:'session',when:'mar. 09:41',kind:'init · capabilities',
+    body:'<div class="m-body">Session démarrée sur <code>claude-sonnet-4-5</code> — skill <code>pdf-export</code>, serveur MCP <code>linear</code>.</div>'})
+  +msg({who:'senior-dev',when:'mar. 09:52',kind:'9 outils',
+    body:'<div class="toolgroup"><button class="tg-btn" aria-expanded="false" data-tg="tg2">'+svg('caret','i-sm chev')+
+    '<span><strong style="color:var(--ink);font-weight:600">5 fichiers lus, 1 modifié</strong> dans src/reports</span><span class="dur">2 min 39 s</span></button>'+
+    '<div class="tg-list" id="tg2">'+
+    ['Read|/repos/front/src/reports/MonthlyReport.tsx|1 902 ms','Read|/repos/front/src/reports/pdf.ts|544 ms','Edit|/repos/front/src/reports/pdf.ts|1 118 ms']
+      .map(r=>{const p=r.split('|');return '<div class="tg-row"><span class="op">'+p[0]+'</span><span class="pth">'+p[1]+'</span><span class="ms">'+p[2]+'</span></div>';}).join('')+
+    '</div></div>'})
+  +msg({who:'senior-dev',when:'mar. 09:54',kind:'inbox_ask',
+    body:'<div class="m-body">Le rendu tient debout, mais la mise en page dépend d’un choix que je ne veux pas faire à ta place.</div>'+
+    '<div class="decision" style="margin-top:14px">'+
+    '<div class="d-title">'+svg('ask','i-sm')+'Question · session en pause depuis 6 h</div>'+
+    '<div class="d-text">Pagination du PDF d’export : une page par commande (plus lisible, fichier plus lourd) ou un tableau continu (compact) ?</div>'+
+    '<div class="d-acts" id="ask-acts">'+
+      '<button class="btn btn-primary" data-answer="Une page par commande">Une page par commande</button>'+
+      '<button class="btn btn-quiet" data-answer="Tableau continu">Tableau continu</button>'+
+      '<span class="d-hint">ou réponds en texte libre ci-dessous</span>'+
+    '</div></div>'});
+ },
+ notifs:()=>{
+  return msg({sys:1,name:'session',when:'mar. 11:20',kind:'init',
+    body:'<div class="m-body">Session démarrée sur <code>claude-opus-4-5</code> — agent <strong>spec</strong>, écriture limitée à <code>/agents/spec</code>.</div>'})
+  +msg({who:'spec',when:'mar. 12:04',kind:'fs_op',
+    body:'<div class="m-body">Première version de la spec écrite dans <code>/agents/spec/spec.md</code> : déclencheurs, contenu du message, règles de renvoi.</div>'+
+    '<div class="attach"><button class="att">'+svg('file','i-sm')+'<span><b>spec.md</b><span>artifact obligatoire · 11,3 ko</span></span></button></div>'})
+  +msg({who:'spec',when:'mar. 12:09',kind:'inbox_ask',
+    body:'<div class="m-body">Un point de périmètre reste ouvert avant que je fige la spec.</div>'+
+    '<div class="decision" style="margin-top:14px">'+
+    '<div class="d-title">'+svg('ask','i-sm')+'Question · session en pause depuis 3 h</div>'+
+    '<div class="d-text">Pour les notifications de livraison : on notifie aussi par SMS, ou email seulement pour la v1 ?</div>'+
+    '<div class="d-acts"><span class="d-hint">Question ouverte — réponds en texte libre dans le composeur.</span></div>'+
+    '</div>'});
+ },
+ factures:()=>{
+  return msg({sys:1,name:'session',when:'lun. 22:14',kind:'init · status',
+    body:'<div class="m-body">Session démarrée sur <code>claude-sonnet-4-5</code> — réseau limité, skill <code>pdf-export</code>.</div>'})
+  +msg({who:'senior-dev',when:'lun. 22:19',
+    body:'<div class="m-body">Génération lancée sur le lot complet : 1 480 factures à produire en une passe.</div>'})
+  +msg({sys:1,name:'quota',when:'lun. 22:26',kind:'throttle',
+    body:'<div class="m-body">Quota 5 h utilisé à <strong>72 %</strong> — avertissement seulement, la session continue. Reprise à 13:29.</div>'})
+  +msg({sys:1,name:'session',when:'lun. 22:29',kind:'run_error',
+    body:'<div class="decision err">'+
+    '<div class="d-title">'+svg('alert','i-sm')+'La session s’est arrêtée en erreur</div>'+
+    '<div class="d-text"><code>Timeout after 600s — heap out of memory at 512 invoices</code><br><br>'+
+    'Le container a dépassé les 600 s et saturé la mémoire à la 512ᵉ facture. Les 511 premières sont écrites dans <code>/artifacts/invoices/</code>, aucune n’a été envoyée. Le container a été détruit, coût final $0.35.</div>'+
+    '<div class="d-acts">'+
+      '<button class="btn btn-primary" id="btn-retry">'+svg('live','i-sm')+'Relancer par lots de 100</button>'+
+      '<button class="btn btn-quiet">'+svg('ext','i-sm')+'Ouvrir le journal complet</button>'+
+      '<button class="btn btn-quiet" disabled title="Le container a été détruit">'+svg('branch','i-sm')+'Reprendre la session</button>'+
+    '</div></div>'})
+  +msg({sys:1,name:'session',when:'lun. 22:29',kind:'result',
+    body:'<div class="m-body">Container détruit · sous-type <code>error_during_execution</code> · coût $0.35 · 511 fichiers conservés comme artifacts.</div>'});
+ }
+};
+
+const THREAD_HEAD={
+ stripe:{sub:'Refonte du tunnel de paiement Stripe Checkout',meta:['senior-dev','review','claude-sonnet-4-5','$2.87','<code>legion/checkout</code>']},
+ exportpdf:{sub:'Export PDF des rapports mensuels',meta:['senior-dev','doing','claude-sonnet-4-5','$0.42','session en pause']},
+ notifs:{sub:'Spec : notifications de livraison',meta:['spec','review','claude-opus-4-5','$0.96','commit en cours']},
+ factures:{sub:'Générer les factures PDF en masse',meta:['senior-dev','review','claude-sonnet-4-5','$0.35','session échouée']}
+};
+
+function paintFil(){
+  renderRail(el('#rail-fil'),'bloques',v=>{state.view=v;paintBoite();switchTab('boite');});
+  const items=THREADS.filter(t=>FIL_ORDER.includes(t.id)).sort((a,b)=>FIL_ORDER.indexOf(a.id)-FIL_ORDER.indexOf(b.id));
+  state.sel.fil=Math.max(0,FIL_ORDER.indexOf(state.openThread));
+  renderList(el('#fl-list'),items,state.sel.fil,false);
+  bindRows(el('#fl-list'),'fil');
+  const h=THREAD_HEAD[state.openThread];
+  el('#fl-thread').innerHTML=
+   '<button class="back-bar" data-back="fil">'+svg('reply','i-sm')+'Retour à la boîte</button>'+
+   '<div class="th-head"><div><h2>'+h.sub+'</h2><div class="th-meta">'+
+     h.meta.map((m,i)=>(i?'<span class="sep"></span>':'')+m).join('')+
+   '</div></div><div class="th-acts">'+
+     '<button class="iconbtn" title="Ouvrir la branche">'+svg('branch')+'</button>'+
+     '<button class="iconbtn" title="Archiver le fil">'+svg('archive')+'</button>'+
+   '</div></div>'+
+   '<div class="th-scroll" id="th-scroll">'+THREAD_BODY[state.openThread]()+'</div>'+
+   ''+
+   '<div class="composer"><div class="cp-wrap">'+
+     '<textarea id="cp-input" rows="1" placeholder="Répondre à '+h.meta[0]+' — la session continue pendant que tu écris…"></textarea>'+
+     '<div class="cp-foot"><span class="cp-note">Ta réponse est injectée dans le fil sans arrêter le container.</span>'+
+     '<button class="btn btn-primary" id="cp-send" disabled>'+svg('send','i-sm')+'Envoyer</button></div>'+
+   '</div></div>';
+  bindThread();
+  stick('#th-scroll');
+}
+
+function bindThread(){
+  document.querySelectorAll('[data-tg]').forEach(b=>{
+    b.addEventListener('click',()=>{
+      const l=document.getElementById(b.dataset.tg);const o=l.classList.toggle('on');
+      b.setAttribute('aria-expanded',o);
+    });
+  });
+  const inp=el('#cp-input'),snd=el('#cp-send');
+  if(inp){
+    inp.addEventListener('input',()=>{snd.disabled=!inp.value.trim();});
+    inp.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key==='Enter')sendReply();});
+    snd.addEventListener('click',sendReply);
+  }
+  const ap=el('#btn-approve');
+  if(ap)ap.addEventListener('click',()=>{
+    ap.disabled=true;ap.innerHTML=svg('spin','i-sm')+'Approbation en cours…';
+    el('#btn-refuse').disabled=true;
+    setTimeout(()=>{
+      const dec=el('#dec-stripe');
+      dec.outerHTML='<div class="inline-note" style="margin-top:14px">'+svg('check','i-sm')+
+        '<div><strong style="color:var(--ink)">Gate approuvé.</strong> Merge de <code>legion/checkout</code> lancé, container détruit — la tâche passe en <code>done</code>.</div></div>';
+      showToast('Gate approuvé · Refonte du tunnel de paiement',false);
+    },1100);
+  });
+  document.querySelectorAll('[data-answer]').forEach(b=>{
+    b.addEventListener('click',()=>{answer(b.dataset.answer);});
+  });
+  const rt=el('#btn-retry');
+  if(rt)rt.addEventListener('click',()=>{
+    rt.disabled=true;rt.innerHTML=svg('spin','i-sm')+'Nouvelle session…';
+    setTimeout(()=>{
+      el('#th-scroll').insertAdjacentHTML('beforeend',msg({sys:1,name:'session',when:'à l’instant',kind:'init',
+        body:'<div class="loading-msg">'+svg('spin','i-sm')+'Container recréé — reprise à la facture 512, lots de 100.</div>'+
+        '<div class="skel" style="width:62%"></div><div class="skel" style="width:38%"></div>'}));
+      el('#th-scroll').scrollTop=el('#th-scroll').scrollHeight;
+      rt.innerHTML=svg('live','i-sm')+'Session relancée';
+    },900);
+  });
+  document.querySelectorAll('[data-back]').forEach(b=>b.addEventListener('click',()=>{
+    el('#app-'+b.dataset.back).dataset.m='list';
+  }));
+}
+
+function sendReply(){
+  const inp=el('#cp-input'),snd=el('#cp-send');
+  const txt=inp.value.trim();if(!txt)return;
+  answer(txt);inp.value='';snd.disabled=true;
+}
+function answer(txt){
+  const sc=el('#th-scroll');
+  sc.insertAdjacentHTML('beforeend',msg({who:'operateur',name:'Opérateur',me:1,when:'à l’instant',body:'<div class="m-body">'+txt+'</div>'}));
+  const id='ld'+Date.now();
+  sc.insertAdjacentHTML('beforeend','<div class="msg" id="'+id+'"><span class="ava">'+AG[THREAD_HEAD[state.openThread].meta[0]]+'</span><div>'+
+    '<div class="m-head"><span class="m-who">'+THREAD_HEAD[state.openThread].meta[0]+'</span><span class="m-when">à l’instant</span></div>'+
+    '<div class="loading-msg">'+svg('spin','i-sm')+'Réponse injectée — la session reprend…</div>'+
+    '<div class="skel" style="width:58%"></div><div class="skel" style="width:34%"></div></div></div>');
+  sc.scrollTop=sc.scrollHeight;
+  const acts=el('#ask-acts');if(acts)acts.innerHTML='<span class="d-hint">'+svg('check','i-sm')+' Répondu — la session a repris.</span>';
+  setTimeout(()=>{
+    const n=document.getElementById(id);if(!n)return;
+    n.querySelector('.loading-msg').outerHTML='<div class="m-body">Bien reçu, je reprends sur cette base et je te repose une question seulement si je bloque.</div>';
+    n.querySelectorAll('.skel').forEach(s=>s.remove());
+    sc.scrollTop=sc.scrollHeight;
+  },1500);
+}
+
+/* ---------- écran 3 ---------- */
+const COLS=[{k:'todo',l:'Todo'},{k:'doing',l:'Doing'},{k:'review',l:'Review'},{k:'done',l:'Done'}];
+function paintBoard(){
+  renderRail(el('#rail-statut'),'traiter',v=>{state.view=v;paintBoite();switchTab('boite');});
+  const b=el('#st-board');
+  b.innerHTML=COLS.map(c=>{
+    let items=THREADS.filter(t=>t.status===c.k);
+    if(state.boardFilter)items=items.filter(t=>t.blocked);
+    return '<div class="bcol"><div class="bcol-h"><span>'+c.l+'</span><span class="n">'+items.length+'</span></div>'+
+      (items.length?items.map(t=>{
+        const cls=AWAIT_CLS[t.await]||'';
+        const w=(t.await==='gate'||t.await==='ask'||t.await==='err'||t.await==='live');
+        return '<button class="bitem'+(t.done?' dim':'')+'" data-id="'+t.id+'">'+
+          '<div class="s">'+t.subject+'</div>'+
+          '<div class="m"><span>'+t.agent+'</span>'+(w?'<span class="w '+cls+'">'+svg(AWAIT_ICON[t.await],'i-sm')+t.awaitLabel.split(' — ')[0].split(' · ')[0]+'</span>':'<span>'+t.awaitLabel.split(' · ')[0]+'</span>')+'</div>'+
+        '</button>';
+      }).join(''):'<div style="padding:16px 6px;font-size:12.5px;color:var(--ink-3);border-top:1px solid var(--line)">Rien ici.</div>')+
+    '</div>';
+  }).join('');
+  b.querySelectorAll('.bitem').forEach(x=>x.addEventListener('click',()=>{
+    state.boardPick=x.dataset.id;
+    b.querySelectorAll('.bitem').forEach(y=>y.style.background='');
+    x.style.background='var(--raised)';
+    el('#st-open').disabled=!['stripe','exportpdf','notifs','factures'].includes(x.dataset.id);
+  }));
+}
+el('#st-filter').addEventListener('click',e=>{
+  state.boardFilter=!state.boardFilter;
+  e.currentTarget.setAttribute('aria-pressed',state.boardFilter);
+  e.currentTarget.style.color=state.boardFilter?'var(--amber)':'';
+  e.currentTarget.style.borderColor=state.boardFilter?'rgba(229,169,95,.45)':'';
+  el('#st-open').disabled=true;paintBoard();
+});
+el('#st-open').addEventListener('click',()=>{if(state.boardPick)openFromBoite(state.boardPick);});
+
+/* ---------- écran 4 ---------- */
+const DOD=[{k:'d1',t:'Le webhook Stripe est idempotent (test d’intégration)'},
+           {k:'d2',t:'Une commande n’est confirmée qu’après le webhook'},
+           {k:'d3',t:'Le tunnel passe par Stripe Checkout hébergé'},
+           {k:'d4',t:'Aucune régression sur la suite de tests'}];
+
+const GOAL_BODY={
+ 'g-paiement':()=>
+   msg({who:'orchestrateur',name:'orchestrateur',when:'ven. 05:29',kind:'status → active',
+     body:'<div class="m-body">Goal activé. Demande retenue : <strong>plus aucune commande fantôme ni double débit sur le tunnel de paiement</strong>. Prévision approuvée en 4 étapes — je peux dévier, je l’écris ici si je le fais.</div>'})
+  +msg({who:'orchestrateur',name:'orchestrateur',when:'ven. 06:29',kind:'decision',
+     body:'<div class="m-body">Étape 1 confiée à <strong>spec</strong> — « Audit du tunnel de paiement ». Motif : cartographier le flux avant toute modification.</div>'})
+  +msg({who:'orchestrateur',name:'orchestrateur',when:'sam. 08:29',kind:'task_done',
+     body:'<div class="m-body">Audit du tunnel de paiement terminé · $0.78.</div>'+
+     '<div class="attach"><button class="att">'+svg('file','i-sm')+'<span><b>audit-paiement.md</b><span>artifact · 8,7 ko</span></span></button></div>'})
+  +msg({who:'orchestrateur',name:'orchestrateur',when:'sam. 09:29',kind:'dod',
+     body:'<div class="inline-note">'+svg('check','i-sm')+'<div>Critère validé : <strong>le webhook Stripe est idempotent</strong> (test d’intégration).</div></div>'})
+  +msg({who:'orchestrateur',name:'orchestrateur',when:'dim. 10:29',kind:'decision',
+     body:'<div class="m-body">Étape 2 confiée à <strong>senior-dev</strong> — « Webhook idempotent ». Motif : le webhook est la cause des doublons.</div>'})
+  +msg({who:'orchestrateur',name:'orchestrateur',when:'lun. 02:29',kind:'task_done',
+     body:'<div class="m-body">Webhook idempotent terminé · $1.24. Le fil de la tâche est clos.</div>'})
+  +msg({who:'orchestrateur',name:'orchestrateur',when:'lun. 03:29',kind:'dod',
+     body:'<div class="inline-note">'+svg('check','i-sm')+'<div>Critère validé : <strong>une commande n’est confirmée qu’après le webhook</strong>.</div></div>'})
+  +msg({who:'orchestrateur',name:'orchestrateur',when:'lun. 14:12',kind:'decision',
+     body:'<div class="m-body">Étape 3 confiée à <strong>senior-dev</strong> — « Refonte du tunnel de paiement Stripe Checkout ». Le fil est en review : <strong>j’attends ton gate</strong> pour continuer vers l’étape 4 (review consolidée par review-coordinator).</div>'+
+     '<div class="attach"><button class="att" data-goto="stripe">'+svg('reply','i-sm')+'<span><b>Ouvrir le fil de la tâche</b><span>senior-dev · en attente depuis 2 j</span></span></button></div>'}),
+ 'g-build':()=>msg({who:'orchestrateur',name:'orchestrateur',when:'il y a 8 j',kind:'status → completed',
+     body:'<div class="m-body">Goal atteint : build CI à <strong>74 s</strong>, aucune dépendance inutilisée dans le bundle. Les 2 critères sont validés, plus rien ne t’attend sur ce fil.</div>'}),
+ 'g-pg':()=>msg({who:'orchestrateur',name:'orchestrateur',when:'il y a 11 j',kind:'status → stopped-stuck',
+     body:'<div class="decision err"><div class="d-title">'+svg('alert','i-sm')+'Arrêté sur un rail</div>'+
+     '<div class="d-text">3 itérations sans progrès sur « bascule sans coupure » — j’ai atteint le rail <code>maxIterationsWithoutProgress</code> et je me suis arrêté au lieu de brûler du budget. La réplique 17 est en place et synchronisée.</div>'+
+     '<div class="d-acts"><button class="btn btn-primary">Relever le rail à 5</button><button class="btn btn-quiet">Abandonner le goal</button></div></div>'}),
+ 'g-fid':()=>msg({who:'orchestrateur',name:'orchestrateur',when:'il y a 3 j',kind:'status → draft',
+     body:'<div class="m-body">Brouillon. 2 critères écrits, aucune prévision approuvée, aucun budget engagé. Active le goal pour que je propose un plan.</div>'})
+};
+const GOAL_HEAD={
+ 'g-paiement':{sub:'Fiabiliser le tunnel de paiement',meta:['orchestrateur','active','4 itérations','$6.42']},
+ 'g-build':{sub:'Réduire le temps de build du front',meta:['orchestrateur','completed','2 tâches','$1.90']},
+ 'g-pg':{sub:'Migrer la base vers Postgres 17',meta:['orchestrateur','stopped-stuck','3 itérations','$4.10']},
+ 'g-fid':{sub:'Programme de fidélité',meta:['orchestrateur','draft','0 itération','$0.00']}
+};
+
+function paintGoal(){
+  renderRail(el('#rail-goal'),'goals',v=>{state.view=v;paintBoite();switchTab('boite');});
+  state.sel.goal=Math.max(0,GOALS.findIndex(g=>g.id===state.openGoal));
+  renderList(el('#gl-list'),GOALS,state.sel.goal,false);
+  bindRows(el('#gl-list'),'goal');
+  const h=GOAL_HEAD[state.openGoal],isMain=state.openGoal==='g-paiement';
+  const n=Object.values(state.dod).filter(Boolean).length;
+  el('#gl-thread').innerHTML=
+   '<button class="back-bar" data-back="goal">'+svg('reply','i-sm')+'Retour aux goals</button>'+
+   '<div class="th-head"><div><h2>'+h.sub+'</h2><div class="th-meta">'+
+     h.meta.map((m,i)=>(i?'<span class="sep"></span>':'')+m).join('')+'</div></div>'+
+   '<div class="th-acts"><button class="iconbtn" title="Mettre le goal en pause">'+svg('pause')+'</button></div></div>'+
+   '<div class="th-scroll" id="gl-scroll">'+
+     (isMain?'<div class="dod-wrap"><div class="dod">'+
+       '<div class="dod-h">'+svg('goal','i-sm')+'<b>Definition of Done</b><span>plus aucune commande fantôme ni double débit</span><span class="cnt" id="dod-cnt">'+n+'/4</span></div>'+
+       DOD.map(d=>'<button class="dod-i" aria-pressed="'+state.dod[d.k]+'" data-dod="'+d.k+'">'+
+         '<span class="box">'+svg('check')+'</span><span class="lbl">'+d.t+'</span></button>').join('')+
+     '</div></div>':'')+
+     GOAL_BODY[state.openGoal]()+
+   '</div>'+
+   (isMain?'<div class="rails">'+
+     '<div class="rail-item"><div class="rl"><span>Budget consommé</span><b>$6.42 / $25</b></div><div class="meter"><i style="width:25.7%"></i></div></div>'+
+     '<div class="rail-item"><div class="rl"><span>Itérations sans progrès</span><b>0 / 3</b></div><div class="meter"><i style="width:2%;background:var(--sage)"></i></div></div>'+
+     '<div class="rail-item"><div class="rl"><span>Durée cumulée</span><b>2 145 min</b></div><div class="meter"><i style="width:44%"></i></div></div>'+
+     '<button class="btn btn-danger kill" id="kill">'+svg('stop','i-sm')+'Arrêter le goal</button>'+
+   '</div>':'');
+  document.querySelectorAll('[data-dod]').forEach(b=>b.addEventListener('click',()=>{
+    state.dod[b.dataset.dod]=!state.dod[b.dataset.dod];
+    b.setAttribute('aria-pressed',state.dod[b.dataset.dod]);
+    el('#dod-cnt').textContent=Object.values(state.dod).filter(Boolean).length+'/4';
+  }));
+  const k=el('#kill');
+  if(k)k.addEventListener('click',()=>{
+    if(!state.killArmed){state.killArmed=true;k.innerHTML=svg('alert','i-sm')+'Confirmer l’arrêt — 2 sessions détruites';k.style.background='var(--clay-soft)';}
+    else{state.killArmed=false;k.innerHTML=svg('check','i-sm')+'Goal arrêté';k.disabled=true;showToast('Goal arrêté · containers détruits, artifacts conservés',false);}
+  });
+  document.querySelectorAll('[data-goto]').forEach(b=>b.addEventListener('click',()=>{
+    state.openThread=b.dataset.goto;paintFil();switchTab('fil');
+  }));
+  document.querySelectorAll('[data-back]').forEach(b=>b.addEventListener('click',()=>{el('#app-'+b.dataset.back).dataset.m='list';}));
+  stick('#gl-scroll');
+}
+
+/* ---------- onglets ---------- */
+const TABS={boite:'#p-boite',fil:'#p-fil',statut:'#p-statut',goal:'#p-goal'};
+let current='boite';
+function switchTab(k){
+  current=k;
+  document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.tab===k));
+  Object.keys(TABS).forEach(x=>el(TABS[x]).classList.toggle('on',x===k));
+  if(k==='fil')stick('#th-scroll');
+  if(k==='goal')stick('#gl-scroll');
+}
+function stick(sel){const n=el(sel);if(n)n.scrollTop=n.scrollHeight;}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>switchTab(t.dataset.tab)));
+
+/* ---------- palette ⌘K ---------- */
+const ov=el('#pal-overlay'),pi=el('#pal-input'),pr=el('#pal-res');
+function openPal(){ov.classList.add('on');pi.value='';renderPal('');setTimeout(()=>pi.focus(),20);}
+function closePal(){ov.classList.remove('on');}
+function renderPal(q){
+  const all=THREADS.concat(GOALS);
+  const f=all.filter(t=>(t.subject+' '+t.agent+' '+t.excerpt).toLowerCase().includes(q.toLowerCase()));
+  pr.innerHTML=f.length?f.slice(0,8).map((t,i)=>'<div class="pal-row'+(i===0?' hi':'')+'" data-id="'+t.id+'">'+
+    svg(t.goal?'goal':AWAIT_ICON[t.await],'i-sm')+'<span>'+t.subject+'</span><span class="ag">'+t.agent+'</span></div>').join('')
+    :'<div class="pal-empty">Aucun fil ne correspond à « '+q+' ».</div>';
+  pr.querySelectorAll('.pal-row').forEach(r=>r.addEventListener('click',()=>{closePal();openFromBoite(r.dataset.id);}));
+}
+pi.addEventListener('input',()=>renderPal(pi.value));
+el('#bx-search').addEventListener('click',openPal);
+ov.addEventListener('click',e=>{if(e.target===ov)closePal();});
+
+/* ---------- clavier ---------- */
+document.addEventListener('keydown',e=>{
+  const typing=/^(INPUT|TEXTAREA)$/.test(e.target.tagName);
+  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openPal();return;}
+  if(e.key==='Escape'){closePal();return;}
+  if(typing||ov.classList.contains('on'))return;
+  if(e.metaKey||e.ctrlKey||e.altKey)return;
+
+  const onBoite=current==='boite',onFil=current==='fil',onGoal=current==='goal';
+  if(!onBoite&&!onFil&&!onGoal)return;
+  const host=onBoite?bxList:onFil?el('#fl-list'):el('#gl-list');
+  const items=onBoite?visible():onFil?FIL_ORDER.map(id=>THREADS.find(t=>t.id===id)):GOALS;
+  const key=onBoite?'boite':onFil?'fil':'goal';
+  const k=e.key.toLowerCase();
+
+  if(k==='j'||k==='k'){
+    if(!items.length)return;
+    e.preventDefault();
+    state.sel[key]=Math.max(0,Math.min(items.length-1,state.sel[key]+(k==='j'?1:-1)));
+    if(onBoite){paintBoite();}
+    else if(onFil){state.openThread=FIL_ORDER[state.sel.fil];paintFil();}
+    else{state.openGoal=GOALS[state.sel.goal].id;paintGoal();}
+    focusSel(host,state.sel[key]);
+    return;
+  }
+  if(k==='e'&&onBoite){e.preventDefault();archive(state.sel.boite);return;}
+  if(k==='enter'||e.key==='Enter'){
+    if(onBoite&&items[state.sel.boite]){e.preventDefault();openFromBoite(items[state.sel.boite].id);}
+    return;
+  }
+  if(k==='r'){
+    e.preventDefault();
+    if(onBoite){const t=items[state.sel.boite];if(t)openFromBoite(t.id);}
+    setTimeout(()=>{const i=el('#cp-input');if(i){i.focus();i.scrollIntoView({block:'nearest'});}},60);
+    return;
+  }
+  if(k==='a'){
+    e.preventDefault();
+    if(onBoite){const t=items[state.sel.boite];if(t&&t.await==='gate'){openFromBoite(t.id);setTimeout(()=>{const b=el('#btn-approve');if(b)b.click();},80);}
+      else showToast('Ce fil n’attend pas d’approbation — rien à approuver.',false);}
+    else{const b=el('#btn-approve');if(b)b.click();}
+    return;
+  }
+});
+
+/* ---------- init ---------- */
+paintBoite();paintFil();paintBoard();paintGoal();
+if(window.innerWidth<=700){el('#app-fil').dataset.m='thread';el('#app-goal').dataset.m='thread';}
+})();
+</script>
+</body>
+</html>

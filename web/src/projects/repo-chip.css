@@ -1,0 +1,18 @@
+/* Sits inside a timeline sentence: inherited line height, no surface of its own. */
+.dm-repo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-width: 0;
+  max-width: 100%;
+}
+
+.dm-repo-icon {
+  flex-shrink: 0;
+  color: var(--ink-3);
+}
+
+.dm-repo-name {
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+}

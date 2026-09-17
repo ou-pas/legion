@@ -1,0 +1,237 @@
+/* Reset, native elements and browser surfaces. No component lives here: only what the
+   browser provides by default and must still carry the design (craft floor: "the parts you
+   did not draw still carry the design"). Depends on tokens.css. */
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--sans);
+  font-size: var(--fs-md);
+  line-height: var(--lh-body);
+  font-weight: var(--fw-normal);
+  color: var(--ink);
+  background-color: var(--paper);
+  /* No grid on body since 04/09: it only lives on the content area (`.ui-main` in shell.css). */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Tabular figures everywhere: a column of costs that jitters is a defect. */
+body {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sizes are carried by components (Heading, PageHeader), not by the tags. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--sans);
+  font-weight: var(--fw-semi);
+  letter-spacing: var(--tr-tight);
+  line-height: var(--lh-snug);
+  font-variation-settings:
+    "SOFT" 0,
+    "WONK" 0;
+}
+
+a {
+  color: var(--accent-deep);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+a:hover {
+  color: var(--accent);
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-variant-numeric: inherit;
+}
+
+svg {
+  flex-shrink: 0;
+}
+
+input,
+textarea,
+select {
+  font: inherit;
+  font-variant-numeric: inherit;
+  color: var(--ink);
+  background: var(--sheet);
+  border: 1px solid var(--border-control);
+  border-radius: var(--r-2);
+  padding: var(--sp-3) var(--sp-5);
+  /* see the geometry rule below */
+  outline: none;
+  caret-color: var(--accent);
+  transition:
+    border-color var(--dur-1) var(--ease),
+    box-shadow var(--dur-1) var(--ease);
+}
+
+/* Hover applies only outside focus: otherwise it overrides the focus border (it comes later in
+   the cascade) and leaves an orphan halo, which the operator reported on leaving a field. */
+input:hover:not(:disabled):not(:focus),
+textarea:hover:not(:disabled):not(:focus),
+select:hover:not(:disabled):not(:focus) {
+  border-color: var(--border-strong);
+}
+
+/* No outer halo on field focus: an inner line thickens the existing border, so the field keeps
+   its size and nothing overflows. */
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--accent);
+  box-shadow: var(--field-ring);
+}
+
+/* Controls get a FIXED height, the same as buttons. A `min-height` is a floor, not a geometry:
+   padding and line-height decided the real height (35px for an `md` meant to be 32), and no
+   `align-items` can fix that. Only <textarea> keeps a floor, since it must grow. */
+input:not([type="checkbox"]):not([type="radio"]),
+select {
+  height: var(--h-control-md);
+  padding-block: 0;
+}
+
+textarea {
+  min-height: calc(var(--h-control-md) * 2);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--ink-3);
+}
+
+input:disabled,
+textarea:disabled,
+select:disabled {
+  background: var(--recess);
+  color: var(--ink-3);
+  cursor: not-allowed;
+}
+
+/* Native chrome removed so every OS gets our chevron. */
+select {
+  appearance: none;
+  padding-right: var(--sp-11);
+  cursor: pointer;
+  /* The chevron is a token, not an image written here: a data: URI cannot read a CSS variable
+     for its stroke color, so the theme replaces the whole URI (see --select-chevron in
+     tokens.css and theme-dark.css). */
+  background-image: var(--select-chevron);
+  background-repeat: no-repeat;
+  background-position: right var(--sp-5) center;
+}
+
+::-webkit-calendar-picker-indicator {
+  filter: none;
+  opacity: 0.55;
+  cursor: pointer;
+}
+
+/* Screen-reader-only content. `position: static` on purpose: the `absolute` variant with no
+   positioned ancestor uses <html> as containing block and inflates the document's scroll height
+   (20,716px tall for a 900px shell). Kept in flow, clipped to 1px; `margin: -1px` cancels the
+   leftover pixel. */
+.ui-sr {
+  position: static;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+::selection {
+  background: var(--selection);
+  color: var(--ink);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule-2) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--rule-2);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: var(--r-pill);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--rule-3);
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+/* One focus ring for the whole app, invisible to the mouse. Fields are excluded: they already
+   have their own focus mark, and stacking both drew a double line the operator reported.
+   Checkboxes and radios draw their ring in choice.css, on the drawn shape. */
+:where(button, a, summary, [tabindex]):focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+  border-radius: var(--r-2);
+}
+
+/* Keep state feedback, drop movement. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 16px in fields on phones, because Safari requires it (14/09).
+ *
+ * WebKit zooms the whole page when focus enters a control whose font is below 16px, and does not
+ * zoom back out: the page stays enlarged, the top bar slides off screen. Seen on an iPhone 13
+ * mini and mistaken for a layout bug, since no measurement reproduces it: the viewport shrank,
+ * the document did not overflow. The 16px threshold is WebKit's, not a setting.
+ *
+ * `:root` before each selector is deliberate: controls get their size from a class (0-1-0), so a
+ * bare element selector (0-0-1) loses, and measured, it did nothing. `:root input` weighs 0-1-1
+ * and wins without an `!important` that would also beat future rules. */
+@media (max-width: 640px) {
+  :root input,
+  :root textarea,
+  :root select {
+    font-size: 1rem;
+  }
+}

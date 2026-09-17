@@ -1,0 +1,57 @@
+/* A turn: an initial column, then the body. The column is FIXED: it makes a run of messages read as a
+   conversation rather than a pile. */
+.ch-msg {
+  display: grid;
+  grid-template-columns: var(--sz-avatar) minmax(0, 1fr);
+  gap: var(--sp-5);
+  min-width: 0;
+}
+
+.ch-msg-av {
+  display: grid;
+  place-items: center;
+  width: var(--sz-avatar);
+  height: var(--sz-avatar);
+  border-radius: var(--r-2);
+  font-family: var(--sans);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+}
+
+/* The operator carries the interactive tint, the agent stays recessed: as everywhere in the app, what
+   comes from you is accented, what comes from a machine is not. */
+.ch-msg[data-who="human"] .ch-msg-av {
+  background: var(--accent);
+  border: 1px solid var(--accent-deep);
+  color: var(--sheet);
+}
+
+.ch-msg[data-who="agent"] .ch-msg-av {
+  background: var(--recess-2);
+  border: 1px solid var(--border-control);
+  color: var(--ink-2);
+}
+
+.ch-msg-body {
+  min-width: 0;
+}
+
+.ch-msg-who {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-2);
+}
+
+.ch-msg-time {
+  font-family: var(--mono);
+  font-size: var(--fs-2xs);
+  color: var(--ink-3);
+}
+
+.ch-msg-said {
+  max-width: var(--measure);
+  font-size: var(--fs-md);
+  color: var(--ink-2);
+}

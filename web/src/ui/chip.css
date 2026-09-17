@@ -1,0 +1,177 @@
+/* The pill shape tells Chip apart from Tag (square, mono) and Badge (round counter): three
+   objects, three silhouettes. */
+.ui-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  max-width: 100%;
+  padding: var(--sp-1) var(--sp-5);
+  border: 1px solid transparent;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-semi);
+  line-height: var(--lh-snug);
+  white-space: nowrap;
+  transition:
+    border-color var(--dur-1) var(--ease),
+    background-color var(--dur-1) var(--ease);
+}
+
+.ui-chip[data-size="sm"] {
+  padding: 0 var(--sp-4);
+  gap: var(--sp-2);
+}
+
+/* A mono chip carries data, not a judgement: no bold. */
+.ui-chip[data-mono="true"] {
+  font-family: var(--mono);
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--tr-normal);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ui-chip-dot {
+  width: var(--sp-3);
+  height: var(--sp-3);
+  flex-shrink: 0;
+  border-radius: var(--r-round);
+  background: currentcolor;
+}
+
+/* The pulse says "right now". The only movement of the component, and only this state has it. */
+.ui-chip[data-state="run"] .ui-chip-dot {
+  animation: ui-chip-pulse var(--dur-pulse) var(--ease) infinite;
+}
+
+@keyframes ui-chip-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.ui-chip[data-state="idle"] {
+  background: var(--recess);
+  color: var(--ink-2);
+  border-color: var(--border-control);
+}
+
+.ui-chip[data-state="run"] {
+  background: var(--run-wash);
+  color: var(--run);
+  border-color: var(--run-line);
+}
+
+.ui-chip[data-state="wait"] {
+  background: var(--wait-wash);
+  color: var(--wait);
+  border-color: var(--wait-line);
+}
+
+.ui-chip[data-state="gate"] {
+  background: var(--gate-wash);
+  color: var(--gate);
+  border-color: var(--gate-line);
+}
+
+.ui-chip[data-state="ok"] {
+  background: var(--ok-wash);
+  color: var(--ok);
+  border-color: var(--ok-line);
+}
+
+.ui-chip[data-state="bad"] {
+  background: var(--bad-wash);
+  color: var(--bad);
+  border-color: var(--bad-line);
+}
+
+/* A clickable chip is a target: 24px tall minimum, like every control. */
+.ui-chip[data-toggle="true"] {
+  cursor: pointer;
+  min-height: var(--h-control-sm);
+}
+
+.ui-chip[data-toggle="true"]:hover {
+  border-color: var(--border-strong);
+}
+
+.ui-chip[data-toggle="true"][aria-pressed="true"],
+.ui-chip[data-selected="true"] {
+  background: var(--accent-wash);
+  color: var(--accent-deep);
+  border-color: var(--accent-line);
+}
+
+.ui-tag {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 0 var(--sp-3);
+  border: 1px solid var(--border-control);
+  border-radius: var(--r-1);
+  background: var(--recess);
+  color: var(--ink-2);
+  font-family: var(--mono);
+  font-size: var(--fs-2xs);
+  line-height: var(--lh-loose);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Flat tag: same data, no box. On a row where markers sit next to buttons, the frame is what
+   says "clickable": a framed Tag next to a button was indistinguishable from it. */
+.ui-tag[data-variant="flat"] {
+  padding: 0;
+  border-color: transparent;
+  background: transparent;
+  color: var(--ink-3);
+}
+
+.ui-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: var(--sp-9);
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-pill);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-bold);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--lh-loose);
+}
+
+.ui-badge[data-tone="neutral"] {
+  background: var(--recess-2);
+  color: var(--ink-2);
+}
+
+.ui-badge[data-tone="accent"] {
+  background: var(--accent-wash);
+  color: var(--accent-deep);
+}
+
+.ui-badge[data-tone="wait"] {
+  background: var(--wait-wash);
+  color: var(--wait);
+}
+
+.ui-badge[data-tone="bad"] {
+  background: var(--bad-wash);
+  color: var(--bad);
+}
+
+/* StatusDot: a StatusChip's dot without its box, same per-state colors. The word lives in the
+   tooltip. */
+.ui-chip.ui-chip-bare {
+  padding: 0;
+  min-height: 0;
+  border: 0;
+  background: none;
+  gap: 0;
+}

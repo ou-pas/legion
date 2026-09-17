@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diff et brouillon de PR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   DIRECTION « PR + DIFF » — trois mises en page pour lire le brouillon de
+   PR et le diff au même endroit. Exploration du 05/09, à la demande de
+   l'opérateur. Palette recopiée de web/src/ui/tokens.css et theme-dark.css :
+   rien d'inventé côté couleur, seule la DISPOSITION est en question.
+   ═══════════════════════════════════════════════════════════════════════ */
+:root {
+  --paper:#f4f0e8; --sheet:#fcfaf6; --sheet-hi:#ffffff; --recess:#ede7da; --recess-2:#e5ddcc;
+  --ink:#1e1a15; --ink-2:#584f42; --ink-3:#6b6255;
+  --rule:#dcd3c3; --rule-2:#c6bba6; --rule-3:#aea18a;
+  --accent:#b03f1b; --accent-deep:#8e3213; --accent-wash:#f6e4da; --accent-line:#e3c0b2;
+  --run:#1b6350; --run-wash:#deeae4; --run-line:#bfd5cc;
+  --wait:#8a5a00; --wait-wash:#f6e9ce; --wait-line:#e2cd9c;
+  --ok:#3e6b2e; --ok-wash:#e1ebdf; --ok-line:#c2d6bf;
+  --bad:#a02617; --bad-wash:#f7dfda; --bad-line:#e7c3bb;
+  --merged:#6b4a9c; --merged-wash:#e7e0e9;
+  --shadow:0 1px 2px rgba(0,0,0,.06),0 12px 32px rgba(0,0,0,.10);
+  --sans:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --fs-3xs:.59375rem; --fs-2xs:.6875rem; --fs-xs:.75rem; --fs-sm:.8125rem;
+  --fs-md:.875rem; --fs-lg:.9375rem; --fs-xl:1.0625rem; --fs-2xl:1.1875rem; --fs-3xl:1.5rem;
+  --tr-caps:.1em; --tr-tight:-.015em; --tr-display:-.03em;
+  --r-1:3px; --r-2:5px; --r-3:8px; --r-pill:999px;
+  --measure:72ch;
+}
+:root[data-theme="dark"] {
+  --paper:#2e3440; --sheet:#3b4252; --sheet-hi:#434c5e; --recess:#2a2f3a; --recess-2:#252a33;
+  --ink:#eceff4; --ink-2:#d8dee9; --ink-3:#adb8ca;
+  --rule:#495062; --rule-2:#5a6172; --rule-3:#6e7585;
+  --accent:#8fc7d6; --accent-deep:#a9d5e0; --accent-wash:#384550; --accent-line:#54707e;
+  --run:#93c3c2; --run-wash:#39444d; --run-line:#576e74;
+  --wait:#ebcb8b; --wait-wash:#474646; --wait-line:#81755e;
+  --ok:#a9c492; --ok-wash:#3c4740; --ok-line:#61735a;
+  --bad:#e2a0a7; --bad-wash:#4a3b3f; --bad-line:#7d5b60;
+  --merged:#b48ead; --merged-wash:#463f4f;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 12px 32px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--paper)}
+body{
+  color:var(--ink);font-family:var(--sans);font-size:var(--fs-md);line-height:1.5;
+  background-image:linear-gradient(var(--rule) 1px,transparent 1px),linear-gradient(90deg,var(--rule) 1px,transparent 1px);
+  background-size:32px 32px;background-position:-1px -1px;
+}
+body::before{content:"";position:fixed;inset:0;background:var(--paper);opacity:.94;pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1;padding-bottom:64px}
+
+/* ── note ──────────────────────────────────────────────────────────── */
+.note{max-width:var(--measure);margin:0 auto;padding:40px 24px 8px}
+.note h1{font-family:var(--sans);font-size:var(--fs-3xl);letter-spacing:var(--tr-display);font-weight:600;margin-bottom:4px;text-wrap:balance}
+.note .sub{color:var(--ink-3);font-size:var(--fs-sm);margin-bottom:18px}
+.note p{color:var(--ink-2);margin-bottom:12px}
+.note strong{color:var(--ink);font-weight:600}
+.variant-head{max-width:1240px;margin:44px auto 12px;padding:0 24px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.variant-head .k{font-family:var(--sans);font-size:var(--fs-2xl);font-weight:600;letter-spacing:var(--tr-tight)}
+.variant-head .k b{color:var(--accent);font-weight:700;margin-right:6px}
+.variant-head .d{color:var(--ink-2);font-size:var(--fs-sm);max-width:64ch}
+.variant-head .reco{margin-left:auto;font-size:var(--fs-2xs);text-transform:uppercase;letter-spacing:var(--tr-caps);font-weight:600;
+  color:var(--ok);background:var(--ok-wash);border:1px solid var(--ok-line);border-radius:var(--r-pill);padding:3px 10px}
+.toggle{position:fixed;bottom:18px;right:18px;z-index:5;box-shadow:var(--shadow);font:inherit;font-size:var(--fs-xs);
+  background:var(--sheet);color:var(--ink-2);border:1px solid var(--rule-2);border-radius:var(--r-pill);padding:6px 12px;cursor:pointer}
+.toggle:hover,.toggle:focus-visible{border-color:var(--rule-3);color:var(--ink);outline:none}
+
+/* ── cadre d'application : rail | page ─────────────────────────────── */
+.app{max-width:1240px;margin:0 auto;height:640px;display:grid;grid-template-columns:212px minmax(0,1fr);
+  background:var(--paper);border:1px solid var(--rule-2);border-radius:var(--r-3);overflow:hidden;box-shadow:var(--shadow)}
+.rail{background:var(--recess);border-right:1px solid var(--rule);padding:10px 0 16px;overflow:hidden}
+.rail .proj{display:flex;align-items:center;gap:8px;padding:8px 14px 12px;border-bottom:1px solid var(--rule);margin-bottom:6px}
+.rail .proj .sq{width:22px;height:22px;border-radius:var(--r-2);background:var(--accent);color:var(--paper);display:grid;place-items:center;
+  font-family:var(--sans);font-weight:700;font-size:var(--fs-2xs)}
+.rail .proj .n{font-family:var(--sans);font-weight:600;font-size:var(--fs-sm)}
+.sec{padding:12px 14px 4px;font-size:var(--fs-2xs);text-transform:uppercase;letter-spacing:var(--tr-caps);font-weight:600;color:var(--ink-3)}
+.row{display:flex;align-items:center;gap:8px;padding:5px 14px;color:var(--ink-2);font-size:var(--fs-sm)}
+.row svg{width:13px;height:13px;flex:none;color:var(--ink-3)}
+.row[aria-current="true"]{background:var(--sheet);color:var(--ink);box-shadow:inset 2px 0 0 var(--accent)}
+.row[aria-current="true"] svg{color:var(--ink)}
+.row .cnt{margin-left:auto;font-size:var(--fs-3xs);font-family:var(--mono);color:var(--ink-3);background:var(--recess-2);border-radius:var(--r-pill);padding:1px 6px}
+.row[data-gone]{opacity:.38;text-decoration:line-through}
+
+.page{display:flex;flex-direction:column;min-height:0;background:var(--paper)}
+.head{padding:14px 20px 10px;display:flex;flex-direction:column;gap:10px}
+.title{display:flex;align-items:center;gap:10px}
+.title h2{font-family:var(--sans);font-size:var(--fs-2xl);font-weight:600;letter-spacing:var(--tr-tight);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn{font:inherit;font-size:var(--fs-sm);font-weight:500;height:28px;padding:0 10px;border-radius:var(--r-2);border:1px solid var(--rule-2);
+  background:var(--sheet);color:var(--ink);display:inline-flex;align-items:center;gap:6px;white-space:nowrap;cursor:default}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+:root[data-theme="dark"] .btn.pri{color:#2e3440}
+.btn.quiet{border-color:transparent;background:transparent;color:var(--ink-2)}
+.btn svg{width:13px;height:13px}
+.ibtn{width:28px;height:28px;display:grid;place-items:center;border:1px solid var(--rule-2);border-radius:var(--r-2);background:var(--sheet);color:var(--ink-2)}
+.ibtn svg{width:13px;height:13px}
+
+/* verdict compact, une ligne */
+.verdict{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--sheet);border:1px solid var(--ok-line);border-radius:var(--r-3);font-size:var(--fs-sm);color:var(--ink-2);min-width:0}
+.verdict .ok{color:var(--ok);display:flex}
+.verdict .ok svg{width:14px;height:14px}
+.verdict b{color:var(--ink);font-weight:600}
+.tag{font-family:var(--mono);font-size:var(--fs-2xs);background:var(--recess);border:1px solid var(--rule);border-radius:var(--r-1);padding:1px 6px;color:var(--ink-2);white-space:nowrap}
+.tag.trunc{max-width:260px;overflow:hidden;text-overflow:ellipsis}
+.pr-mark{display:inline-flex;align-items:center;gap:4px;color:var(--ok);font-family:var(--mono);font-size:var(--fs-xs)}
+.pr-mark svg{width:13px;height:13px}
+.verdict .meta{margin-left:auto;font-family:var(--mono);font-size:var(--fs-xs);color:var(--ink-3);display:flex;gap:12px;white-space:nowrap}
+
+/* la vue */
+.view{flex:1;min-height:0;overflow:hidden;padding:0 20px 20px}
+.card{height:100%;display:flex;flex-direction:column;background:var(--sheet);border:1px solid var(--rule);border-radius:var(--r-3);overflow:hidden}
+.card-h{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--rule);font-size:var(--fs-md);font-weight:600;letter-spacing:var(--tr-tight)}
+.card-h svg{width:15px;height:15px;color:var(--ink-3)}
+.card-h .sp{flex:1}
+.card-b{flex:1;min-height:0;overflow:auto;padding:14px}
+.card-b::-webkit-scrollbar{width:8px}
+.card-b::-webkit-scrollbar-thumb{background:var(--rule-2);border-radius:var(--r-pill)}
+
+/* brouillon de PR, rendu markdown */
+.draft{display:flex;flex-direction:column;gap:10px}
+.draft-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.draft-h h3{font-family:var(--sans);font-size:var(--fs-xl);font-weight:600;letter-spacing:var(--tr-tight);flex:1;min-width:0}
+.draft-h .src{font-size:var(--fs-2xs);text-transform:uppercase;letter-spacing:var(--tr-caps);color:var(--ink-3);font-weight:600}
+.prose{font-size:var(--fs-sm);line-height:1.65;color:var(--ink-2);max-width:var(--measure)}
+.prose p,.prose ul{margin:0 0 10px}
+.prose p:last-child,.prose ul:last-child{margin-bottom:0}
+.prose b{color:var(--ink);font-weight:600}
+.prose ul{padding-left:20px}
+.prose li+li{margin-top:3px}
+.prose code{font-family:var(--mono);font-size:var(--fs-xs);background:var(--recess);border-radius:var(--r-1);padding:0 4px;color:var(--ink)}
+.prose table{border-collapse:collapse;font-size:var(--fs-xs);margin:6px 0 10px;width:100%;max-width:520px}
+.prose th{text-align:left;font-size:var(--fs-3xs);text-transform:uppercase;letter-spacing:var(--tr-caps);color:var(--ink-3);background:var(--recess);padding:5px 10px;border-bottom:1px solid var(--rule)}
+.prose td{padding:5px 10px;border-bottom:1px solid var(--rule)}
+.prose tr:last-child td{border-bottom:none}
+.draft-act{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:6px}
+.draft-act .hint{font-size:var(--fs-xs);color:var(--ink-3)}
+
+/* diff : arbre | fichiers */
+.diff-bar{display:flex;align-items:center;gap:10px;font-size:var(--fs-sm);color:var(--ink-2);margin-bottom:10px}
+.diff-bar .sp{flex:1}
+.diff{display:grid;grid-template-columns:200px minmax(0,1fr);gap:12px;min-height:0}
+.tree{font-size:var(--fs-xs);color:var(--ink-2);border-right:1px solid var(--rule);padding-right:10px}
+.tree .dir{display:flex;align-items:center;gap:5px;padding:3px 0;color:var(--ink-3)}
+.tree .f{display:flex;align-items:center;gap:6px;padding:3px 0 3px 16px;font-family:var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tree .f[aria-current="true"]{color:var(--ink)}
+.tree .pm{margin-left:auto;font-family:var(--mono);font-size:var(--fs-3xs)}
+.pm .a{color:var(--ok)}.pm .d{color:var(--bad)}
+.tree .foot{margin-top:10px;color:var(--ink-3);font-size:var(--fs-2xs)}
+.files{display:flex;flex-direction:column;gap:8px;min-width:0}
+.file{border:1px solid var(--rule);border-radius:var(--r-2);overflow:hidden;background:var(--paper)}
+.file-h{display:flex;align-items:center;gap:8px;padding:6px 10px;font-family:var(--mono);font-size:var(--fs-xs);background:var(--recess);color:var(--ink-2)}
+.file-h svg{width:11px;height:11px;color:var(--ink-3)}
+.file-h .pm{margin-left:auto}
+.hunk{font-family:var(--mono);font-size:var(--fs-2xs);line-height:1.6;overflow-x:auto}
+.ln{display:grid;grid-template-columns:36px 36px 1fr;white-space:pre}
+.ln .g{color:var(--ink-3);text-align:right;padding-right:8px;border-right:1px solid var(--rule);user-select:none}
+.ln .c{padding-left:10px}
+.ln.add{background:var(--ok-wash)}.ln.del{background:var(--bad-wash)}
+.ln.hh{color:var(--ink-3);background:var(--recess)}
+.ln.hh .c{color:var(--accent)}
+
+/* B : bandeau repliable au-dessus du diff */
+.band{display:flex;align-items:center;gap:10px;padding:8px 12px;margin-bottom:12px;background:var(--recess);border:1px solid var(--rule);border-radius:var(--r-2);font-size:var(--fs-sm);color:var(--ink-2)}
+.band svg{width:13px;height:13px;color:var(--ink-3)}
+.band .t{color:var(--ink);font-weight:500;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.band .lnk{color:var(--accent);text-decoration:underline;font-size:var(--fs-xs)}
+
+/* C : segments */
+.segs{display:inline-flex;border:1px solid var(--rule-2);border-radius:var(--r-2);overflow:hidden;font-size:var(--fs-sm)}
+.segs span{padding:4px 12px;color:var(--ink-2);display:inline-flex;gap:6px;align-items:center}
+.segs span[aria-current="true"]{background:var(--sheet-hi);color:var(--ink);font-weight:500}
+.segs span+span{border-left:1px solid var(--rule-2)}
+.segs .cnt{font-family:var(--mono);font-size:var(--fs-3xs);color:var(--ink-3)}
+
+.verdict-note{max-width:1240px;margin:10px auto 0;padding:0 24px;color:var(--ink-3);font-size:var(--fs-xs);display:flex;gap:16px;flex-wrap:wrap}
+.verdict-note b{color:var(--ink-2);font-weight:500}
+
+@media (max-width:900px){.app{grid-template-columns:1fr;height:auto}.rail{display:none}.diff{grid-template-columns:1fr}.tree{display:none}}
+@media (prefers-reduced-motion:no-preference){.toggle{transition:color .15s,border-color .15s}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="note">
+  <h1>Le diff et le brouillon de PR au même endroit</h1>
+  <div class="sub">Exploration du 05/09 · trois dispositions · tokens Atelier / Nord tels quels, rien d'inventé</div>
+  <p>Aujourd'hui la livraison se lit en deux vues du rail : <strong>Diff</strong> (arbre, fichiers, pré-revue) et <strong>PR</strong> (le <code>pr.md</code> de l'agent, l'état de fusion, le bouton qui crée). On ne crée pas une PR sans l'avoir lue, mais on la lit sans voir ce qu'elle change. Les trois variantes ci-dessous rapprochent les deux ; la tâche, la branche et les fichiers sont ceux de la vraie tâche #126.</p>
+  <p>Au passage : le corps de <code>pr.md</code> est aujourd'hui affiché en bloc de code brut. Dans les trois variantes il est rendu en markdown, comme le compte-rendu.</p>
+</div>
+
+<!-- ═══════════════ A ═══════════════ -->
+<div class="variant-head">
+  <span class="k"><b>A</b>Une vue « PR », lue comme une page GitHub</span>
+  <span class="d">Brouillon en tête, court. Diff dessous, long. Le rang « Diff » quitte le rail ; le bouton de création est posé juste avant les fichiers qu'il va publier.</span>
+  <span class="reco">recommandée</span>
+</div>
+<div class="app">
+  <aside class="rail">
+    <div class="proj"><span class="sq">Ao</span><span class="n">legion</span></div>
+    <div class="sec">Contrat</div>
+    <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>Brief</div>
+    <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Critères</div>
+    <div class="sec">Flux</div>
+    <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 6.1H3M21 12.1H3M15.1 18H3"/></svg>Compte-rendu</div>
+    <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M5 3 2 6M22 6l-3-3"/></svg>Chronologie</div>
+    <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5z"/><path d="M15 3v6h6"/></svg>Notes</div>
+    <div class="sec">Livraison</div>
+    <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16.5 9.4 7.55 4.24M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Artifacts<span class="cnt">3</span></div>
+    <div class="row" data-gone><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>Diff<span class="cnt">3</span></div>
+    <div class="row" aria-current="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7M6 9v12"/></svg>PR<span class="cnt">3</span></div>
+  </aside>
+  <main class="page">
+    <div class="head">
+      <div class="title">
+        <h2>Carte du runner : dire ce que coûte d'allumer le démon local</h2>
+        <span class="btn pri">Approuver et passer en done</span>
+        <span class="ibtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v16h16"/></svg></span>
+        <span class="ibtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></span>
+      </div>
+      <div class="verdict">
+        <span class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></span>
+        <b>Terminée avec succès</b>
+        <span class="tag">server</span><span class="tag">haiku</span>
+        <span class="tag trunc">chore/carte-du-runner-dire-ce-que-coute-d-8efc0</span>
+        <span class="pr-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7M6 9v12"/></svg>#126</span>
+        <span class="meta"><span>$0.36</span><span>25 tours</span><span>4 min</span></span>
+      </div>
+    </div>
+    <div class="view">
+      <div class="card">
+        <div class="card-h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7M6 9v12"/></svg>PR<span class="sp"></span><span class="pr-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7M6 9v12"/></svg>#126 ouverte · fusionnable</span></div>
+        <div class="card-b">
+          <div class="draft">
+            <div class="draft-h"><h3>feat(infra): avertir du coût d'activation du runner local</h3><span class="src">pr.md · rédigé par l'agent</span></div>
+            <div class="prose">
+              <p>Quand le runner du démon local est désactivé, une mise en garde apparaît en tête de sa fiche : une session qui y tourne partage le disque du control plane et peut le saturer.</p>
+              <ul>
+                <li><b>Nomme le risque</b> : saturation du disque partagé</li>
+                <li><b>Cite le garde-fou</b> : refus de lancement sous 4 Go libres</li>
+                <li><b>Donne le plafond</b> : 3 sessions × 3 Go sur 11 Go partagés</li>
+              </ul>
+              <table><thead><tr><th>Commande</th><th>Résultat</th></tr></thead><tbody>
+                <tr><td><code>pnpm lint</code></td><td>OK (oxlint)</td></tr>
+                <tr><td><code>pnpm typecheck</code></td><td>OK (server + web)</td></tr>
+                <tr><td><code>pnpm test</code></td><td>OK (1922 server, 461 web)</td></tr>
+              </tbody></table>
+            </div>
+            <div class="draft-act">
+              <span class="btn">Recréer / retrouver la PR</span>
+              <span class="hint">Branche <span class="tag">chore/carte-du-runner-…-8efc0</span> vers la branche par défaut du dépôt.</span>
+            </div>
+          </div>
+          <div style="height:1px;background:var(--rule);margin:16px 0 14px"></div>
+          <div class="diff-bar">Ce que la branche change, <b style="color:var(--ink)">3 fichiers</b><span class="sp"></span><span class="btn quiet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg></span><span class="btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4z"/></svg>Envoyer la revue (1)</span></div>
+          <div class="diff">
+            <div class="tree">
+              <div class="dir">▾ web/src/infra</div>
+              <div class="f" aria-current="true">InfraPage.tsx<span class="pm"><span class="a">+9</span> <span class="d">−1</span></span></div>
+              <div class="f">text.ts<span class="pm"><span class="a">+6</span></span></div>
+              <div class="dir">▾ docs</div>
+              <div class="f">STATE.md<span class="pm"><span class="d">−2</span></span></div>
+              <div class="foot">3 fichiers · 1 commentaire</div>
+            </div>
+            <div class="files">
+              <div class="file">
+                <div class="file-h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>web/src/infra/InfraPage.tsx<span class="pm"><span class="a">+9</span> <span class="d">−1</span></span></div>
+                <div class="hunk">
+<div class="ln hh"><span class="g"></span><span class="g"></span><span class="c">@@ -41,6 +41,14 @@ export function RunnerCard</span></div>
+<div class="ln"><span class="g">41</span><span class="g">41</span><span class="c">  const disabled = !runner.enabled;</span></div>
+<div class="ln add"><span class="g"></span><span class="g">42</span><span class="c">+ const sharesDisk = disabled &amp;&amp; !runner.dockerHost;</span></div>
+<div class="ln"><span class="g">42</span><span class="g">43</span><span class="c">  return (</span></div>
+<div class="ln add"><span class="g"></span><span class="g">44</span><span class="c">+   {sharesDisk &amp;&amp; (</span></div>
+<div class="ln add"><span class="g"></span><span class="g">45</span><span class="c">+     &lt;PanelNote tone="wait" icon={&lt;AlertTriangle /&gt;}&gt;</span></div>
+<div class="ln add"><span class="g"></span><span class="g">46</span><span class="c">+       {INFRA_TEXT.lifecycle.localRunnerWarning}</span></div>
+<div class="ln add"><span class="g"></span><span class="g">47</span><span class="c">+     &lt;/PanelNote&gt;</span></div>
+<div class="ln add"><span class="g"></span><span class="g">48</span><span class="c">+   )}</span></div>
+                </div>
+              </div>
+              <div class="file">
+                <div class="file-h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>web/src/infra/text.ts<span class="pm"><span class="a">+6</span></span></div>
+              </div>
+              <div class="file">
+                <div class="file-h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>docs/STATE.md<span class="pm"><span class="d">−2</span></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<div class="verdict-note"><span><b>Ce qui change dans le code :</b> PrScreen empile PrTab puis DiffView, /diff redirige vers /pr, un rang de rail en moins.</span><span><b>Prix :</b> la pastille « 3 fichiers » du rang Diff passe sur le rang PR.</span></div>
+
+<!-- ═══════════════ B ═══════════════ -->
+<div class="variant-head">
+  <span class="k"><b>B</b>Deux vues, le brouillon en bandeau au-dessus du diff</span>
+  <span class="d">Rien ne bouge dans le rail. La vue Diff gagne une ligne repliable qui dit le titre du brouillon et mène à la vue PR. Le moins de changement, mais le brouillon existe à deux endroits.</span>
+</div>
+<div class="app">
+  <aside class="rail">
+    <div class="proj"><span class="sq">Ao</span><span class="n">legion</span></div>
+    <div class="sec">Contrat</div>
+    <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>Brief</div>
+    <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Critères</div>
+    <div class="sec">Flux</div>
+    <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 6.1H3M21 12.1H3M15.1 18H3"/></svg>Compte-rendu</div>
+    <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M5 3 2 6M22 6l-3-3"/></svg>Chronologie</div>
+    <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5z"/><path d="M15 3v6h6"/></svg>Notes</div>
+    <div class="sec">Livraison</div>
+    <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16.5 9.4 7.55 4.24M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Artifacts<span class="cnt">3</span></div>
+    <div class="row" aria-current="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>Diff<span class="cnt">3</span></div>
+    <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7M6 9v12"/></svg>PR</div>
+  </aside>
+  <main class="page">
+    <div class="head">
+      <div class="title">
+        <h2>Carte du runner : dire ce que coûte d'allumer le démon local</h2>
+        <span class="btn pri">Approuver et passer en done</span>
+        <span class="ibtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v16h16"/></svg></span>
+        <span class="ibtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></span>
+      </div>
+      <div class="verdict">
+        <span class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></span>
+        <b>Terminée avec succès</b>
+        <span class="tag">server</span><span class="tag">haiku</span>
+        <span class="tag trunc">chore/carte-du-runner-dire-ce-que-coute-d-8efc0</span>
+        <span class="pr-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7M6 9v12"/></svg>#126</span>
+        <span class="meta"><span>$0.36</span><span>25 tours</span><span>4 min</span></span>
+      </div>
+    </div>
+    <div class="view">
+      <div class="card">
+        <div class="card-h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>Diff</div>
+        <div class="card-b">
+          <div class="band">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7M6 9v12"/></svg>
+            <span class="t">Brouillon de PR : feat(infra): avertir du coût d'activation du runner local</span>
+            <span class="lnk">Lire et créer la PR →</span>
+          </div>
+          <div class="diff-bar">Ce que la branche change, <b style="color:var(--ink)">3 fichiers</b><span class="sp"></span><span class="btn quiet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg></span><span class="btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4z"/></svg>Envoyer la revue (1)</span></div>
+          <div class="diff">
+            <div class="tree">
+              <div class="dir">▾ web/src/infra</div>
+              <div class="f" aria-current="true">InfraPage.tsx<span class="pm"><span class="a">+9</span> <span class="d">−1</span></span></div>
+              <div class="f">text.ts<span class="pm"><span class="a">+6</span></span></div>
+              <div class="dir">▾ docs</div>
+              <div class="f">STATE.md<span class="pm"><span class="d">−2</span></span></div>
+              <div class="foot">3 fichiers · 1 commentaire</div>
+            </div>
+            <div class="files">
+              <div class="file">
+                <div class="file-h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>web/src/infra/InfraPage.tsx<span class="pm"><span class="a">+9</span> <span class="d">−1</span></span></div>
+                <div class="hunk">
+<div class="ln hh"><span class="g"></span><span class="g"></span><span class="c">@@ -41,6 +41,14 @@ export function RunnerCard</span></div>
+<div class="ln"><span class="g">41</span><span class="g">41</span><span class="c">  const disabled = !runner.enabled;</span></div>
+<div class="ln add"><span class="g"></span><span class="g">42</span><span class="c">+ const sharesDisk = disabled &amp;&amp; !runner.dockerHost;</span></div>
+<div class="ln"><span class="g">42</span><span class="g">43</span><span class="c">  return (</span></div>
+<div class="ln add"><span class="g"></span><span class="g">44</span><span class="c">+   {sharesDisk &amp;&amp; (</span></div>
+<div class="ln add"><span class="g"></span><span class="g">45</span><span class="c">+     &lt;PanelNote tone="wait" icon={&lt;AlertTriangle /&gt;}&gt;</span></div>
+<div class="ln add"><span class="g"></span><span class="g">46</span><span class="c">+       {INFRA_TEXT.lifecycle.localRunnerWarning}</span></div>
+<div class="ln add"><span class="g"></span><span class="g">47</span><span class="c">+     &lt;/PanelNote&gt;</span></div>
+<div class="ln add"><span class="g"></span><span class="g">48</span><span class="c">+   )}</span></div>
+<div class="ln"><span class="g">43</span><span class="g">49</span><span class="c">    &lt;Card title={runner.name}&gt;</span></div>
+                </div>
+              </div>
+              <div class="file">
+                <div class="file-h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>web/src/infra/text.ts<span class="pm"><span class="a">+6</span></span></div>
+              </div>
+              <div class="file">
+                <div class="file-h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>docs/STATE.md<span class="pm"><span class="d">−2</span></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<div class="verdict-note"><span><b>Ce qui change dans le code :</b> un bandeau dans DiffView, qui relit le titre de pr.md. La vue PR ne bouge pas.</span><span><b>Prix :</b> deux vues qui parlent du même brouillon ; le diff n'est toujours pas visible au moment de cliquer « Créer ».</span></div>
+
+<!-- ═══════════════ C ═══════════════ -->
+<div class="variant-head">
+  <span class="k"><b>C</b>Une vue « PR », deux segments</span>
+  <span class="d">Comme GitHub : « Conversation » et « Files changed ». Un rang de rail, un basculeur en tête de carte. Le brouillon et le diff ne sont jamais à l'écran en même temps.</span>
+</div>
+<div class="app">
+  <aside class="rail">
+    <div class="proj"><span class="sq">Ao</span><span class="n">legion</span></div>
+    <div class="sec">Contrat</div>
+    <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>Brief</div>
+    <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Critères</div>
+    <div class="sec">Flux</div>
+    <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 6.1H3M21 12.1H3M15.1 18H3"/></svg>Compte-rendu</div>
+    <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M5 3 2 6M22 6l-3-3"/></svg>Chronologie</div>
+    <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5z"/><path d="M15 3v6h6"/></svg>Notes</div>
+    <div class="sec">Livraison</div>
+    <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16.5 9.4 7.55 4.24M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Artifacts<span class="cnt">3</span></div>
+    <div class="row" data-gone><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>Diff</div>
+    <div class="row" aria-current="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7M6 9v12"/></svg>PR<span class="cnt">3</span></div>
+  </aside>
+  <main class="page">
+    <div class="head">
+      <div class="title">
+        <h2>Carte du runner : dire ce que coûte d'allumer le démon local</h2>
+        <span class="btn pri">Approuver et passer en done</span>
+        <span class="ibtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v16h16"/></svg></span>
+        <span class="ibtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></span>
+      </div>
+      <div class="verdict">
+        <span class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></span>
+        <b>Terminée avec succès</b>
+        <span class="tag">server</span><span class="tag">haiku</span>
+        <span class="tag trunc">chore/carte-du-runner-dire-ce-que-coute-d-8efc0</span>
+        <span class="pr-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7M6 9v12"/></svg>#126</span>
+        <span class="meta"><span>$0.36</span><span>25 tours</span><span>4 min</span></span>
+      </div>
+    </div>
+    <div class="view">
+      <div class="card">
+        <div class="card-h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7M6 9v12"/></svg>PR
+          <span class="sp"></span>
+          <span class="segs"><span aria-current="true">Description</span><span>Fichiers <span class="cnt">3</span></span></span>
+        </div>
+        <div class="card-b">
+          <div class="draft">
+            <div class="draft-h"><h3>feat(infra): avertir du coût d'activation du runner local</h3><span class="src">pr.md · rédigé par l'agent</span></div>
+            <div class="prose">
+              <p>Quand le runner du démon local est désactivé, une mise en garde apparaît en tête de sa fiche : une session qui y tourne partage le disque du control plane et peut le saturer.</p>
+              <ul>
+                <li><b>Nomme le risque</b> : saturation du disque partagé</li>
+                <li><b>Cite le garde-fou</b> : refus de lancement sous 4 Go libres</li>
+                <li><b>Donne le plafond</b> : 3 sessions × 3 Go sur 11 Go partagés</li>
+              </ul>
+              <table><thead><tr><th>Commande</th><th>Résultat</th></tr></thead><tbody>
+                <tr><td><code>pnpm lint</code></td><td>OK (oxlint)</td></tr>
+                <tr><td><code>pnpm typecheck</code></td><td>OK (server + web)</td></tr>
+                <tr><td><code>pnpm test</code></td><td>OK (1922 server, 461 web)</td></tr>
+              </tbody></table>
+            </div>
+            <div class="draft-act">
+              <span class="btn">Recréer / retrouver la PR</span>
+              <span class="hint">Branche <span class="tag">chore/carte-du-runner-…-8efc0</span> vers la branche par défaut du dépôt.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<div class="verdict-note"><span><b>Ce qui change dans le code :</b> PrScreen porte un état de segment et monte PrTab ou DiffView ; un rang de rail en moins.</span><span><b>Prix :</b> on relit le brouillon sans voir le diff, et on commente le diff sans voir le brouillon. C'est la séparation actuelle, un cran plus près.</span></div>
+
+</div>
+<button class="toggle" type="button" onclick="var r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark'">Basculer clair / sombre</button>
+</body>
+</html>

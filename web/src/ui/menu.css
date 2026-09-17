@@ -1,0 +1,141 @@
+/* The surface sits on `--z-cmdp`, above modals, since a secondary action can open from one. */
+.ui-menu-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-4);
+  min-height: var(--h-control-md);
+  padding: 0 var(--sp-6);
+  border: 1px solid var(--border-floating);
+  border-radius: var(--r-2);
+  background: var(--sheet);
+  box-shadow: var(--el-btn);
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  transition:
+    background var(--dur-1) var(--ease),
+    border-color var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease);
+}
+
+.ui-menu-trigger[data-icon="true"] {
+  width: var(--h-control-md);
+  padding: 0;
+  justify-content: center;
+}
+
+.ui-menu-trigger:hover,
+.ui-menu-trigger[aria-expanded="true"] {
+  background: var(--sheet-hi);
+  border-color: var(--border-strong);
+  color: var(--ink);
+}
+
+.ui-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: var(--z-cmdp);
+  min-width: 200px;
+  /* Design cap (320px) combined with the window worst case computed by floating.ts. */
+  max-width: min(320px, var(--surface-max-w, 320px));
+  padding: var(--sp-2);
+  background: var(--sheet);
+  border: 1px solid var(--border-floating);
+  border-radius: var(--r-3);
+  box-shadow: var(--el-2);
+  /* Until its position is measured, the surface must not show in the top-left corner. */
+  visibility: hidden;
+}
+
+.ui-menu[data-placed="true"] {
+  visibility: visible;
+  animation: ui-menu-in var(--dur-2) var(--ease-out);
+}
+
+@keyframes ui-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.ui-menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+  width: 100%;
+  min-height: var(--h-control-md);
+  padding: var(--sp-3) var(--sp-5);
+  border-radius: var(--r-2);
+  font-size: var(--fs-sm);
+  color: var(--ink);
+  text-align: left;
+  transition:
+    background var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease);
+}
+
+.ui-menu-item > svg {
+  color: var(--ink-3);
+}
+
+.ui-menu-item:hover:not(:disabled),
+.ui-menu-item:focus-visible {
+  background: var(--row-hover);
+}
+
+.ui-menu-item[data-danger="true"] {
+  color: var(--bad);
+}
+
+.ui-menu-item[data-danger="true"] > svg {
+  color: var(--bad);
+}
+
+.ui-menu-item[data-danger="true"]:hover:not(:disabled),
+.ui-menu-item[data-danger="true"]:focus-visible {
+  background: var(--bad-wash);
+  color: var(--bad-deep);
+}
+
+.ui-menu-item:disabled {
+  color: var(--ink-3);
+  cursor: not-allowed;
+}
+
+.ui-menu-item:disabled > svg {
+  opacity: 0.55;
+}
+
+.ui-menu-item-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ui-menu-shortcut {
+  flex-shrink: 0;
+  font-family: var(--mono);
+  font-size: var(--fs-2xs);
+  color: var(--ink-3);
+}
+
+.ui-menu-sep {
+  height: 1px;
+  margin: var(--sp-2) var(--sp-3);
+  background: var(--border-separator);
+}
+
+/* Every open menu row grows to the touch floor below the phone breakpoint (14/09, touch audit),
+   not only the project switcher's: a menu cannot know which of its callers runs under a finger. */
+@media (max-width: 640px) {
+  .ui-menu-item {
+    min-height: var(--h-touch);
+  }
+}

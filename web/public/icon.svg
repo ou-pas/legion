@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Legion">
+  <style>
+    :root { --ground: #f4f0e8; --mass: #1e1a15; --agent: #b03f1b; }
+    @media (prefers-color-scheme: dark) {
+      :root { --ground: #2e3440; --mass: #eceff4; --agent: #8fc7d6; }
+    }
+  </style>
+  <rect width="512" height="512" rx="112" fill="var(--ground, #f4f0e8)"/>
+  <rect x="136" y="130" width="104" height="252" rx="20" fill="var(--mass, #1e1a15)"/>
+  <rect x="256" y="278" width="104" height="104" rx="20" fill="var(--mass, #1e1a15)"/>
+  <rect x="272" y="118" width="104" height="104" rx="20" fill="var(--agent, #b03f1b)"/>
+</svg>

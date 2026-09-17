@@ -1,0 +1,6 @@
+/* The sparkline fills its cell: the SVG has a viewBox and scaling keeps its aspect. A fixed width
+   (96 px) overflowed the vitals grid cells (~110 px, padding included). */
+.ir-vital .ui-sparkline {
+  width: 100%;
+  height: auto;
+}

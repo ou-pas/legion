@@ -1,0 +1,230 @@
+/* The wiki. Every value comes from tokens.css (rule 2 of the design contract). */
+
+.dm-wiki-toc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.dm-wiki-toc-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  /* More room on the left than the right: icon and label breathe, and the current page pill has
+     something to colour (operator feedback). */
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-2);
+  color: var(--ink-2);
+  text-decoration: none;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-snug);
+}
+
+.dm-wiki-toc-item:hover {
+  background: var(--row-hover);
+  color: var(--ink);
+}
+
+/* The current page shows without shouting: a washed background and a left rule, not a solid
+   accent. In a long contents list, a solid fill draws the eye more than the content. */
+.dm-wiki-toc-item[data-current] {
+  background: var(--accent-wash);
+  color: var(--ink);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.dm-wiki-toc-item svg {
+  flex: none;
+  color: var(--ink-3);
+}
+.dm-wiki-toc-item[data-current] svg {
+  color: var(--accent);
+}
+
+/* The folder name serves as a heading. It comes from disk in lowercase; capitalisation happens
+   here, at display, rather than constraining folder names. */
+.dm-wiki-section {
+  text-transform: capitalize;
+  letter-spacing: var(--tr-caps);
+}
+
+/* A wikilink stays inside the corpus: no permanent underline, which would chop up a paragraph full
+   of them. */
+.dm-wiki-link {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid var(--accent-line);
+}
+
+.dm-wiki-link:hover {
+  border-bottom-color: var(--accent);
+}
+
+/* A dead link stays readable and flagged. Not an error: it is the list of pages still to write. */
+.dm-wiki-dead {
+  color: var(--ink-3);
+  border-bottom: 1px dashed var(--rule-2);
+  cursor: help;
+}
+
+/* Prose does not style h1-h6. A doc page needs two visible levels to be skimmed; beyond two, the
+   page wants splitting. */
+.dm-wiki-prose .dm-wiki-h2 {
+  font-family: var(--sans);
+  font-size: var(--fs-xl);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--tr-display);
+  color: var(--ink);
+  margin-top: var(--sp-7);
+  margin-bottom: var(--sp-1);
+  /* Arriving through a `#section` must not stick the heading to the top edge: without this margin
+     you land on a heading that looks like the first of the page. */
+  scroll-margin-top: var(--sp-5);
+}
+
+.dm-wiki-prose .dm-wiki-h2:first-child {
+  margin-top: 0;
+}
+
+.dm-wiki-prose .dm-wiki-h3 {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semi);
+  color: var(--ink);
+  margin-top: var(--sp-5);
+  margin-bottom: var(--sp-1);
+}
+
+/* The sheet: the text, and the reserved place of the section column. This declaration is unique
+   and unconditional, and that is the point: if the grid changed with the presence of headings,
+   the body would jump sideways between pages. (`wiki-anchors.test.tsx` rereads this file.) */
+.dm-wiki-sheet {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--w-anchors);
+  gap: var(--sp-8);
+  align-items: start;
+}
+
+/* Only the text scrolls (29/08). The app content area used to scroll whole, so the screen title
+   and the section column left with the article, and an anchor brought its section mid-screen.
+   The page holds the height; the scroll goes one level down, to the body.
+
+   `min-height: 0` at every level is the line that matters: a grid or flex child refuses by default
+   to shrink below its content height, so without it nothing scrolls and the page overflows. */
+.dm-wiki-page {
+  height: 100%;
+  min-height: 0;
+}
+
+.dm-wiki-page .dm-wiki-sheet {
+  height: 100%;
+  min-height: 0;
+  align-items: stretch;
+}
+
+/* The frame stays still, its inside scrolls: three levels hold the height, one scrolls, and
+   `min-height: 0` on each (see above). */
+.dm-wiki-body {
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.dm-wiki-card {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.dm-wiki-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  /* The scrollbar does not bite into the text: it takes the gutter, not the measure. */
+  padding-right: var(--sp-5);
+  scrollbar-gutter: stable;
+}
+
+/* The missing travel. Clicking an anchor brings its section to the top, except the last ones,
+   which could not rise for lack of content below. Reserve enough after the last paragraph to lift
+   any section to the top: `100%` minus a heading's height, so the last section reaches the top
+   without leaving a fully empty screen under a short page. */
+.dm-wiki-scroll::after {
+  content: "";
+  display: block;
+  block-size: calc(100% - var(--sp-11));
+}
+
+/* The section column lives in a DS `SidePanel` (04/09), which owns its geometry. The list inside
+   no longer needs to be sticky: the sheet holds the height. */
+.dm-wiki-sheet > .ui-sidepanel .dm-wiki-anchors {
+  position: static;
+}
+
+/* On a narrow screen the column does not slide under the text, it goes away: a section list after
+   the article it indexes indexes nothing. */
+@media (max-width: 900px) {
+  .dm-wiki-sheet {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dm-wiki-sheet > .ui-sidepanel {
+    display: none;
+  }
+}
+
+.dm-wiki-anchors {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  min-width: 0;
+}
+
+.dm-wiki-anchors-title {
+  font-family: var(--sans);
+  font-size: var(--fs-2xs);
+  letter-spacing: var(--tr-caps);
+  text-transform: uppercase;
+  color: var(--ink-3);
+  padding: 0 var(--sp-3) var(--sp-2);
+}
+
+/* The left rule replaces the pill: in an eight-entry column, a solid accent would draw the eye
+   more than the text it accompanies. */
+.dm-wiki-anchor {
+  color: var(--ink-3);
+  text-decoration: none;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-snug);
+  padding: var(--sp-2) var(--sp-3);
+  border-left: 1px solid var(--rule);
+}
+
+.dm-wiki-anchor:hover {
+  color: var(--ink);
+  border-left-color: var(--rule-2);
+}
+.dm-wiki-anchor[aria-current="true"] {
+  color: var(--ink);
+  border-left-color: var(--accent);
+}
+
+.dm-wiki-quote {
+  margin: 0;
+  padding-left: var(--sp-3);
+  border-left: 2px solid var(--rule-2);
+  color: var(--ink-2);
+}
+
+.dm-wiki-rule {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: var(--sp-5) 0;
+}

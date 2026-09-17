@@ -1,0 +1,62 @@
+# Legion mutation testing (Stryker). Included by the main Makefile.
+#
+# Coverage says a line was executed, never that it was checked: a test that calls a function and
+# asserts nothing covers all of it. Stryker breaks the code one change at a time (`>` to `>=`,
+# `&&` to `||`, a string emptied) and reruns the tests. A killed mutant means a test saw the
+# change; a surviving one means nobody was looking.
+#
+# Not in `make gates`, on purpose:
+#   1. Cost. Two UI files take two minutes, a small server domain one, the UI `tasks` domain
+#      twelve. A gate nobody has time to pass gets bypassed.
+#   2. A survivor can mean a missing assertion, dead code or a mutation with no observable
+#      effect; only reading decides, and a blocking number forces a guess.
+#   3. The score moves when the code moves: an untested branch lowers the score of a domain
+#      nobody touched, which a blocking threshold would turn into an unrelated build failure.
+#
+# Run it by hand on one domain: before a refactor, after writing a suite, or when a bug got past
+# green tests. The config thresholds are informative only (`break: null`).
+#
+# Reading a survivor: docs/wiki/guides/mutation.md
+
+MUTATION_DOMAIN_GUARD = @test -n "$(DOMAIN)" || { echo "DOMAIN= missing. Example: make $@ DOMAIN=tasks"; exit 2; }
+
+.PHONY: mutation-web
+mutation-web: ## Mutation testing of the UI on one domain: make mutation-web DOMAIN=tasks
+	$(MUTATION_DOMAIN_GUARD)
+	@# `--mutate` replaces the config file's list instead of adding to it, so the exclusions
+	@# (tests, stories) are repeated here; otherwise Stryker mutates the tests themselves.
+	pnpm --filter @legion/web exec stryker run --mutate "src/$(DOMAIN)/**/*.ts,src/$(DOMAIN)/**/*.tsx,!src/$(DOMAIN)/**/*.test.ts,!src/$(DOMAIN)/**/*.test.tsx,!src/$(DOMAIN)/**/*.stories.tsx"
+
+.PHONY: mutation-server
+mutation-server: ## Mutation testing of the server on one domain: make mutation-server DOMAIN=projects
+	$(MUTATION_DOMAIN_GUARD)
+	@# `--testFiles` stays on the same domain: the tap runner starts one node process per test
+	@# file during the dry run, so the whole server suite would cost a minute before the first
+	@# mutant and make the measure depend on unrelated tests.
+	@#
+	@# The `grep -L` removes tests that would fail wrongly. Stryker copies `server/` into
+	@# `server/.stryker-tmp/sandbox-XXXX/`, so a test climbing three levels from its own file
+	@# (`new URL("../../../web/src/", import.meta.url)`) lands in `.stryker-tmp/`, not the repo
+	@# root. About a dozen tests do this legitimately to read `web/src/`, `runner-payload/` or
+	@# `docs/wiki/`; without the filter `DOMAIN=tasks` stops on an ENOENT from `blockers.test.ts`
+	@# before the first mutant. The fault is the sandbox's, not the test's.
+	@#
+	@# The pattern names the cause, not file names, which would go stale with the next test.
+	@# `--testFiles` ignores `!` negations (Stryker reports them as unmatched), hence the list
+	@# built here.
+	@cd server \
+	  && tests=$$(grep -L '\.\./\.\./\.\./' src/$(DOMAIN)/*.test.ts | paste -sd, -) \
+	  && { [ -n "$$tests" ] || { echo "no usable test in server/src/$(DOMAIN)/"; exit 2; }; } \
+	  && npx stryker run \
+	       --mutate "src/$(DOMAIN)/**/*.ts,!src/$(DOMAIN)/**/*.test.ts" \
+	       --testFiles "$$tests"
+
+.PHONY: mutation-report
+mutation-report: ## Open the latest HTML reports (web and server, whichever exist)
+	@# One report per side, each run overwrites the previous one. Keeping history would mean
+	@# naming, storing and cleaning report files, for a measure taken one domain at a time.
+	@found=0; \
+	for f in web/reports/mutation/index.html server/reports/mutation/index.html; do \
+	  if [ -f "$$f" ]; then found=1; echo "→ $$f"; (open "$$f" 2>/dev/null || xdg-open "$$f" 2>/dev/null || true); fi; \
+	done; \
+	test "$$found" = 1 || echo "No report. Run make mutation-web DOMAIN=… or make mutation-server DOMAIN=… first"

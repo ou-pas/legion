@@ -1,0 +1,17 @@
+# What enters the build context of `session-image/Dockerfile` (13/09).
+#
+# The context moved from `session-image/` to the repository root when payload compilation entered
+# the Dockerfile: `tsc` needs the `.mts` files and their `package.json` from `runner-payload/`.
+#
+# BuildKit reads `<Dockerfile path>.dockerignore` before the root one, which belongs to
+# `deploy/Dockerfile` and says something else. An older daemon falls back to the root file: the
+# context grows, the build still works.
+#
+# Compiled `.mjs` files are excluded explicitly: no longer produced on disk, but an older clone still
+# has some, and letting them in would let a COPY of stale files race the stage that just compiled
+# them.
+*
+!runner-payload
+!session-image
+**/node_modules
+session-image/*.mjs

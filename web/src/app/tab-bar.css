@@ -1,0 +1,96 @@
+/* The phone tab bar. It only exists at the `compact` breakpoint: above it the rail navigates, and
+   two navigation mechanisms for the same job is exactly what `rail-slot.tsx` took apart. */
+.app-tabbar {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .app-tabbar {
+    display: flex;
+    flex-shrink: 0;
+    align-items: stretch;
+    /* Height comes from `--h-tabbar` (tokens.css), not the sum of the targets: the toast
+       (`ui/toast.css`) reads the same token so it never sits on top. `box-sizing: border-box` is
+       global (`ui/base.css`), so the rule and gutter below stay WITHIN this height. */
+    min-height: var(--h-tabbar);
+    border-top: 1px solid var(--border-separator);
+    background: var(--sheet);
+    /* The home indicator eats the bottom of a buttonless iPhone: without this margin the last row
+       of targets falls under it and becomes untouchable. `env()` is 0 elsewhere. */
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  /* The whole level scrolls here (13/09): every destination of where you are, not three plus a
+     drawer, since a jump between two neighbours cost two taps. */
+  .app-tabbar-scroll {
+    display: flex;
+    align-items: stretch;
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+    /* Scrolling stops at this bar instead of reaching the page behind: otherwise the end of the
+       list bounces the whole screen. */
+    overscroll-behavior-x: contain;
+    /* Each target snaps to the left edge at the end of a gesture: never stopping on half an icon,
+       which is how a scrolling bar becomes unreadable. */
+    scroll-snap-type: x proximity;
+    /* No scrollbar: it would eat four pixels under 44 px targets, and the gesture already says it
+       scrolls. */
+    scrollbar-width: none;
+  }
+
+  .app-tabbar-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .app-tabbar-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sp-1);
+    /* 44px targets: Apple's finger minimum. The design contract's rule 7 asks at least 24px, but a
+       thumb needs more than a cursor. */
+    min-height: var(--h-touch);
+    /* Fixed width rather than `flex: 1`: rows follow each other instead of sharing the bar. 78px
+       fit a two-short-word label and show half of a fifth target at 393px; that half row SAYS the
+       list continues, better than an edge shadow nobody reads as an invitation. */
+    flex: 0 0 auto;
+    width: 78px;
+    scroll-snap-align: start;
+    padding: var(--sp-2) var(--sp-1);
+    border: 0;
+    background: none;
+    color: var(--ink-2);
+    font: inherit;
+    font-size: var(--fs-xs);
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  /* The exit is pinned outside the scroller: it is the one target whose absence traps you, and an
+     exit that slides away is not an exit. The rule separates it from the level it leaves. */
+  .app-tabbar-back {
+    width: 64px;
+    border-right: 1px solid var(--border-separator);
+  }
+
+  .app-tabbar-item > svg {
+    width: var(--icon-row);
+    height: var(--icon-row);
+  }
+
+  /* The current tab is marked with INK, not a background: a dark fill digs in instead of standing
+     out on a dark ground (rule 9quinquies). */
+  .app-tabbar-item.is-active {
+    color: var(--ink);
+  }
+
+  .app-tabbar-label {
+    /* A long label never pushes its target: the width is fixed, the text yields. */
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

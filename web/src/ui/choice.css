@@ -1,0 +1,276 @@
+/* The whole label is the target, at least 24px tall even when the box is 16. */
+.ui-choice,
+.ui-switch {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--h-control-sm);
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  cursor: pointer;
+  user-select: none;
+  transition: color var(--dur-1) var(--ease);
+}
+
+.ui-choice {
+  gap: var(--sp-4);
+}
+
+.ui-switch {
+  gap: var(--sp-5);
+}
+
+.ui-choice:hover,
+.ui-switch:hover {
+  color: var(--ink);
+}
+
+.ui-choice:has(.ui-choice-box:disabled),
+.ui-switch:has(.ui-switch-input:disabled) {
+  color: var(--ink-3);
+  cursor: not-allowed;
+}
+
+.ui-choice-text {
+  min-width: 0;
+}
+
+/* Drawn checkbox and radio. The native input stays in the DOM (keyboard, screen readers, forms)
+   but invisible; the visible shape is <span data-shape>. Every state is selected from the input
+   (:checked / :disabled / :focus-visible), none is driven from React. */
+.ui-choice-slot {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  /* --sz-choice, not --sp-8: a control dimension that follows the base font (see tokens.css). */
+  width: var(--sz-choice);
+  height: var(--sz-choice);
+}
+
+.ui-choice-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  border: none;
+  background: none;
+  cursor: inherit;
+}
+
+.ui-choice-box {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  background: var(--sheet);
+  border: 1px solid var(--border-control);
+  box-shadow: var(--el-btn);
+  /* Transparent by default: colored like the sheet, the mark showed as a ghost on an unchecked
+     box on hover (operator report). It only gets its color when checked. */
+  color: transparent;
+  transition:
+    background-color var(--dur-1) var(--ease),
+    border-color var(--dur-1) var(--ease),
+    box-shadow var(--dur-1) var(--ease);
+}
+
+.ui-choice-box[data-shape="square"] {
+  border-radius: var(--r-1);
+}
+
+.ui-choice-box[data-shape="round"] {
+  border-radius: var(--r-round);
+}
+
+/* `:indeterminate` does not only mean partial checkboxes. A radio is `:indeterminate` while no
+   radio in its group is checked (HTML spec). The partial-state rules below caught every
+   unanswered radio group: filled accent dots before any click (operator, 25/08, a 7-question
+   inbox form). Hence `[type="checkbox"]` on every partial-state rule. The hover rule excluded
+   `:indeterminate` too, so unselected radios did not react to hover either. */
+
+/* Hover on an unchecked box only. This selector is more specific than the checked one, so it won
+   regardless of order, repainted the box and hid the check while hovered (operator feedback). */
+.ui-choice:hover
+  .ui-choice-input:not(:disabled):not(:checked):not([type="checkbox"]:indeterminate)
+  + .ui-choice-box {
+  border-color: var(--accent);
+  background: var(--sheet-hi);
+}
+
+/* Hover on a checked box darkens the fill so the check stays readable. */
+.ui-choice:hover .ui-choice-input:not(:disabled):checked + .ui-choice-box,
+.ui-choice:hover .ui-choice-input[type="checkbox"]:not(:disabled):indeterminate + .ui-choice-box {
+  background: var(--accent-deep);
+  border-color: var(--accent-deep);
+}
+
+.ui-choice-input:checked + .ui-choice-box,
+.ui-choice-input[type="checkbox"]:indeterminate + .ui-choice-box {
+  background: var(--accent);
+  border-color: var(--accent-deep);
+  color: var(--sheet-hi);
+}
+
+.ui-choice-input:focus-visible + .ui-choice-box {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+/* The check draws itself: the one moment of movement, and it means "you just checked this". */
+.ui-choice-glyph {
+  width: 100%;
+  height: 100%;
+  /* Two locks: opacity (nothing prints unless checked) and the stroke (the animation). */
+  opacity: 0;
+}
+
+.ui-choice-input:checked + .ui-choice-box .ui-choice-glyph {
+  opacity: 1;
+}
+
+.ui-choice-glyph path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset var(--dur-2) var(--ease-out);
+}
+
+.ui-choice-input:checked + .ui-choice-box .ui-choice-glyph path {
+  stroke-dashoffset: 0;
+}
+
+.ui-choice-dash,
+.ui-choice-dot {
+  background: currentColor;
+  opacity: 0;
+  transform: scale(0);
+  transition:
+    transform var(--dur-1) var(--ease-out),
+    opacity var(--dur-1) var(--ease);
+}
+
+.ui-choice-dash {
+  width: 8px;
+  height: 2px;
+  border-radius: var(--r-pill);
+}
+
+.ui-choice-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--r-round);
+}
+
+.ui-choice-input[type="checkbox"]:indeterminate + .ui-choice-box .ui-choice-dash,
+.ui-choice-input:checked + .ui-choice-box .ui-choice-dot {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Disabled keeps the shape readable (recess + line) rather than just lowering opacity: a greyed
+   box must still be identifiable as checked. */
+.ui-choice-input:disabled + .ui-choice-box {
+  background: var(--recess-2);
+  border-color: var(--border-control);
+  box-shadow: none;
+  color: var(--ink-3);
+}
+
+.ui-choice-input:disabled:checked + .ui-choice-box,
+.ui-choice-input[type="checkbox"]:disabled:indeterminate + .ui-choice-box {
+  background: var(--rule-2);
+  border-color: var(--border-strong);
+  color: var(--sheet-hi);
+}
+
+.ui-switch-slot {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+/* Still a real checkbox (keyboard, label, role=switch), invisible over the drawn track. */
+.ui-switch-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.ui-switch-track {
+  display: block;
+  /* Control dimensions, not spacing tokens: the switch lines up with a label and must grow with
+     the base font. */
+  width: var(--w-switch);
+  height: var(--h-switch);
+  border: 1px solid var(--border-control);
+  border-radius: var(--r-pill);
+  background: var(--recess-2);
+  transition:
+    background-color var(--dur-1) var(--ease),
+    border-color var(--dur-1) var(--ease);
+}
+
+.ui-switch-knob {
+  display: block;
+  width: var(--sz-switch-knob);
+  height: var(--sz-switch-knob);
+  margin: var(--sp-1);
+  border-radius: var(--r-round);
+  background: var(--sheet-hi);
+  box-shadow: var(--el-btn);
+  transition: transform var(--dur-1) var(--ease);
+}
+
+.ui-switch-input:checked + .ui-switch-track {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Knob travel is derived from the geometry (track − knob − its two margins − the track's two
+   lines) instead of a copied 12px: both grow with the base font. */
+.ui-switch-input:checked + .ui-switch-track .ui-switch-knob {
+  transform: translateX(calc(var(--w-switch) - var(--sz-switch-knob) - var(--sp-2) - 2px));
+}
+
+.ui-switch-input:focus-visible + .ui-switch-track {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+.ui-switch-input:disabled + .ui-switch-track {
+  background: var(--recess);
+  border-color: var(--border-control);
+}
+
+.ui-switch-input:disabled + .ui-switch-track .ui-switch-knob {
+  background: var(--paper);
+  box-shadow: none;
+}
+
+.ui-radiogroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  min-width: 0;
+}
+
+.ui-radiogroup-label {
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-semi);
+  text-transform: uppercase;
+  letter-spacing: var(--tr-caps);
+  color: var(--ink-3);
+}
+
+.ui-radiogroup-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-4) var(--sp-9);
+}

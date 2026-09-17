@@ -1,0 +1,131 @@
+/* The dash comes from the object line (--rule-2): it reads as a provisional frame, not a
+   button. */
+.ui-dropzone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-4);
+  width: 100%;
+  padding: var(--sp-10) var(--sp-8);
+  border: 1px dashed var(--border-control);
+  border-radius: var(--r-3);
+  background: var(--recess);
+  color: var(--ink-3);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  text-align: left;
+  transition:
+    background-color var(--dur-1) var(--ease),
+    border-color var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease);
+}
+
+.ui-dropzone-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  min-width: 0;
+}
+
+.ui-dropzone-hint {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-normal);
+  line-height: var(--lh-snug);
+  color: var(--ink-3);
+}
+
+/* Hover only at rest, otherwise it would mask over/busy/rejected. */
+.ui-dropzone[data-state="idle"]:hover:not(:disabled) {
+  border-color: var(--border-strong);
+  background: var(--recess-2);
+  color: var(--ink-2);
+}
+
+/* File above: the frame turns solid, the target is armed. */
+.ui-dropzone[data-state="over"] {
+  border-style: solid;
+  border-color: var(--accent);
+  background: var(--accent-wash);
+  color: var(--accent-deep);
+}
+
+.ui-dropzone[data-state="busy"] {
+  border-color: var(--run-line);
+  background: var(--run-wash);
+  color: var(--run);
+  cursor: progress;
+}
+
+.ui-dropzone[data-state="busy"] .ui-dropzone-icon {
+  animation: ui-dropzone-turn calc(var(--dur-2) * 5) linear infinite;
+}
+
+@keyframes ui-dropzone-turn {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+.ui-dropzone[data-state="rejected"] {
+  border-color: var(--bad);
+  background: var(--bad-wash);
+  color: var(--bad);
+}
+
+.ui-dropzone:disabled {
+  border-color: var(--border-control);
+  background: var(--recess);
+  color: var(--ink-3);
+  cursor: not-allowed;
+}
+
+.ui-filechip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  max-width: 100%;
+  min-width: 0;
+  padding: var(--sp-1) var(--sp-1) var(--sp-1) var(--sp-4);
+  border: 1px solid var(--border-control);
+  border-radius: var(--r-2);
+  background: var(--sheet);
+  font-size: var(--fs-xs);
+  color: var(--ink);
+}
+
+.ui-filechip-icon {
+  color: var(--ink-3);
+}
+
+.ui-filechip-name {
+  overflow: hidden;
+  min-width: 0;
+  max-width: 26ch;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ui-filechip-size {
+  font-family: var(--mono);
+  font-size: var(--fs-2xs);
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+.ui-filechip-x {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: var(--sp-10);
+  height: var(--sp-10);
+  border-radius: var(--r-1);
+  color: var(--ink-3);
+  transition:
+    background-color var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease);
+}
+
+.ui-filechip-x:hover {
+  background: var(--bad-wash);
+  color: var(--bad);
+}

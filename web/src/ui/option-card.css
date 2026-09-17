@@ -1,0 +1,74 @@
+/* The whole card is the label: one target, no dead zone between mark and text. State comes from
+   the native input (`:has(:checked)`), never React. */
+.ui-optcards {
+  display: grid;
+  gap: var(--sp-3);
+  min-width: 0;
+}
+
+.ui-optcards[data-layout="row"] {
+  grid-template-columns: repeat(auto-fit, minmax(var(--w-optcard), 1fr));
+}
+
+.ui-optcard {
+  display: grid;
+  grid-template-columns: var(--sz-choice) minmax(0, 1fr);
+  gap: var(--sp-5);
+  align-items: start;
+  padding: var(--sp-5) var(--sp-6);
+  border: 1px solid var(--border-control);
+  border-radius: var(--r-3);
+  background: var(--sheet);
+  color: var(--ink);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-body);
+  cursor: pointer;
+  transition:
+    border-color var(--dur-1) var(--ease),
+    background-color var(--dur-1) var(--ease);
+}
+
+/* The 16px mark aligns with the label's first line (13px × 1.5 ≈ 20px). */
+.ui-optcard > .ui-choice-slot {
+  margin-top: var(--sp-1);
+}
+
+.ui-optcard:hover {
+  border-color: var(--border-strong);
+}
+
+/* Same mark hover as a `Radio`: choice.css scopes it to `.ui-choice`, the card restates it. */
+.ui-optcard:hover .ui-choice-input:not(:disabled):not(:checked) + .ui-choice-box {
+  border-color: var(--accent);
+  background: var(--sheet-hi);
+}
+
+.ui-optcard:has(.ui-choice-input:checked) {
+  border-color: var(--row-selected-line);
+  background: var(--row-selected);
+}
+
+.ui-optcard[data-disabled] {
+  color: var(--ink-3);
+  cursor: not-allowed;
+}
+
+.ui-optcard-body {
+  display: block;
+  min-width: 0;
+}
+
+.ui-optcard-label {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-3) var(--sp-4);
+  font-weight: var(--fw-medium);
+}
+
+.ui-optcard-why {
+  display: block;
+  margin-top: var(--sp-1);
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}

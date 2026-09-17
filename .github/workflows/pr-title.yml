@@ -1,0 +1,31 @@
+name: PR Title
+
+# This repository merges with merge commits, so a PR title never becomes a commit message on `main`.
+# Clean titles still feed the examples slice nav/18 reads. Same action as Acme's two repositories
+# (`ytanikin/PRConventionalCommits`). Separate from ci.yml so a malformed title does not fail together
+# with the gates.
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+concurrency:
+  group: pr-title-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+# Reads the title only: `add_label: false` below, so nothing is written to the PR.
+permissions:
+  pull-requests: read
+
+jobs:
+  validate-pr-title:
+    name: conventional-title
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: conventional title
+        uses: ytanikin/PRConventionalCommits@1.3.0
+        with:
+          # What `server/src/tasks/task-branch.ts` emits (feat, fix, chore) plus the other types the
+          # task that requested this file named.
+          task_types: '["feat","fix","docs","chore","refactor","test","perf","ci"]'
+          add_label: 'false'

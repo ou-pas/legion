@@ -1,0 +1,112 @@
+/* base.css already handles background, line, focus and placeholder: this adds width, two sizes
+   and the invalid state. */
+.ui-input,
+.ui-textarea,
+.ui-select {
+  width: 100%;
+  min-width: 0;
+  font-size: var(--fs-md);
+}
+
+/* Same geometry as buttons: fixed height, no floor. */
+.ui-input[data-size="md"],
+.ui-select[data-size="md"] {
+  height: var(--h-control-md);
+}
+
+.ui-input[data-size="sm"],
+.ui-textarea[data-size="sm"],
+.ui-select[data-size="sm"] {
+  padding-inline: var(--sp-4);
+  font-size: var(--fs-sm);
+}
+
+.ui-input[data-size="sm"],
+.ui-select[data-size="sm"] {
+  height: var(--h-control-sm);
+}
+
+.ui-select[data-size="sm"] {
+  padding-right: var(--sp-10);
+  background-position: right var(--sp-4) center;
+}
+
+.ui-textarea {
+  /* Vertical only: a horizontally resizable area overflows its column. */
+  resize: vertical;
+  line-height: var(--lh-body);
+}
+
+/* Invalid: semantic line, same mechanics as focus (inner line). */
+.ui-input[aria-invalid="true"],
+.ui-textarea[aria-invalid="true"],
+.ui-select[aria-invalid="true"] {
+  border-color: var(--bad);
+}
+
+.ui-input[aria-invalid="true"]:hover:not(:disabled),
+.ui-textarea[aria-invalid="true"]:hover:not(:disabled),
+.ui-select[aria-invalid="true"]:hover:not(:disabled) {
+  border-color: var(--bad);
+}
+
+.ui-input[aria-invalid="true"]:focus,
+.ui-textarea[aria-invalid="true"]:focus,
+.ui-select[aria-invalid="true"]:focus {
+  border-color: var(--bad);
+  box-shadow: var(--field-ring-bad);
+}
+
+.ui-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+}
+
+.ui-search-icon {
+  position: absolute;
+  left: var(--sp-5);
+  color: var(--ink-3);
+  pointer-events: none;
+}
+
+.ui-search[data-size="sm"] .ui-search-icon {
+  left: var(--sp-4);
+}
+
+.ui-search-input {
+  padding-left: var(--sp-11);
+  padding-right: var(--sp-11);
+}
+
+.ui-search[data-size="sm"] .ui-search-input {
+  padding-left: var(--sp-10);
+  padding-right: var(--sp-10);
+}
+
+/* WebKit's native clear button would duplicate ours. */
+.ui-search-input::-webkit-search-cancel-button {
+  appearance: none;
+  display: none;
+}
+
+.ui-search-clear {
+  position: absolute;
+  right: var(--sp-2);
+  display: grid;
+  place-items: center;
+  width: var(--sp-10);
+  height: var(--sp-10);
+  border-radius: var(--r-1);
+  color: var(--ink-3);
+  transition:
+    background-color var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease);
+}
+
+.ui-search-clear:hover {
+  background: var(--recess-2);
+  color: var(--ink);
+}

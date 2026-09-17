@@ -1,0 +1,74 @@
+/* Base of modal surfaces (Modal, Drawer). The scrim has no token: it derives from ink. */
+.ui-scrim {
+  position: fixed;
+  inset: 0;
+  background: var(--scrim);
+  overscroll-behavior: contain;
+  animation: ui-scrim-in var(--dur-2) var(--ease-out);
+}
+
+@keyframes ui-scrim-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Floating sheet (it overlays, hence the stronger line), high elevation, and `overflow: hidden`
+   so header and footer, which have their own background, follow the radius instead of poking
+   out in sharp corners (operator feedback). */
+.ui-dialog-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--sheet);
+  border: 1px solid var(--border-floating);
+  border-radius: var(--r-3);
+  box-shadow: var(--el-2);
+  overflow: hidden;
+}
+
+.ui-dialog-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  padding: var(--sp-6) var(--sp-8);
+  border-bottom: 1px solid var(--border-separator);
+  background: var(--recess);
+}
+
+.ui-dialog-head > svg {
+  color: var(--ink-2);
+}
+
+.ui-dialog-title {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-xl);
+  letter-spacing: var(--tr-tight);
+}
+
+.ui-dialog-body {
+  flex: 1;
+  min-height: 0;
+  padding: var(--sp-9);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.ui-dialog-foot {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  padding: var(--sp-6) var(--sp-8);
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  border-top: 1px solid var(--border-separator);
+  background: var(--recess);
+}

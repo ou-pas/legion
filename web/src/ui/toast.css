@@ -1,0 +1,141 @@
+/* Bottom-right stack. The region ignores the pointer (it permanently covers a corner); only toasts are
+   clickable. */
+.ui-toast-region {
+  position: fixed;
+  right: var(--sp-9);
+  bottom: var(--sp-9);
+  z-index: var(--z-toast);
+  display: flex;
+  /* column-reverse: the newest sits closest to the corner, the stack grows upwards. */
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  gap: var(--sp-4);
+  pointer-events: none;
+}
+
+.ui-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-5);
+  min-width: var(--w-toast);
+  max-width: calc(var(--w-toast) * 1.25);
+  padding: var(--sp-5) var(--sp-6);
+  background: var(--sheet);
+  border: 1px solid var(--border-floating);
+  border-radius: var(--r-3);
+  box-shadow: var(--el-2);
+  font-size: var(--fs-sm);
+  /* The module's only movement: entering and leaving. */
+  animation: ui-toast-in var(--dur-2) var(--ease-out);
+}
+
+.ui-toast[data-leaving="true"] {
+  animation: ui-toast-out var(--dur-2) var(--ease-out) forwards;
+}
+
+@keyframes ui-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--sp-6));
+  }
+}
+
+@keyframes ui-toast-out {
+  to {
+    opacity: 0;
+    transform: translateY(var(--sp-4));
+  }
+}
+
+.ui-toast-icon {
+  display: flex;
+  padding-top: var(--sp-1);
+  color: var(--ink-2);
+}
+
+.ui-toast-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.ui-toast-title {
+  font-weight: var(--fw-semi);
+  line-height: var(--lh-snug);
+}
+
+.ui-toast-body {
+  margin-top: var(--sp-2);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-body);
+  color: var(--ink-2);
+}
+
+.ui-toast-action {
+  margin-top: var(--sp-4);
+}
+
+/* Overflow counter: not a toast but a measure, so mono. */
+.ui-toast-more {
+  pointer-events: auto;
+  padding: var(--sp-2) var(--sp-5);
+  background: var(--recess);
+  border: 1px solid var(--border-floating);
+  border-radius: var(--r-pill);
+  font-family: var(--mono);
+  font-size: var(--fs-2xs);
+  color: var(--ink-3);
+}
+
+/* The sheet stays white (a stack of colored rectangles at the bottom would shout): only the line and
+   icon carry the tone. */
+.ui-toast[data-tone="ok"] {
+  border-color: var(--ok-line);
+}
+
+.ui-toast[data-tone="ok"] .ui-toast-icon {
+  color: var(--ok);
+}
+
+.ui-toast[data-tone="wait"] {
+  border-color: var(--wait-line);
+}
+
+.ui-toast[data-tone="wait"] .ui-toast-icon {
+  color: var(--wait);
+}
+
+.ui-toast[data-tone="bad"] {
+  border-color: var(--bad-line);
+  background: var(--bad-wash);
+}
+
+.ui-toast[data-tone="bad"] .ui-toast-icon {
+  color: var(--bad);
+}
+
+@media (max-width: 640px) {
+  .ui-toast-region {
+    right: var(--sp-5);
+    bottom: var(--sp-5);
+    left: var(--sp-5);
+  }
+
+  /* Without this offset the phone tab bar loses taps to the toast (16/09): the region is fixed 10px
+     from the bottom, the bar is in flow and `--h-tabbar` tall, so they overlap by 35px and the toast
+     wins (`--z-toast` is above everything). `:has()` rather than a TSX class: `app/tab-bar.css`
+     decides whether the bar shows. `TabBarSlot` (router.tsx) renders `null` where there is no bar,
+     so the toast keeps its usual corner there. */
+  body:has(.app-tabbar) .ui-toast-region {
+    bottom: calc(var(--h-tabbar) + var(--sp-5));
+  }
+
+  .ui-toast {
+    max-width: none;
+    width: 100%;
+    /* No min width (`--w-toast`, 320px) below 640px: the toast follows the screen width. It beat
+       `width: 100%` and pushed the left edge to x = -10 under 340px (iPhone SE, split view), clipped
+       with no way to scroll to it. */
+    min-width: 0;
+  }
+}

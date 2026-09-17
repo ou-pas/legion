@@ -1,0 +1,90 @@
+/* The line around the track keeps it readable when empty and in black and white: a bar without an
+   outline vanishes at 0%. */
+.ui-meter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
+.ui-meter-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-5);
+  font-size: var(--fs-xs);
+}
+
+.ui-meter-label {
+  min-width: 0;
+  color: var(--ink-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ui-meter-value {
+  flex-shrink: 0;
+  color: var(--ink);
+}
+
+.ui-meter-value[data-tone="wait"] {
+  color: var(--wait);
+}
+
+.ui-meter-value[data-tone="bad"] {
+  color: var(--bad);
+}
+
+.ui-meter-value[data-tone="ok"] {
+  color: var(--ok);
+}
+
+.ui-meter-track {
+  overflow: hidden;
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-pill);
+  background: var(--recess);
+}
+
+.ui-meter-track[data-size="sm"] {
+  height: var(--sp-3);
+}
+
+.ui-meter-track[data-size="md"] {
+  height: var(--sp-4);
+}
+
+.ui-meter-track[data-size="lg"] {
+  height: var(--sp-6);
+}
+
+/* The one moment of movement: the fill follows the value. */
+.ui-meter-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  transition:
+    width var(--dur-2) var(--ease-out),
+    background-color var(--dur-1) var(--ease);
+}
+
+.ui-meter-track[data-tone="accent"] .ui-meter-fill {
+  background: var(--accent);
+}
+
+.ui-meter-track[data-tone="run"] .ui-meter-fill {
+  background: var(--run);
+}
+
+.ui-meter-track[data-tone="wait"] .ui-meter-fill {
+  background: var(--wait);
+}
+
+.ui-meter-track[data-tone="ok"] .ui-meter-fill {
+  background: var(--ok);
+}
+
+.ui-meter-track[data-tone="bad"] .ui-meter-fill {
+  background: var(--bad);
+}

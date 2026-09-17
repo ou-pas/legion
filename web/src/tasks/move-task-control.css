@@ -1,0 +1,7 @@
+/* The move menu trigger has the geometry of an icon button. The generic trigger
+   (`.ui-menu-trigger`) is only square when empty; here the icon is content, so we say it. */
+.ui-menu-trigger.move-task-trigger {
+  width: var(--h-control-md);
+  padding: 0;
+  justify-content: center;
+}

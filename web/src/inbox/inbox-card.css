@@ -1,0 +1,215 @@
+/* A question card (07/09): three bands, the same geometry in all four frames. The header background
+   SAYS the state (amber waiting, green answered, recess for a notice), which makes a queue of cards
+   readable without reading; the only painted place, the body stays neutral. */
+.inbox-card {
+  border: 1px solid var(--rule);
+  border-radius: var(--r-2);
+  background: var(--sheet-hi);
+  overflow: hidden;
+  min-width: 0;
+}
+
+.inbox-card-top {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: 1px solid var(--rule);
+  font-size: var(--fs-sm);
+  min-width: 0;
+}
+
+.inbox-card[data-state="answered"] .inbox-card-top {
+  background: var(--ok-wash);
+}
+.inbox-card[data-state="wait"] .inbox-card-top {
+  background: var(--recess);
+}
+
+.inbox-card-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: var(--icon-row);
+  height: var(--icon-row);
+  color: var(--ink-3);
+}
+
+.inbox-card-icon > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.inbox-card-body {
+  padding: var(--sp-4);
+  min-width: 0;
+}
+
+/* The task name in the head (08/09): one line, truncated if needed. The title below carries the
+   question; the head only locates. */
+.inbox-card-task {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The title in SANS, semi-bold, like the rest of the card (operator feedback 08/09, which led to
+   removing Fraunces entirely). It is the question BODY, not a screen title: a distinct editorial voice
+   read as a quote. No truncation: a question cut mid-way forces opening it. */
+.inbox-card-title {
+  font-size: var(--fs-md);
+  text-wrap: balance;
+}
+
+/* What is already decided, two columns: question left in muted ink, answer right in normal ink. The
+   answer is what counts. */
+.inbox-card-answers {
+  display: grid;
+  gap: var(--sp-1);
+  margin: 0;
+  font-size: var(--fs-sm);
+}
+
+.inbox-card-answer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: var(--sp-3);
+}
+
+.inbox-card-answer > dt {
+  color: var(--ink-3);
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.inbox-card-answer > dd {
+  margin: 0;
+  color: var(--ink);
+  font-weight: var(--fw-medium);
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.inbox-card-answer[data-more="true"] > dt {
+  font-style: italic;
+}
+
+.inbox-card-foot {
+  padding: 0 var(--sp-4) var(--sp-4);
+  min-width: 0;
+}
+
+.inbox-card-count {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex: none;
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  font-family: var(--mono);
+}
+
+/* The gauge is WIDE AND SHORT: a peripheral cue next to the number, which carries the exact value. */
+.inbox-card-gauge {
+  width: var(--w-field-num);
+  flex: none;
+}
+
+/* The gesture: a link shaped as a primary button, the card's only one. `ui/button` is not reusable
+   here: the frame provides its own <Link>, and a button wrapping a link would nest two interactive
+   elements. */
+.inbox-card-action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex: none;
+  padding: var(--sp-2) var(--sp-4);
+  border: 1px solid var(--accent);
+  border-radius: var(--r-1);
+  background: var(--accent);
+  color: var(--paper);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background var(--dur-1) var(--ease),
+    border-color var(--dur-1) var(--ease);
+}
+
+.inbox-card-action:hover {
+  background: var(--accent-deep);
+  border-color: var(--accent-deep);
+}
+
+/* Rereading an answer is not a call to action: the same link, muted. */
+.inbox-card[data-state="answered"] .inbox-card-action {
+  border-color: var(--rule-2);
+  background: var(--sheet);
+  color: var(--ink);
+}
+
+.inbox-card[data-state="answered"] .inbox-card-action:hover {
+  background: var(--row-hover);
+  border-color: var(--rule-3);
+}
+
+/* The row: the same object at list density. */
+
+.inbox-row {
+  display: grid;
+  grid-template-columns: var(--icon-row) minmax(0, 1fr) auto auto auto;
+  gap: var(--sp-4);
+  align-items: center;
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: 1px solid var(--rule);
+  font-size: var(--fs-sm);
+}
+
+.inbox-row:last-child {
+  border-bottom: 0;
+}
+.inbox-row:hover {
+  background: var(--row-hover);
+}
+
+.inbox-row-title {
+  display: block;
+  min-width: 0;
+  font-weight: var(--fw-medium);
+  overflow-wrap: break-word;
+}
+
+/* Origin under the title: task and agent. The inbox mixes tasks, so without it one does not know what
+   it is about. */
+.inbox-row-title > em {
+  display: block;
+  font-style: normal;
+  font-weight: var(--fw-normal);
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+  margin-top: var(--sp-1);
+}
+
+.inbox-row-state,
+.inbox-row-age {
+  flex: none;
+  white-space: nowrap;
+}
+
+/* Below 720 px the row folds into two rows: the title takes the width, state and gesture go below. A
+   five-column grid on a phone truncates everything. */
+@media (max-width: 720px) {
+  .inbox-row {
+    grid-template-columns: var(--icon-row) minmax(0, 1fr);
+    row-gap: var(--sp-2);
+  }
+
+  .inbox-row-state,
+  .inbox-row-age,
+  .inbox-row > .inbox-card-action {
+    grid-column: 2;
+    justify-self: start;
+  }
+}

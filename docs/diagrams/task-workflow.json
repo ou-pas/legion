@@ -1,0 +1,60 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Task workflow",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "legend": { "entries": { "frontend": { "label": "Screen" }, "backend": { "label": "Logic" }, "database": { "label": "Data, trace" }, "cloud": { "label": "Infrastructure" }, "security": { "label": "Gate, wait" }, "messagebus": { "label": "Action" }, "external": { "label": "External" } } },
+    "views": [
+      { "id": "board", "label": "From brief to done", "focus": ["brief", "todo", "session", "work", "artifacts", "review", "done"], "note": "The main path: the queue, the session, the review, the close." },
+      { "id": "holds", "label": "What holds a task", "focus": ["blocked", "inbox", "todo", "session"], "note": "Blockers, inbox questions and approval gates: the task waits without dying." },
+      { "id": "next", "label": "What follows", "focus": ["review", "done", "chain"], "note": "Done releases blocked tasks, moves the chain forward and notifies." }
+    ]
+  },
+  "lanes": [
+    { "id": "board", "label": "Task board" },
+    { "id": "run", "label": "Session in a container" },
+    { "id": "waits", "label": "Waits and decisions", "variant": "exception" },
+    { "id": "next", "label": "What follows" }
+  ],
+  "phases": [
+    { "id": "queue", "label": "Filing and queue", "fromCol": 0, "toCol": 1 },
+    { "id": "execution", "label": "Execution", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "delivery", "label": "Delivery", "fromCol": 4, "toCol": 5 }
+  ],
+  "groups": [
+    { "id": "holds", "label": "The task waits", "lane": "waits", "fromCol": 1, "toCol": 3, "variant": "security" }
+  ],
+  "mainPath": ["brief", "todo", "session", "work", "artifacts", "review", "done"],
+  "nodes": [
+    { "id": "brief", "lane": "board", "col": 0, "type": "external", "label": "Brief", "sublabel": "agent, complexity, files", "width": 140 },
+    { "id": "todo", "lane": "board", "col": 1, "type": "backend", "label": "Todo", "sublabel": "queue: priority, capacity", "width": 140 },
+    { "id": "review", "lane": "board", "col": 4, "type": "frontend", "label": "Review", "sublabel": "diff, artifacts, pre-review", "width": 140 },
+    { "id": "done", "lane": "board", "col": 5, "type": "backend", "label": "Done", "sublabel": "the operator closes", "width": 140 },
+    { "id": "session", "lane": "run", "col": 2, "type": "backend", "label": "Session", "sublabel": "preflight, container, clone", "tag": "doing", "width": 140 },
+    { "id": "work", "lane": "run", "col": 3, "type": "messagebus", "label": "Work", "sublabel": "turns, pushed checkpoints", "width": 140 },
+    { "id": "artifacts", "lane": "run", "col": 4, "type": "database", "label": "Artifacts + PR", "sublabel": "files dropped, PR opened", "width": 140 },
+    { "id": "blocked", "lane": "waits", "col": 1, "type": "security", "label": "Blocked by", "sublabel": "waits for other tasks", "width": 140 },
+    { "id": "inbox", "lane": "waits", "col": 3, "type": "security", "label": "Inbox", "sublabel": "question or approval gate", "width": 140 },
+    { "id": "chain", "lane": "next", "col": 5, "type": "messagebus", "label": "What follows", "sublabel": "chain, released tasks", "width": 140 }
+  ],
+  "edges": [
+    { "id": "brief-todo", "from": "brief", "to": "todo", "label": "Run", "variant": "emphasis" },
+    { "id": "brief-blocked", "from": "brief", "to": "blocked", "label": "with blockers", "variant": "security", "role": "branch" },
+    { "id": "blocked-todo", "from": "blocked", "to": "todo", "label": "last blocker done", "role": "branch" },
+    { "id": "todo-session", "from": "todo", "to": "session", "label": "runner free", "variant": "emphasis" },
+    { "id": "session-work", "from": "session", "to": "work", "variant": "default" },
+    { "id": "work-inbox", "from": "work", "to": "inbox", "label": "question, gate", "variant": "security", "role": "error" },
+    { "id": "inbox-session", "from": "inbox", "to": "session", "label": "answer: resume", "variant": "emphasis", "role": "return" },
+    { "id": "work-artifacts", "from": "work", "to": "artifacts", "label": "push to the branch", "variant": "default" },
+    { "id": "artifacts-review", "from": "artifacts", "to": "review", "label": "session ends", "variant": "emphasis" },
+    { "id": "review-done", "from": "review", "to": "done", "label": "operator, or PR merged", "variant": "emphasis" },
+    { "id": "done-chain", "from": "done", "to": "chain", "label": "on done", "variant": "dashed", "role": "branch" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "The board", "items": ["Run commits the task to todo; Later is the parking", "Review receives every finished session, even a failed one", "A task with criteria is never closed by its agent"] },
+    { "dot": "emerald", "title": "The session", "items": ["The preflight refuses before any model turn", "One container per session, destroyed after", "Pushed code leaves a PR, no click needed"] },
+    { "dot": "rose", "title": "What holds a task", "items": ["Inbox or gate: the session sleeps, the answer resumes it", "Blocked by several tasks: the last one done releases it", "PR merged: the webhook moves review to done"] }
+  ]
+}

@@ -1,0 +1,12 @@
+/* The version chip renders nothing below 640 px (14/09, phone breakpoint).
+ *
+ * It was the only child of the tools panel that was not a 44 px target: its size (69x21) set the
+ * panel width, shifting the icon axis 23 px off the "…" trigger. The version gap stays readable in
+ * System › General, the precedent `app/top-bar.css` already accepted below 900 px. The breakpoint
+ * lives here in CSS, not in a TSX condition (convention of `app/tab-bar.tsx`).
+ */
+@media (max-width: 640px) {
+  .version-chip {
+    display: none;
+  }
+}

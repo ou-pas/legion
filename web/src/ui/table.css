@@ -1,0 +1,108 @@
+/* The wrapper contains horizontal overflow: on a small screen the table scrolls by itself and never
+   pushes the page. */
+.ui-table-wrap {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  min-width: 0;
+  width: 100%;
+}
+
+.ui-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+
+.ui-th {
+  text-align: left;
+  padding: var(--sp-4) var(--sp-7);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-semi);
+  text-transform: uppercase;
+  letter-spacing: var(--tr-caps);
+  color: var(--ink-3);
+  white-space: nowrap;
+  background: var(--recess);
+  border-bottom: 1px solid var(--border-separator);
+}
+
+.ui-table[data-sticky="true"] .ui-th {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+}
+
+/* The sortable header is the target: the button fills the whole cell (≥ 24px tall) instead of an
+   11px word to aim at. */
+.ui-th:has(> .ui-th-sort) {
+  padding: 0;
+}
+
+.ui-th-sort {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  width: 100%;
+  min-height: var(--h-control-sm);
+  padding: var(--sp-4) var(--sp-7);
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  transition: color var(--dur-1) var(--ease);
+}
+
+.ui-th-sort:hover,
+.ui-th-sort[data-active="true"] {
+  color: var(--ink);
+}
+
+/* Inactive column: the double arrow stays discreet, it says "sortable", not "sorted". */
+.ui-th-sort:not([data-active="true"]) > svg {
+  opacity: 0.5;
+}
+
+.ui-td {
+  padding: var(--sp-5) var(--sp-7);
+  border-bottom: 1px solid var(--border-separator);
+  vertical-align: baseline;
+}
+
+.ui-tbody > .ui-tr:last-child > .ui-td {
+  border-bottom: none;
+}
+
+/* A measure column is right-aligned and fixed-width, otherwise orders of magnitude cannot be
+   compared at a glance. */
+.ui-th[data-align="num"],
+.ui-td[data-align="num"] {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.ui-th[data-align="num"] .ui-th-sort {
+  justify-content: flex-end;
+}
+
+.ui-tr[data-interactive="true"] {
+  cursor: pointer;
+  transition: background-color var(--dur-1) var(--ease);
+}
+
+/* Role tokens: a table row hovers and selects like a list row or menu item, same source, otherwise
+   themes diverge silently. */
+.ui-tr[data-interactive="true"]:hover {
+  background: var(--row-hover);
+}
+
+.ui-tr[data-selected="true"] {
+  background: var(--row-selected);
+  box-shadow: inset 1px 0 0 var(--row-selected-line);
+}
+
+.ui-table-empty {
+  padding: var(--sp-11) var(--sp-7);
+  text-align: center;
+  color: var(--ink-3);
+  font-size: var(--fs-sm);
+}

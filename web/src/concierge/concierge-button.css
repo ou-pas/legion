@@ -1,0 +1,60 @@
+/* The concierge trigger in the bar. It borrows the quiet icon button shape (`ui/button`, `quiet`
+   variant) rather than reimplementing it: the popover renders its own `<button>`, so the shape is
+   carried by a class, not the component. */
+.concierge-button {
+  display: grid;
+  place-items: center;
+  width: var(--h-control-md);
+  height: var(--h-control-md);
+  border: 1px solid transparent;
+  border-radius: var(--r-2);
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.concierge-button:hover {
+  background: var(--recess);
+  color: var(--ink);
+}
+
+/* Open, it carries the mock-up's pressed state (`.iconbtn[data-on]`): the surface is there, and you
+   can tell which bar icon opened it. */
+.concierge-button[aria-expanded="true"] {
+  background: var(--accent-wash);
+  border-color: var(--accent-line);
+  color: var(--accent-deep);
+}
+
+/* The step to the page. The hover panel is the quick question from anywhere, the page is where you
+   come back to, like the inbox badge and the inbox. Discreet: an exit, not the panel's main action. */
+.concierge-to-page {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  align-self: flex-start;
+  font-size: var(--fs-xs);
+}
+
+/* The surface. Two classes to beat `.ui-popover`, capped at 320 px: the concierge is a conversation,
+   not a list, and a six-line answer in 320 px is unreadable. */
+.ui-popover.concierge-pop {
+  width: var(--w-concierge-panel);
+  max-width: min(var(--w-concierge-panel), calc(100vw - var(--sp-9)));
+}
+
+/* The button grows to the touch floor below 640 px (14/09, touch audit). It was `--h-control-md`
+   (32 px), sized for a pointer, and escaped the floor `ui/shell.css` sets on `.ui-btn`: the
+   concierge is a `.ui-popover-trigger`, not a `.ui-btn`. Set here, since `ui/` does not know the
+   concierge. */
+@media (max-width: 640px) {
+  .concierge-button {
+    width: var(--h-touch);
+    height: var(--h-touch);
+  }
+
+  .concierge-button svg {
+    width: var(--icon-touch);
+    height: var(--icon-touch);
+  }
+}

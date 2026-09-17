@@ -1,0 +1,61 @@
+/* A separate page, not an overlay on the application: as long as there is no session, no screen
+   has mounted, so no data has been requested. An overlay on a rendered app leaves requests going
+   out and project names in the DOM. */
+.op-signin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--sp-9);
+  background: var(--paper);
+}
+
+.op-signin-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-7);
+  width: 100%;
+  /* The measure of a token field, not the width of a page. */
+  max-width: max(360px, 28rem);
+  padding: var(--sp-9);
+  background: var(--sheet);
+  border: 1px solid var(--border-separator);
+  border-radius: var(--r-3);
+}
+
+.op-signin-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.op-signin-mark {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  color: var(--ink);
+}
+
+.op-signin-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+/* The token is an opaque string: monospace, so a mis-pasted character shows. */
+.op-signin-field {
+  font-family: var(--mono);
+}
+
+@media (max-width: 640px) {
+  .op-signin {
+    /* A vertically centred page on a phone pushes the field under the keyboard when it opens.
+       Content moves to the top, where the keyboard does not follow. */
+    align-items: flex-start;
+    padding: var(--sp-7) var(--sp-5);
+  }
+
+  .op-signin-card {
+    padding: var(--sp-7);
+  }
+}

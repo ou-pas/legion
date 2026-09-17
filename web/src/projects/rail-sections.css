@@ -1,0 +1,96 @@
+/* The list replacement, and the row going back up (nav slice 09).
+
+   The block takes the rail's spacing (`.ui-rail` is a `--sp-1` column): it sits between the head
+   and the entries, so it must give exactly the same gutter, or the list tightens as it changes
+   level. */
+.prj-rail-swap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+/* The head opening the project menu: `Menu`'s trigger is a bare button; here it takes the full
+   width, keeps the head's geometry, and only shows it is pressable on hover. */
+.ui-menu-trigger.prj-rail-switch {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  /* The hover fits the band (13/09). Measured before: the box ran from 10 to 41px while its content
+     ran from 10 to 32, zero pixels above the name and nine below, because padding was 0 on top and
+     8 at the bottom. The band is now the same as the bar's and the icon rail's, and the horizontal
+     inset lives in `.ui-rail-head` with the rest of the column. */
+  min-height: var(--h-head);
+  margin-bottom: var(--sp-3);
+  padding: var(--sp-0) var(--sp-5) var(--sp-0) var(--sp-0);
+  border: 0;
+  /* A rule under the head (mock-up): it separates the context from its navigation. */
+  border-bottom: 1px solid var(--border-separator);
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ui-menu-trigger.prj-rail-switch > .ui-rail-head {
+  /* The button is the band; the block does not double it. Two heights for one line is exactly the
+     defect just fixed, so the block lets itself be carried. It keeps its horizontal inset, which
+     aligns the project mark with the list icons below (they started 10px further right). */
+  min-height: 0;
+  padding-block: var(--sp-0);
+  flex: 1;
+  min-width: 0;
+}
+
+.ui-menu-trigger.prj-rail-switch:hover {
+  background: var(--recess);
+}
+
+.prj-rail-switch-chevron {
+  flex: none;
+  color: var(--ink-3);
+}
+
+/* The "Diff" row's pill is a DS <Tag>: a neutral count (changed files), not a wait, so not the
+   amber `.ui-nav-count`, which means "waiting for you". */
+
+/* Motion says the direction. A fade has one state: it does not tell "I went down a level" from "I
+   came back up". A slide encodes it: from the right going down, from the left coming back, like a
+   stack, the gesture everyone knows from phone settings.
+
+   It only triggers when the block mounts, rebuilt when the level changes (`key`): motion replayed
+   on every click within the same list would read as a glitch. `prefers-reduced-motion` is handled
+   globally (ui/base.css): the duration drops to 0.01 ms and the end state applies at once. */
+.prj-rail-swap[data-move="push"] {
+  animation: prj-rail-push var(--dur-2) var(--ease-out);
+}
+
+.prj-rail-swap[data-move="pop"] {
+  animation: prj-rail-pop var(--dur-2) var(--ease-out);
+}
+
+@keyframes prj-rail-push {
+  from {
+    opacity: 0;
+    transform: translateX(var(--sp-11));
+  }
+}
+
+@keyframes prj-rail-pop {
+  from {
+    opacity: 0;
+    transform: translateX(calc(var(--sp-11) * -1));
+  }
+}
+
+/* The "← Project" row. A control, not a title: the section is written in the rail head, this row
+   only names its destination. The arrow takes the accent (the only exit cue of a list that
+   replaced everything else), and the row breathes a little before the list it opens. */
+.prj-rail-back {
+  margin-bottom: var(--sp-2);
+}
+
+.prj-rail-back > svg {
+  color: var(--accent);
+}

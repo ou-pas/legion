@@ -1,0 +1,85 @@
+/* 1px of var(--border-separator), never more: beyond that a separator becomes decoration (craft
+   floor: no thick colored border). */
+.ui-divider {
+  border: 0 solid var(--border-surface);
+}
+
+.ui-divider[data-orientation="horizontal"] {
+  border-top-width: 1px;
+}
+
+.ui-divider[data-orientation="vertical"] {
+  border-left-width: 1px;
+  align-self: stretch;
+  min-height: var(--sp-9);
+}
+
+/* Spacing as variants, not margins copied by the calling page. */
+.ui-divider[data-orientation="horizontal"][data-space="sm"] {
+  margin-block: var(--sp-4);
+}
+
+.ui-divider[data-orientation="horizontal"][data-space="md"] {
+  margin-block: var(--sp-7);
+}
+
+.ui-divider[data-orientation="horizontal"][data-space="lg"] {
+  margin-block: var(--sp-11);
+}
+
+.ui-divider[data-orientation="vertical"][data-space="sm"] {
+  margin-inline: var(--sp-3);
+}
+
+.ui-divider[data-orientation="vertical"][data-space="md"] {
+  margin-inline: var(--sp-6);
+}
+
+.ui-divider[data-orientation="vertical"][data-space="lg"] {
+  margin-inline: var(--sp-9);
+}
+
+/* With a label: the line is drawn edge to edge in ::before and the label sits on top with its
+   surface color, so the stroke is not broken around the text. */
+.ui-divider[data-labelled="true"] {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top-width: 0;
+}
+
+.ui-divider[data-labelled="true"]::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  border-top: 1px solid var(--border-separator);
+}
+
+.ui-divider-label {
+  position: relative;
+  padding-inline: var(--sp-5);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-semi);
+  text-transform: uppercase;
+  letter-spacing: var(--tr-caps);
+  color: var(--ink-3);
+  background: var(--sheet);
+}
+
+/* A label carrying a proper name keeps its case. Capitals are the shape of a section label and
+   distort a name the reader must recognise at the provider. `letter-spacing` goes with them: it
+   exists to air out capitals and breaks up a normal-case word. */
+.ui-divider[data-label-case="sentence"] .ui-divider-label {
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.ui-divider[data-surface="paper"] .ui-divider-label {
+  background: var(--paper);
+}
+
+.ui-divider[data-surface="recess"] .ui-divider-label {
+  background: var(--recess);
+}

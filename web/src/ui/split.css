@@ -1,0 +1,41 @@
+/* Below 900px the side column goes under the content (in DOM order: content first, its guardrails
+   next); that is where 280px of side column smothers the rest. */
+.ui-split {
+  display: grid;
+  gap: var(--sp-7);
+  align-items: start;
+  min-width: 0;
+}
+
+.ui-split[data-ratio="aside"] {
+  grid-template-columns: minmax(0, 1fr) 280px;
+}
+
+.ui-split[data-ratio="half"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ui-split-main,
+.ui-split-aside {
+  min-width: 0;
+}
+
+/* Side column on the left: the grid is inverted, not the DOM, so content stays first for the
+   keyboard and naturally returns on top when the grid collapses below 900px. */
+.ui-split[data-side="left"][data-ratio="aside"] {
+  grid-template-columns: 280px minmax(0, 1fr);
+}
+
+.ui-split[data-side="left"] .ui-split-main {
+  order: 2;
+}
+.ui-split[data-side="left"] .ui-split-aside {
+  order: 1;
+}
+
+@media (max-width: 900px) {
+  .ui-split[data-ratio="aside"],
+  .ui-split[data-ratio="half"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

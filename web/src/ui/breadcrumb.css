@@ -1,0 +1,79 @@
+/* A path, not a toolbar. Secondary ink, last level in full ink: that is where you are. */
+.ui-breadcrumb {
+  min-width: 0;
+}
+
+.ui-breadcrumb-list {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  list-style: none;
+  font-size: var(--fs-sm);
+}
+
+.ui-breadcrumb-item {
+  display: flex;
+  min-width: 0;
+}
+
+.ui-breadcrumb-sep {
+  display: flex;
+  align-items: center;
+  color: var(--rule-3);
+}
+
+.ui-breadcrumb-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-width: 0;
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-1);
+  color: var(--ink-2);
+  text-decoration: none;
+  transition:
+    background var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease);
+}
+
+a.ui-breadcrumb-link:hover,
+button.ui-breadcrumb-link:hover {
+  background: var(--recess);
+  color: var(--ink);
+}
+
+.ui-breadcrumb-link > svg {
+  color: var(--ink-3);
+}
+
+.ui-breadcrumb-link.is-current {
+  color: var(--ink);
+  font-weight: var(--fw-medium);
+}
+
+/* A level never stretches the bar: past 26ch it truncates. */
+.ui-breadcrumb-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 26ch;
+}
+
+.ui-breadcrumb-more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--h-control-sm);
+  width: var(--h-control-sm);
+  border-radius: var(--r-1);
+  color: var(--ink-3);
+  transition:
+    background var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease);
+}
+
+.ui-breadcrumb-more:hover {
+  background: var(--recess);
+  color: var(--ink);
+}

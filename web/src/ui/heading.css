@@ -1,0 +1,31 @@
+/* The scale lives here only: a page picks a level, not a size. --fs-4xl is reserved for a
+   landing hero, outside Heading. */
+.ui-heading {
+  color: var(--ink);
+  font-family: var(--sans);
+  font-weight: var(--fw-semi);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--tr-tight);
+  text-wrap: balance;
+}
+
+.ui-heading[data-level="1"] {
+  font-size: var(--fs-3xl);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tr-display);
+}
+
+.ui-heading[data-level="2"] {
+  font-size: var(--fs-2xl);
+  line-height: var(--lh-tight);
+}
+
+.ui-heading[data-level="3"] {
+  font-size: var(--fs-xl);
+}
+
+/* At 15px negative tracking just glues letters together. */
+.ui-heading[data-level="4"] {
+  font-size: var(--fs-lg);
+  letter-spacing: var(--tr-normal);
+}

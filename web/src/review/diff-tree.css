@@ -1,0 +1,69 @@
+/* The diff map: dense, calm and sticky, it stays in view while scrolling 48 files. The indentation
+   step lives HERE; the component only passes a LEVEL (`--depth`), never a length. */
+.dm-tree {
+  --tree-step: var(--sp-6);
+  position: sticky;
+  top: var(--sp-6);
+  max-height: var(--h-scroll-viewport);
+  overflow-y: auto;
+  padding-right: var(--sp-2);
+}
+
+.dm-tree-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dm-tree-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  width: 100%;
+  padding: var(--sp-2) var(--sp-3);
+  padding-left: calc(var(--sp-3) + var(--depth) * var(--tree-step));
+  background: none;
+  border: 0;
+  border-radius: var(--r-2);
+  text-align: left;
+  cursor: pointer;
+  color: var(--ink-2);
+}
+
+.dm-tree-row:hover {
+  background: var(--recess);
+  color: var(--ink);
+}
+
+.dm-tree-row[data-kind="dir"] {
+  color: var(--ink-3);
+}
+
+/* The file just opened: the only thing the map must assert. */
+.dm-tree-row[data-current] {
+  background: var(--accent-wash);
+  color: var(--ink);
+}
+
+/* Truncating from the LEFT would suit paths better, but the map already shows the folder above:
+   this is the file name, and it fits. */
+.dm-tree-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dm-tree-comments {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.dm-tree-stat {
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}

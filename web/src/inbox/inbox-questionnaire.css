@@ -1,0 +1,176 @@
+/* The questionnaire is no longer a card at ANY width (14/09, D1): DESIGN.md § 4 bans nested cards, and
+   the page sheet (InboxQuestionPage.tsx's `<Card>`) is surface enough. The step rail recess
+   (`ui/step-rail.css`) and `.inbox-qz-pane`'s `border-left` rule still separate rail and pane. */
+
+/* The agent context is a SMALL CARD (operator feedback, 07/09 evening, as in the mockup): frame,
+   radius, raised background. Moved to the page header, a rule alone made it float. */
+.inbox-qz-ctx {
+  padding: var(--sp-5) var(--sp-8);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-3);
+  background: var(--sheet-hi);
+}
+
+.inbox-qz-body {
+  display: grid;
+  grid-template-columns: var(--w-steprail) minmax(0, 1fr);
+}
+
+.inbox-qz-body[data-single] {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.inbox-qz-pane {
+  min-width: 0;
+  padding: var(--sp-10) var(--sp-11) var(--sp-9);
+  border-left: 1px solid var(--border-separator);
+}
+
+.inbox-qz-body[data-single] .inbox-qz-pane {
+  border-left: 0;
+}
+
+/* Title and argument take the pane's FULL width, like the options (operator, 07/09: a 72ch measure left
+   a third of the column empty). The pane is already bounded by its column. */
+
+/* The title gets programmatic focus: the app's ring, not a browser halo. */
+.inbox-qz-title:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+.inbox-qz-foot {
+  padding-top: var(--sp-8);
+  border-top: 1px solid var(--border-separator);
+}
+
+/* The footer on a phone (14/09, operator feedback: it felt odd).
+ *
+ * On a wide screen the gap pushes the primary action right and Previous stays left. At 375 pixels the
+ * gap forced a wrap: the primary action fell onto a second row under a shorter Previous, and two
+ * stacked buttons of different widths no longer read as a pair.
+ *
+ * So side by side, without the gap. The PRIMARY ACTION TAKES THE REMAINING ROOM rather than half: the
+ * send label does not fit half of 375 pixels, and equal buttons would truncate exactly the one to read.
+ * It is also the largest target, the gesture one came for. */
+@media (max-width: 640px) {
+  .inbox-qz-foot > .ui-spacer {
+    display: none;
+  }
+
+  /* The note (missing answers) takes its own line: between two buttons it would crush them, and it is
+     read BEFORE the gesture. */
+  .inbox-qz-foot > .ui-caption {
+    flex-basis: 100%;
+    order: -1;
+  }
+
+  .inbox-qz-foot > *:last-child {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .inbox-qz-foot > *:last-child > .ui-btn {
+    width: 100%;
+  }
+}
+
+/* The recap: a real <dl>, striped rows, question left, answer right. */
+.inbox-recap {
+  display: grid;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-3);
+}
+
+.inbox-recap-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: var(--sp-6);
+  align-items: baseline;
+  padding: var(--sp-5) var(--sp-7);
+  border-bottom: 1px solid var(--border-separator);
+}
+
+.inbox-recap-row:last-child {
+  border-bottom: 0;
+}
+
+.inbox-recap-row:nth-child(odd) {
+  background: var(--recess);
+}
+
+.inbox-recap-q {
+  display: flex;
+  gap: var(--sp-5);
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+}
+
+.inbox-recap-n {
+  font-family: var(--mono);
+  font-size: var(--fs-2xs);
+  color: var(--ink-3);
+}
+
+.inbox-recap-a {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3) var(--sp-5);
+  align-items: baseline;
+  margin: 0;
+}
+
+/* A missing answer: amber, dotted underline. It waits, it does not shout. */
+.inbox-recap-pending {
+  border-bottom: 1px dashed var(--wait-line);
+}
+
+.inbox-recap-edit {
+  margin-left: auto;
+}
+
+/* A question's note goes UNDER the answer, full width: beside it, it would read as a second answer
+   (same rule as on the read page). */
+.inbox-recap-note {
+  flex-basis: 100%;
+}
+
+/* Below 900px the rail goes above (ui/step-rail.css does the rest) and the recap stacks. */
+@media (max-width: 900px) {
+  .inbox-qz-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .inbox-qz-pane {
+    padding: var(--sp-9) var(--sp-8);
+    border-left: 0;
+    border-top: 1px solid var(--border-separator);
+  }
+
+  .inbox-recap-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Below 640px, D2 and D3 (14/09): with no frame of its own (D1), only the page sheet gutter spaces text
+   from the screen edge (`.inbox-q-page` in inbox-question.css), so the pane drops its own horizontal
+   gutter, or both would add up. */
+@media (max-width: 640px) {
+  .inbox-qz-pane {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* The recap loses its frame (D3), the redundant one: striping and row rules already separate rows. */
+  .inbox-recap {
+    border: 0;
+    border-radius: 0;
+  }
+
+  .inbox-recap-row {
+    padding: var(--sp-5) var(--sp-4);
+  }
+}

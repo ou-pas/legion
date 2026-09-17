@@ -1,0 +1,41 @@
+/* Touch floor under 640px (14/09, decision buttons used with a finger). Scoped to
+   `.task-actions-bar` and not `.ui-toolbar`: DESIGN.md §3 bis only extends it to measured
+   surfaces, and the product's other 53 `IconBtn` are not among them. Above the breakpoint
+   controls stay at 32px, sized for a pointer. */
+@media (max-width: 640px) {
+  .task-actions-bar .ui-btn[data-size="md"] {
+    height: var(--h-touch);
+  }
+
+  .task-actions-bar .ui-btn-icon[data-size="md"] {
+    width: var(--h-touch);
+  }
+
+  .task-actions-bar .ui-btn svg {
+    width: var(--icon-touch);
+    height: var(--icon-touch);
+  }
+
+  /* The "Move" menu trigger follows the same rule; its rows are already 44px everywhere
+     (`ui/menu.css`, touch audit of 14/09). */
+  .task-actions-bar .move-task-trigger {
+    width: var(--h-touch);
+    min-height: var(--h-touch);
+  }
+
+  .task-actions-bar .move-task-trigger svg {
+    width: var(--icon-touch);
+    height: var(--icon-touch);
+  }
+
+  /* So does the "…" menu trigger (collapsed icons, 15/09). */
+  .task-actions-bar .task-actions-menu-trigger {
+    width: var(--h-touch);
+    min-height: var(--h-touch);
+  }
+
+  .task-actions-bar .task-actions-menu-trigger svg {
+    width: var(--icon-touch);
+    height: var(--icon-touch);
+  }
+}

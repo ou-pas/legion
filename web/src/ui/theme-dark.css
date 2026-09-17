@@ -1,0 +1,109 @@
+/* Dark theme: color only, Nord palette (arcticicestudio/nord). Only tokens.css's color block is
+   redefined; typography, spacing, radii, motion, z-index and geometry stay Atelier's. It proves the
+   token layer is the only one: a hardcoded color in a component would show up as a stain here.
+
+   The light theme keeps its own palette: a light Nord was tried and dropped on 20/08 (darkened to
+   pass AA, the aurora hues lost their identity). Raw Nord fails accessibility on states: `nord11`
+   (#bf616a) is 2.46:1 on `nord1`, `nord15` (#b48ead) 3.55:1. Aurora hues are lightened towards snow
+   storm until they pass 4.5:1 while staying recognisable. Contrasts measured on `--sheet` (worst
+   case):
+     ink 8.73 · ink-2 7.45 · ink-3 5.02
+     accent 5.42 · run 5.19 · wait 6.44 · gate 4.94 · ok 5.27 · bad 4.71 · merged 4.64
+   On a dark background a wash darkens (tint on the recess) instead of lightening, which keeps a
+   chip's text readable. */
+[data-theme="dark"] {
+  --paper: #2e3440;
+  --sheet: #3b4252;
+  --sheet-hi: #434c5e;
+  --recess: #2a2f3a;
+  --recess-2: #252a33;
+  /* `--brand-plate` is deliberately not redefined (see `tokens.css`): brand logo backgrounds must be
+     identical in both themes, and writing it once is the only guarantee. */
+
+  --ink: #eceff4;
+  --ink-2: #d8dee9;
+  --ink-3: #adb8ca;
+
+  --rule: #495062;
+  --rule-2: #5a6172;
+  --rule-3: #6e7585;
+
+  /* Semantic (aurora + frost, raised to AA) */
+  --accent: #8fc7d6;
+  --accent-deep: #a9d5e0; /* on dark, "stronger" means lighter */
+  --accent-wash: #384550;
+  --accent-line: #54707e;
+
+  --run: #93c3c2;
+  --run-wash: #39444d;
+  --run-line: #576e74;
+
+  --wait: #ebcb8b;
+  --wait-mark: #d9b463;
+  --wait-wash: #474646;
+  --wait-line: #81755e;
+
+  /* Gate belongs to the same family as --wait ("waiting for you"). It was aurora violet here and
+     amber in light, so a gate changed family when switching theme and a queue mixing gates and
+     questions showed two tints. A theme changes colors, never a tone's meaning. Ink and line are
+     now --wait's; only the wash stays a notch quieter, as in light. Contrast: 6.44:1 on --sheet,
+     6.71:1 on --gate-wash. */
+  --gate: var(--wait);
+  --gate-wash: #423f3a;
+  --gate-line: var(--wait-line);
+  --gate-hatch: rgba(217, 180, 99, 0.12);
+
+  --ok: #a9c492;
+  --ok-wash: #3c4446;
+  --ok-line: #606f5f;
+
+  --bad: #e2a0a7;
+  /* Ink on a danger fill: the aurora red is light in dark theme, so text must be dark (4.03:1 with
+     --sheet-hi per the audit, 5.9:1 here). */
+  --bad-on: #2e3440;
+  --bad-deep: #f0b6bc;
+  --bad-wash: #403641;
+  --bad-line: #6d4650;
+  --bad-hatch: rgba(226, 160, 167, 0.12);
+
+  /* Merged (PR): nord15 lightened. Literal nord15 (#b48ead) only reached 3.55:1 on --sheet, under
+     the AA floor the rest of the family holds (measured 4.64:1). */
+  --merged: #caa5c3;
+  --merged-wash: #525264;
+  --merged-line: #6c6478;
+
+  /* Flat (04/09): same rules as light, nothing resting casts a shadow, only floating surfaces. On
+     dark, a shadow must be much blacker to show, and the inner edge becomes a faint light instead of
+     50% white. */
+  --el-1: none;
+  --el-2: 0 1px 2px rgba(11, 14, 20, 0.4), 0 20px 38px -26px rgba(11, 14, 20, 0.85);
+  --el-inset: none;
+  --el-btn: none;
+
+  --field-ring: inset 0 0 0 1px var(--accent);
+  --field-ring-bad: inset 0 0 0 1px var(--bad);
+  --scrim: color-mix(in srgb, #14181f 68%, transparent);
+  --edge-shade: rgba(11, 14, 20, 0.5);
+
+  /* PR state: GitHub's dark variants, lighter, same hues. */
+  --pr-open: #3fb950;
+  --pr-merged: #a371f7;
+  --pr-closed: #f85149;
+  --pr-draft: #8b949e;
+
+  /* Board grid inverts: lines of light, not ink. Same pitch, same role. */
+  --grid-minor: rgba(236, 239, 244, 0.035);
+  --grid-major: rgba(236, 239, 244, 0.06);
+
+  --neutral-hatch: rgba(236, 239, 244, 0.07);
+
+  /* Hover keeps `--recess` (it darkens, as in light): same gesture in both themes. Only selection
+     must lighten and read as blue: `nord10` at 45% in the sheet, ink 5.73:1 on it, accent line. */
+  --row-selected: #4b5e7a;
+  --row-selected-line: var(--accent);
+
+  --selection: rgba(143, 199, 214, 0.28);
+
+  /* <select> chevron: same drawing, light stroke (the theme's ink-3). */
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23adb8ca' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+}

@@ -1,0 +1,112 @@
+/* Channel state: a pane on the right when there is room, a band under the conversation when not. The
+   SAME component and CSS: the `auto-fit` grid decides, not a handwritten breakpoint. No title in
+   either placement: the column names say what it is. */
+.ch-details {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--sheet);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-3);
+  box-shadow: var(--el-1);
+}
+
+/* `auto-fit` rather than four fixed columns makes both placements one CSS: at 280px (pane) the four
+   sections stack, at 900px (band) they sit side by side. */
+.ch-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: var(--sp-6) var(--sp-9);
+  padding: var(--sp-7) var(--sp-8);
+}
+
+.ch-details-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  min-width: 0;
+}
+
+.ch-details-col-head {
+  padding-bottom: var(--sp-3);
+  border-bottom: 1px solid var(--border-separator);
+}
+
+/* Lineage (13/09). It rendered eight identical underlined links, each starting with the verb and
+   without `TaskLink`'s marks. The verb moved up into a subheading, the name became the only target,
+   and the status came back.
+
+   The subheading has NO rule, which tells it from the column name above (same size and case): two
+   rules four lines apart would read as two sections, not a section and its group. */
+.ch-lineage-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
+.ch-lineage-head {
+  align-items: baseline;
+}
+
+/* A task row. The rule SEPARATES rather than frames: in a column down to 190px (`auto-fit minmax`),
+   a full border would cost the padding the text needs. */
+.ch-lineage-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-width: 0;
+  padding-block: var(--sp-3);
+}
+
+.ch-lineage-row + .ch-lineage-row {
+  border-top: 1px solid var(--border-separator);
+}
+
+/* `min-width: 0` down to the measured node, or `Ellipsis` cannot shrink below its content and the text
+   overflows. The lineage link sits in between (it comes from the page), hence the second selector. */
+.ch-lineage-row > :first-child,
+.ch-lineage-row > :first-child > * {
+  min-width: 0;
+}
+
+.ch-lineage-marks {
+  align-items: center;
+}
+
+/* Collapsed on a phone (14/09). The grid gives this pane an `auto` row under the conversation, so it
+ * takes its CONTENT height and the thread takes the rest. At 393px nothing remained: four state cards
+ * are six hundred pixels in a five-hundred-pixel frame, and the conversation fell to its header.
+ *
+ * Collapsed it costs one line; expanded it scrolls within its own height. The disclosure sheet carries
+ * the frame and the pane inside loses it: nested frames would read as two objects. */
+.ch-details-fold {
+  flex-shrink: 0;
+  /* `dvh`, NOT a percentage: this is a grid cell in an `auto` row, so a percentage `max-height`
+     resolves against an undefined height. Measured: the cell fell to sixteen pixels and the label was
+     clipped. Half the viewport is an absolute bound. */
+  max-height: 50dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-inline: var(--sp-6);
+  background: var(--sheet);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-3);
+  box-shadow: var(--el-1);
+}
+
+/* The disclosure label is this band's ONLY target, aimed at by a thumb: the generic component's 24px
+   floor is for a mouse. */
+.ch-details-fold > .ui-disclosure-head {
+  min-height: max(44px, 2.75rem);
+}
+
+.ch-details-fold .ch-details {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+}

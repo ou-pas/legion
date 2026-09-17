@@ -1,0 +1,192 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript", "oxc", "unicorn", "import"],
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    "react/forbid-dom-props": [
+      "error",
+      {
+        "forbid": [
+          {
+            "propName": "style",
+            "message": "Design system: no inline style. Use <Page>/<Card>/<Row>/<Stack>/<Field>, or a class in the component's co-located <name>.css with values from web/src/ui/tokens.css. If the value is truly dynamic (bar width, computed position), add `// oxlint-disable-next-line react/forbid-dom-props -- <reason>`."
+          }
+        ]
+      }
+    ],
+    // A hook after an early `return` changes the hook count between renders: "Rendered more hooks
+    // than during the previous render", a production crash that compiles fine. Not in
+    // `correctness` by default, so enabled explicitly.
+    "react/rules-of-hooks": "error",
+    "react/jsx-key": "error",
+    "react/no-danger": "error",
+
+    // Architecture harness (05/09). These rules were at zero violations when enabled, which is the
+    // only reason they are `error`: a rule enabled over existing violations with a global opt-out is
+    // decoration, not a gate. What is not at zero is tracked in docs/wiki/guides/harnais.md.
+
+    // Server code logs through `logControlEvent` (operator-facing) or `server/src/shared/log.ts`
+    // (terminal), which writes to `process.stdout`/`stderr` and so needs no exception. The remaining
+    // exceptions are named file by file in the overrides below.
+    "no-console": "error",
+
+    // Upstream has known false positives, so it is not in `correctness`; here it has none. It
+    // catches the forgotten dependency that makes an effect read a stale value no type notices.
+    "react/exhaustive-deps": "error",
+
+    // `any` turns off type checking where it matters most: at boundaries.
+    "typescript/no-explicit-any": "error",
+
+    // A default export hides renames from search and lets two files import one module under two
+    // names. Storybook's CSF3 requires one, hence the stories override below.
+    "import/no-default-export": "error",
+
+    // Code shape (09/09, operator decision). The formatter owns layout; these count what it does not
+    // move: paths, parameters, nesting levels, nested callbacks.
+    //
+    // No `max-lines` or `max-lines-per-function`: measured on 09/09, line counts flagged the wrong
+    // files (`builtin-skills.ts`, 581 lines for 28 statements, was flagged while functions of 99
+    // statements passed).
+    "complexity": ["error", 15],
+    "max-depth": ["error", 4],
+    "max-params": ["error", 4],
+    "max-nested-callbacks": ["error", 3],
+
+    // Immutability: CLAUDE.md's "never mutate existing objects" was enforced by nothing. Airbnb
+    // states it in exactly this form.
+    "no-param-reassign": ["error", { "props": true }],
+    "prefer-object-spread": "error",
+    "prefer-const": "error",
+
+    // What a reviewer would say out loud. `null: "ignore"` is Airbnb's position: `x == null` is true
+    // for `null` and `undefined` only (not 0, "", false or NaN), the correct guard in JSX where
+    // `{count && <span/>}` renders a 0.
+    "eqeqeq": ["error", "always", { "null": "ignore" }],
+    "consistent-return": "error",
+    "no-throw-literal": "error",
+    "prefer-promise-reject-errors": "error",
+    "no-unused-expressions": "error",
+    "no-return-assign": ["error", "always"],
+    "default-param-last": "error",
+    "no-else-return": "error",
+    "no-multi-assign": "error",
+    "import/no-mutable-exports": "error"
+
+    // Deliberately parked: `typescript/no-floating-promises` reports nothing without `--type-aware`,
+    // which needs the `oxlint-tsgolint` package. Listing it here would be a rule that never runs.
+  },
+  "ignorePatterns": ["**/dist/**", "**/node_modules/**", "**/drizzle/**"],
+  "overrides": [
+    {
+      // The test runner imposes the shape: `describe` holds `it` holds the body, three callback
+      // levels before the first assertion (22 of the 23 `max-nested-callbacks` hits on 09/09). These
+      // rules guard production code.
+      //
+      // `no-param-reassign` stays on: mutating an argument misleads in a test as much as anywhere.
+      "files": ["**/*.test.ts", "**/*.test.tsx", "**/*.stories.tsx", "**/*.stories.ts"],
+      "rules": {
+        "complexity": "off",
+        "max-nested-callbacks": "off",
+        "max-depth": "off",
+        "max-params": "off"
+      }
+    },
+    {
+      // CSF3 requires `export default meta`: without it Storybook does not index the file,
+      // `web/src/stories.test.tsx` fails naming it, and the workshop starts for nobody (it happened
+      // for a month with schedules.stories.tsx). A fact of the tool, not a tolerance.
+      "files": ["**/*.stories.tsx", "**/*.stories.ts"],
+      "rules": {
+        "import/no-default-export": "off"
+      }
+    },
+    {
+      // The only server files keeping `console` (06/09).
+      //
+      // `shared/env.ts` loads `.env` and announces the active credential before anything else exists:
+      // it is the first import of `index.ts`, and `log.ts` reads the variables it has just set.
+      //
+      // `http/smoke.ts` is a smoke script run by hand (`pnpm smoke`): its output is a report laid out
+      // for a human, which a timestamped logger would make unreadable.
+      "files": ["server/src/shared/env.ts", "server/src/http/smoke.ts"],
+      "rules": {
+        "no-console": "off"
+      }
+    },
+    {
+      // Operator scripts run by hand (under lint, format and `tsc` since 15/09): their output is their
+      // product, like `smoke.ts` above.
+      "files": ["server/scripts/**"],
+      "rules": {
+        "no-console": "off"
+      }
+    },
+    {
+      // The only payload file keeping `console` (14/09). Every call is in bootstrap, before the
+      // journal exists: undici proxy failing to load, spec fetch failing, empty spec. `report` needs a
+      // control plane address and token that do not exist yet there, so the container's stderr (read
+      // with `docker logs` when a session does not start) is the only channel left.
+      "files": ["runner-payload/session-runner.mts"],
+      "rules": {
+        "no-console": "off"
+      }
+    },
+    {
+      // The payload's shape debt, named file by file (14/09). `runner-payload/` spent two months
+      // outside the formatter and linter by omission; hacking at code that runs inside every agent
+      // container was the worst moment to fix what that woke up.
+      //
+      //   session-runner.mts — `runReal` 51, `onTurnEnd` 18; three blocks at 5 levels
+      //   repos.mts          — `pruneWorkspace` 21, `setupRepos` 16
+      //   turn-tracker.mts   — `observe` 21
+      //   capabilities.mts   — `loadRules` 16
+      //
+      // Work item "split runReal", the same debt as the shape tests in
+      // `server/src/sessions/runner/runner-modules.test.ts` and `graceful-stop.test.ts`, which read the
+      // runner's source because they cannot instantiate it. Both are paid together or not at all.
+      //
+      // Nesting stays held: `scripts/arch-metrics-baseline.json` ratchets it on this folder too.
+      "files": [
+        "runner-payload/session-runner.mts",
+        "runner-payload/repos.mts",
+        "runner-payload/turn-tracker.mts",
+        "runner-payload/capabilities.mts"
+      ],
+      "rules": {
+        "complexity": "off",
+        "max-depth": "off"
+      }
+    },
+    {
+      // The last server `any`s, named one by one (05/09): a list of paths can shrink, `server/**`
+      // never does. `http/smoke.ts` talks to its own API in untyped JSON (work item "type smoke.ts
+      // responses"); the two tests type a local helper's return as `task: any` (work item "type test
+      // helpers"). oxlint cannot report an override that became useless, unlike
+      // scripts/arch-deps-baseline.json.
+      "files": [
+        "server/src/http/smoke.ts",
+        "server/src/tasks/read-only-task.test.ts",
+        "server/src/projects/create-agent.test.ts"
+      ],
+      "rules": {
+        "typescript/no-explicit-any": "off"
+      }
+    },
+    {
+      "files": ["server/**", "web/src/api/**", "web/src/queries.ts", "web/src/main.tsx"],
+      "rules": {
+        "react/forbid-dom-props": "off"
+      }
+    },
+    {
+      // These three modules are the foundation whose role is to encapsulate style (Row/Stack flex,
+      // Card passthrough, Modal width). Forbidding it here would forbid writing the design system.
+      "files": ["web/src/ui/flex.tsx", "web/src/ui/card.tsx", "web/src/ui/modal.tsx"],
+      "rules": {
+        "react/forbid-dom-props": "off"
+      }
+    }
+  ]
+}

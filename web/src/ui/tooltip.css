@@ -1,0 +1,88 @@
+/* The anchor only exists to catch hover and focus: it must not change layout. */
+.ui-tooltip-anchor {
+  display: inline-flex;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.ui-tooltip {
+  position: fixed;
+  /* On the document body: above everything except notifications. */
+  z-index: var(--z-tooltip);
+  top: 0;
+  left: 0;
+  max-width: var(--w-aside);
+  padding: var(--sp-2) var(--sp-5);
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: var(--r-2);
+  box-shadow: var(--el-2);
+  font-family: var(--sans);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-snug);
+  /* pre-line: multi-line tooltips (list of granted folders) keep their line breaks. */
+  white-space: pre-line;
+  pointer-events: none;
+}
+
+/* Until positioned, the bubble takes space invisibly: this pass gives its real width before
+   choosing top or bottom. */
+.ui-tooltip:not([data-ready="true"]) {
+  visibility: hidden;
+}
+
+.ui-tooltip[data-ready="true"] {
+  animation: ui-tooltip-in var(--dur-2) var(--ease-out);
+}
+
+@keyframes ui-tooltip-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* The entrance movement starts from the side the bubble sits on. */
+.ui-tooltip[data-side="top"][data-ready="true"] {
+  animation-name: ui-tooltip-in-top;
+}
+
+@keyframes ui-tooltip-in-top {
+  from {
+    opacity: 0;
+    transform: translateY(var(--sp-2));
+  }
+}
+
+.ui-tooltip[data-side="bottom"][data-ready="true"] {
+  animation-name: ui-tooltip-in-bottom;
+}
+
+@keyframes ui-tooltip-in-bottom {
+  from {
+    opacity: 0;
+    transform: translateY(calc(var(--sp-2) * -1));
+  }
+}
+
+.ui-tooltip[data-side="left"][data-ready="true"] {
+  animation-name: ui-tooltip-in-left;
+}
+
+@keyframes ui-tooltip-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(var(--sp-2));
+  }
+}
+
+.ui-tooltip[data-side="right"][data-ready="true"] {
+  animation-name: ui-tooltip-in-right;
+}
+
+@keyframes ui-tooltip-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(calc(var(--sp-2) * -1));
+  }
+}

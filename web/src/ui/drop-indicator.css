@@ -1,0 +1,9 @@
+/* Covers its positioned parent (the hidden card whose height it inherits, see the component). */
+.ui-drop-indicator {
+  position: absolute;
+  inset: 0;
+  border: 1px dashed var(--accent-line);
+  border-radius: var(--r-3);
+  background: var(--accent-wash);
+  pointer-events: none;
+}

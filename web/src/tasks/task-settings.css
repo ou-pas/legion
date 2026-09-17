@@ -1,0 +1,31 @@
+/* Task settings in a 340px column (the right panel, 04/09). */
+.tsk-settings-levels {
+  display: flex;
+  width: 100%;
+}
+
+.tsk-settings-levels > .ui-btn {
+  flex: 1;
+  justify-content: center;
+}
+
+/* The checkbox aligns with the FIRST line of the label: aligned with the whole block, it floated
+   halfway between the name and its explanation. */
+.tsk-settings-guards .ui-choice {
+  align-items: flex-start;
+}
+
+.tsk-settings-guards .ui-choice-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.tsk-settings-why {
+  font-size: var(--fs-xs);
+  line-height: var(--lh-snug);
+}
+
+.tsk-settings-save {
+  justify-content: center;
+}

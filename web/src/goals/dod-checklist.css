@@ -1,0 +1,36 @@
+/* Definition of Done: gauge first, criteria after, separated by the base spacing. */
+.dm-dod {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+  min-width: 0;
+}
+
+/* Edge to edge in a padded card: criteria are a register, not a paragraph. */
+.dm-dod .ui-list-row {
+  padding-inline: 0;
+  align-items: baseline;
+}
+
+.dm-dod-mark {
+  color: var(--ink-3);
+  translate: 0 var(--sp-1);
+}
+
+.dm-dod-item-done .dm-dod-mark {
+  color: var(--ok);
+}
+
+/* A met criterion is settled: dimmed, not struck through (struck text rereads badly). */
+.dm-dod-item-done .ui-list-main {
+  text-decoration: none;
+}
+
+.dm-dod-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

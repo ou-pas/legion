@@ -1,0 +1,4 @@
+# Mutation testing output (Stryker): a multi-MB HTML report per measured domain, regenerated with
+# one command. The score is read, not versioned (05/09).
+reports/
+.stryker-tmp/

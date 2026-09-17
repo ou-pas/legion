@@ -1,0 +1,10 @@
+.version-panel-update-spinner {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+}
+
+.version-panel-update-note {
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+}

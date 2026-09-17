@@ -1,0 +1,41 @@
+{
+  "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "_comment": [
+    "MUTATION TESTING, cote UI (05/09). On ne mesure PAS le code : on mesure les TESTS.",
+    "Stryker casse une ligne a la fois (un `>` devient `>=`, un `&&` devient `||`, une chaine",
+    "devient vide) et relance vitest. Un mutant TUE veut dire qu'un test a vu le changement ;",
+    "un mutant SURVIVANT veut dire que personne ne regardait. La couverture dit qu'une ligne a",
+    "ete EXECUTEE, jamais qu'elle a ete VERIFIEE, et c'est tout l'ecart que ce fichier mesure.",
+    "",
+    "HORS `make gates`, delibrement : c'est une MESURE, pas une porte. Voir Makefile.stryker."
+  ],
+  "packageManager": "pnpm",
+  "plugins_comment": "Liste EXPLICITE : la decouverte automatique de Stryker balaie `node_modules/@stryker-mutator/*`, ce que le magasin de pnpm ne remplit pas (liens symboliques vers `.pnpm/`). Sans cette ligne : « Cannot find TestRunner plugin vitest ».",
+  "plugins": ["@stryker-mutator/vitest-runner"],
+  "testRunner": "vitest",
+  "vitest": { "configFile": "vitest.config.ts" },
+  "coverageAnalysis": "perTest",
+  "tempDirName": ".stryker-tmp",
+  "mutate": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "!src/**/*.test.ts",
+    "!src/**/*.test.tsx",
+    "!src/**/*.stories.tsx",
+    "!src/api/**",
+    "!src/main.tsx",
+    "!src/router.tsx"
+  ],
+  "ignorePatterns": [
+    ".storybook",
+    "storybook-static",
+    "dist",
+    "reports",
+    "node_modules/.vite-storybook"
+  ],
+  "reporters": ["clear-text", "html", "json"],
+  "htmlReporter": { "fileName": "reports/mutation/index.html" },
+  "jsonReporter": { "fileName": "reports/mutation/report.json" },
+  "thresholds": { "high": 80, "low": 60, "break": null },
+  "concurrency": 4
+}

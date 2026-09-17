@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Canaux en panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   CANAUX EN PANEL — révision de la mise en page, 26/08.
+
+   Ce fichier n'invente AUCUNE couleur, AUCUNE taille, AUCUN rayon : tout
+   vient de web/src/ui/tokens.css et theme-dark.css, recopiés tels quels.
+   Ce qui est proposé ici est une GÉOMÉTRIE, pas un monde visuel — l'Atelier
+   reste l'Atelier.
+
+   Les deux thèmes sont servis, et c'est volontaire : la maquette doit tenir
+   dans celui où on la regarde, sinon elle prouve la moitié de ce qu'elle
+   avance.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── PALETTE CLAIRE (Atelier — tokens.css) ─────────────────────────────── */
+:root {
+  --paper:#f4f0e8; --sheet:#fcfaf6; --sheet-hi:#ffffff; --recess:#ede7da; --recess-2:#e5ddcc;
+  --ink:#1e1a15; --ink-2:#584f42; --ink-3:#6b6255;
+  --rule:#dcd3c3; --rule-2:#c6bba6; --rule-3:#aea18a;
+  --accent:#b03f1b; --accent-deep:#8e3213; --accent-wash:#f6e4da; --accent-line:#e3c0b2;
+  --run:#1b6350; --run-wash:#deeae4; --run-line:#bfd5cc;
+  --wait:#8a5a00; --wait-wash:#f6e9ce; --wait-line:#e2cd9c;
+  --ok:#3e6b2e; --ok-wash:#e1ebdf; --ok-line:#c2d6bf;
+  --bad:#a02617; --bad-wash:#f7dfda; --bad-line:#e7c3bb;
+  --row-selected:#f6e4da; --row-selected-line:#e3c0b2; --row-hover:#ede7da;
+  --grid-minor:rgba(30,26,21,.03); --grid-major:rgba(30,26,21,.07);
+  --el-1:0 1px 1px rgba(46,36,22,.05), 0 2px 4px -2px rgba(46,36,22,.1);
+  --el-2:0 1px 2px rgba(46,36,22,.06), 0 18px 34px -26px rgba(46,36,22,.45);
+  --edge-shade:rgba(30,26,21,.11);
+  --neutral-hatch:rgba(30,26,21,.09);
+
+  /* ── TYPO, ESPACE, GÉOMÉTRIE (communs aux deux thèmes) ── */
+  --sans:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --fs-3xs:.59375rem; --fs-2xs:.6875rem; --fs-xs:.75rem; --fs-sm:.8125rem;
+  --fs-md:.875rem; --fs-lg:.9375rem; --fs-xl:1.0625rem; --fs-2xl:1.1875rem;
+  --fs-3xl:1.5rem; --fs-4xl:2rem;
+  --lh-tight:1.15; --lh-snug:1.35; --lh-body:1.5; --lh-loose:1.65;
+  --tr-display:-.03em; --tr-tight:-.015em; --tr-caps:.1em;
+  --measure:72ch;
+  --sp-1:2px; --sp-2:4px; --sp-3:6px; --sp-4:8px; --sp-5:10px; --sp-6:12px;
+  --sp-7:14px; --sp-8:16px; --sp-9:20px; --sp-10:24px; --sp-11:32px;
+  --sp-12:40px; --sp-13:48px;
+  --r-1:2px; --r-2:3px; --r-3:5px; --r-pill:99px; --r-round:50%;
+  --w-rail:224px; --w-rail-icons:52px; --w-channels:236px; --w-aside:280px;
+}
+
+/* ── PALETTE SOMBRE (Nord — theme-dark.css) ────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper:#2e3440; --sheet:#3b4252; --sheet-hi:#434c5e; --recess:#2a2f3a; --recess-2:#252a33;
+    --ink:#eceff4; --ink-2:#d8dee9; --ink-3:#adb8ca;
+    --rule:#495062; --rule-2:#5a6172; --rule-3:#6e7585;
+    --accent:#8fc7d6; --accent-deep:#a9d5e0; --accent-wash:#384550; --accent-line:#54707e;
+    --run:#93c3c2; --run-wash:#39444d; --run-line:#576e74;
+    --wait:#ebcb8b; --wait-wash:#474646; --wait-line:#81755e;
+    --ok:#a9c492; --ok-wash:#3c4446; --ok-line:#606f5f;
+    --bad:#e2a0a7; --bad-wash:#403641; --bad-line:#6d4650;
+    --row-selected:#4b5e7a; --row-selected-line:#8fc7d6; --row-hover:#2a2f3a;
+    --grid-minor:rgba(236,239,244,.035); --grid-major:rgba(236,239,244,.06);
+    --el-1:0 1px 1px rgba(11,14,20,.35), 0 2px 6px -2px rgba(11,14,20,.5);
+    --el-2:0 1px 2px rgba(11,14,20,.4), 0 20px 38px -26px rgba(11,14,20,.85);
+    --edge-shade:rgba(11,14,20,.5);
+    --neutral-hatch:rgba(236,239,244,.07);
+  }
+}
+:root[data-theme="dark"] {
+  --paper:#2e3440; --sheet:#3b4252; --sheet-hi:#434c5e; --recess:#2a2f3a; --recess-2:#252a33;
+  --ink:#eceff4; --ink-2:#d8dee9; --ink-3:#adb8ca;
+  --rule:#495062; --rule-2:#5a6172; --rule-3:#6e7585;
+  --accent:#8fc7d6; --accent-deep:#a9d5e0; --accent-wash:#384550; --accent-line:#54707e;
+  --run:#93c3c2; --run-wash:#39444d; --run-line:#576e74;
+  --wait:#ebcb8b; --wait-wash:#474646; --wait-line:#81755e;
+  --ok:#a9c492; --ok-wash:#3c4446; --ok-line:#606f5f;
+  --bad:#e2a0a7; --bad-wash:#403641; --bad-line:#6d4650;
+  --row-selected:#4b5e7a; --row-selected-line:#8fc7d6; --row-hover:#2a2f3a;
+  --grid-minor:rgba(236,239,244,.035); --grid-major:rgba(236,239,244,.06);
+  --el-1:0 1px 1px rgba(11,14,20,.35), 0 2px 6px -2px rgba(11,14,20,.5);
+  --el-2:0 1px 2px rgba(11,14,20,.4), 0 20px 38px -26px rgba(11,14,20,.85);
+  --edge-shade:rgba(11,14,20,.5);
+  --neutral-hatch:rgba(236,239,244,.07);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  background-image:
+    linear-gradient(var(--grid-minor) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-minor) 1px, transparent 1px),
+    linear-gradient(var(--grid-major) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-major) 1px, transparent 1px);
+  background-size: 16px 16px, 16px 16px, 96px 96px, 96px 96px;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: var(--fs-md);
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── LE DOCUMENT ───────────────────────────────────────────────────────── */
+.doc { max-width: 1180px; margin: 0 auto; padding: var(--sp-13) var(--sp-9) var(--sp-13); display: flex; flex-direction: column; gap: var(--sp-13); }
+.prose { max-width: var(--measure); display: flex; flex-direction: column; gap: var(--sp-8); }
+.prose p { margin: 0; color: var(--ink-2); line-height: var(--lh-loose); }
+.prose p strong { color: var(--ink); font-weight: 600; }
+.prose code { font-family: var(--mono); font-size: .92em; background: var(--recess); border: 1px solid var(--rule); border-radius: var(--r-1); padding: 0 var(--sp-2); color: var(--ink); }
+
+.eyebrow { font-family: var(--mono); font-size: var(--fs-2xs); letter-spacing: var(--tr-caps); text-transform: uppercase; color: var(--ink-3); margin: 0; }
+h1 { font-family: var(--sans); font-size: var(--fs-4xl); font-weight: 600; letter-spacing: var(--tr-display); line-height: var(--lh-tight); margin: var(--sp-4) 0 0; text-wrap: balance; }
+h2 { font-family: var(--sans); font-size: var(--fs-2xl); font-weight: 600; letter-spacing: var(--tr-tight); line-height: var(--lh-snug); margin: 0; text-wrap: balance; }
+h3 { font-family: var(--sans); font-size: var(--fs-lg); font-weight: 600; margin: 0; letter-spacing: var(--tr-tight); }
+.lede { font-size: var(--fs-lg); color: var(--ink-2); line-height: var(--lh-loose); }
+
+.section { display: flex; flex-direction: column; gap: var(--sp-10); }
+
+/* Le constat : trois griefs, chacun avec sa preuve. Pas de numéros — ce n'est
+   pas une séquence, ce sont trois faits indépendants. */
+.griefs { display: grid; gap: var(--sp-6); grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.grief { background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--r-3); padding: var(--sp-9); display: flex; flex-direction: column; gap: var(--sp-5); box-shadow: var(--el-1); }
+.grief h3 { color: var(--ink); }
+.grief p { margin: 0; font-size: var(--fs-sm); color: var(--ink-2); line-height: var(--lh-body); }
+.grief .proof { font-family: var(--mono); font-size: var(--fs-2xs); color: var(--ink-3); border-top: 1px solid var(--rule); padding-top: var(--sp-5); }
+
+/* ── SCHÉMA DE GÉOMÉTRIE ───────────────────────────────────────────────── */
+.geo { display: grid; gap: var(--sp-9); grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+.geo-card { background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--r-3); padding: var(--sp-9); display: flex; flex-direction: column; gap: var(--sp-6); }
+.geo-title { display: flex; align-items: baseline; gap: var(--sp-5); }
+.geo-title h3 { margin: 0; }
+.geo-title .tag { font-family: var(--mono); font-size: var(--fs-2xs); letter-spacing: var(--tr-caps); text-transform: uppercase; color: var(--ink-3); }
+.bands { display: flex; gap: 3px; height: 84px; }
+.band { border-radius: var(--r-1); display: flex; align-items: flex-end; justify-content: center; padding-bottom: var(--sp-3); font-family: var(--mono); font-size: var(--fs-3xs); letter-spacing: .04em; color: var(--ink-3); border: 1px solid var(--rule); background: var(--recess); text-align: center; overflow: hidden; }
+.band[data-role="nav"] { background: var(--recess-2); }
+.band[data-role="content"] { background: var(--sheet-hi); flex: 1; color: var(--ink-2); }
+.band[data-role="meta"] { background: var(--recess); }
+.band[data-role="lost"] { background: var(--bad-wash); border-color: var(--bad-line); color: var(--bad); }
+.band[data-role="kept"] { background: var(--ok-wash); border-color: var(--ok-line); color: var(--ok); }
+.geo-note { font-size: var(--fs-sm); color: var(--ink-2); margin: 0; line-height: var(--lh-body); }
+.geo-count { font-family: var(--mono); font-size: var(--fs-xs); color: var(--ink-3); }
+
+/* ── LA MAQUETTE ───────────────────────────────────────────────────────── */
+.mock-frame { border: 1px solid var(--rule-2); border-radius: var(--r-3); overflow: hidden; box-shadow: var(--el-2); background: var(--paper); }
+.mock-scroll { overflow-x: auto; }
+.mock { min-width: 1060px; height: 800px; display: flex; flex-direction: column; background: var(--paper); font-size: var(--fs-sm); }
+
+/* topbar */
+.tb { height: 46px; flex-shrink: 0; display: flex; align-items: center; gap: var(--sp-8); padding: 0 var(--sp-8); background: var(--sheet); border-bottom: 1px solid var(--rule); }
+.logo { display: flex; align-items: center; gap: var(--sp-4); font-family: var(--sans); font-weight: 600; font-size: var(--fs-lg); letter-spacing: var(--tr-tight); }
+.logo-mark { width: 22px; height: 22px; border-radius: var(--r-2); background: var(--accent); color: var(--paper); display: grid; place-items: center; font-family: var(--sans); font-size: var(--fs-xs); font-weight: 700; }
+.cmd { flex: 1; max-width: 420px; height: 28px; display: flex; align-items: center; gap: var(--sp-4); padding: 0 var(--sp-5); border: 1px solid var(--rule-2); border-radius: var(--r-2); background: var(--recess); color: var(--ink-3); font-size: var(--fs-xs); }
+.cmd .kbd { margin-left: auto; display: flex; gap: 3px; }
+.kbd span { font-family: var(--mono); font-size: var(--fs-3xs); border: 1px solid var(--rule-2); border-radius: var(--r-1); padding: 1px 4px; background: var(--sheet); }
+.spacer { flex: 1; }
+.pill { display: inline-flex; align-items: center; gap: var(--sp-3); font-size: var(--fs-2xs); padding: 3px var(--sp-5); border-radius: var(--r-pill); border: 1px solid var(--run-line); background: var(--run-wash); color: var(--run); }
+.dot { width: 6px; height: 6px; border-radius: var(--r-round); background: currentColor; }
+.avatar { width: 26px; height: 26px; border-radius: var(--r-round); background: var(--recess-2); border: 1px solid var(--rule-2); display: grid; place-items: center; font-size: var(--fs-xs); font-weight: 600; color: var(--ink-2); }
+
+.body { flex: 1; min-height: 0; display: flex; }
+
+/* rail — PLEIN, c'est tout le sujet */
+.rail { width: var(--w-rail); flex-shrink: 0; background: var(--sheet); border-right: 1px solid var(--rule); padding: var(--sp-7) var(--sp-5); display: flex; flex-direction: column; gap: var(--sp-2); overflow-y: auto; }
+.rail-label { font-family: var(--mono); font-size: var(--fs-3xs); letter-spacing: var(--tr-caps); text-transform: uppercase; color: var(--ink-3); padding: var(--sp-6) var(--sp-5) var(--sp-3); }
+.nav { display: flex; align-items: center; gap: var(--sp-5); padding: var(--sp-4) var(--sp-5); border-radius: var(--r-2); color: var(--ink-2); font-size: var(--fs-sm); }
+.nav .ic { width: 15px; height: 15px; flex-shrink: 0; opacity: .75; }
+.nav.is-project { color: var(--ink); font-weight: 600; }
+.nav.is-active { background: var(--row-selected); border: 1px solid var(--row-selected-line); color: var(--ink); font-weight: 600; padding: calc(var(--sp-4) - 1px) calc(var(--sp-5) - 1px); }
+.sub { display: flex; flex-direction: column; gap: var(--sp-1); padding-left: var(--sp-9); border-left: 1px solid var(--rule); margin-left: var(--sp-8); }
+.sub .nav { font-size: var(--fs-sm); padding: var(--sp-3) var(--sp-5); }
+
+/* zone de contenu */
+.main { flex: 1; min-width: 0; display: flex; flex-direction: column; background: var(--paper); }
+.page-head { flex-shrink: 0; padding: var(--sp-9) var(--sp-10) var(--sp-7); display: flex; align-items: baseline; gap: var(--sp-6); border-bottom: 1px solid var(--rule); background: var(--paper); }
+.page-head h2 { font-family: var(--sans); font-size: var(--fs-3xl); letter-spacing: var(--tr-display); }
+.page-head .sub-text { font-size: var(--fs-xs); color: var(--ink-3); }
+
+/* LE PANEL : deux colonnes, comme le wiki */
+.panel { flex: 1; min-height: 0; display: grid; grid-template-columns: var(--w-channels) minmax(0, 1fr); gap: var(--sp-8); padding: var(--sp-8) var(--sp-10) var(--sp-9); }
+
+.aside-card, .conv-card { background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--r-3); box-shadow: var(--el-1); display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+
+.aside-head { padding: var(--sp-6) var(--sp-7); border-bottom: 1px solid var(--rule); display: flex; align-items: center; justify-content: space-between; }
+.aside-head span { font-family: var(--mono); font-size: var(--fs-3xs); letter-spacing: var(--tr-caps); text-transform: uppercase; color: var(--ink-3); }
+.aside-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: var(--sp-5) var(--sp-4); display: flex; flex-direction: column; gap: var(--sp-2); }
+.chan { display: flex; gap: var(--sp-5); align-items: flex-start; padding: var(--sp-5); border-radius: var(--r-2); border: 1px solid transparent; color: var(--ink-2); font-size: var(--fs-sm); line-height: var(--lh-snug); }
+.chan .mark { width: 6px; height: 6px; border-radius: var(--r-round); margin-top: 5px; flex-shrink: 0; background: var(--ink-3); }
+.chan[data-state="run"] .mark { background: var(--run); }
+.chan[data-state="wait"] .mark { background: var(--wait); }
+.chan.is-active { background: var(--row-selected); border-color: var(--row-selected-line); color: var(--ink); font-weight: 500; }
+.aside-foot { flex-shrink: 0; padding: var(--sp-6) var(--sp-7); border-top: 1px solid var(--rule); font-size: var(--fs-2xs); color: var(--ink-3); line-height: var(--lh-body); }
+.aside-foot a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent-line); }
+
+/* la conversation */
+.conv-head { flex-shrink: 0; display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-5); padding: var(--sp-7) var(--sp-8); border-bottom: 1px solid var(--rule); background: var(--sheet); }
+.conv-head h3 { font-family: var(--sans); font-size: var(--fs-xl); font-weight: 600; letter-spacing: var(--tr-tight); margin: 0; }
+.chip { display: inline-flex; align-items: center; gap: var(--sp-3); font-size: var(--fs-2xs); padding: 2px var(--sp-5); border-radius: var(--r-pill); border: 1px solid var(--rule-2); background: var(--recess); color: var(--ink-2); }
+.chip[data-tone="run"] { border-color: var(--run-line); background: var(--run-wash); color: var(--run); }
+.chip[data-mono] { font-family: var(--mono); font-size: var(--fs-3xs); border-radius: var(--r-1); }
+.head-link { margin-left: auto; font-size: var(--fs-xs); color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent-line); }
+
+.conv-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: var(--sp-9) var(--sp-9) var(--sp-8); display: flex; flex-direction: column; gap: var(--sp-8); }
+.msg { display: flex; gap: var(--sp-6); }
+.who { width: 26px; height: 26px; flex-shrink: 0; border-radius: var(--r-round); display: grid; place-items: center; font-size: var(--fs-2xs); font-weight: 600; border: 1px solid var(--rule-2); background: var(--recess-2); color: var(--ink-2); }
+.msg[data-who="agent"] .who { border-color: var(--run-line); background: var(--run-wash); color: var(--run); }
+.msg-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--sp-4); }
+.msg-meta { display: flex; align-items: baseline; gap: var(--sp-5); font-size: var(--fs-2xs); color: var(--ink-3); }
+.msg-meta b { color: var(--ink-2); font-size: var(--fs-xs); font-weight: 600; }
+.brief { background: var(--recess); border: 1px solid var(--rule); border-radius: var(--r-2); padding: var(--sp-7); font-size: var(--fs-sm); color: var(--ink-2); line-height: var(--lh-body); }
+.brief .pin { font-family: var(--mono); font-size: var(--fs-3xs); letter-spacing: var(--tr-caps); text-transform: uppercase; color: var(--ink-3); display: block; margin-bottom: var(--sp-5); }
+.brief b { color: var(--ink); }
+.said { font-size: var(--fs-sm); color: var(--ink-2); line-height: var(--lh-body); }
+.work { display: flex; align-items: center; gap: var(--sp-5); border: 1px dashed var(--rule-2); border-radius: var(--r-2); padding: var(--sp-5) var(--sp-6); font-size: var(--fs-xs); color: var(--ink-3); }
+.work b { color: var(--ink-2); font-weight: 600; }
+.work .chev { margin-left: auto; opacity: .6; }
+
+/* le PIED : l'état, rangé par moment. Fermé par défaut dans l'app — ouvert
+   ici parce qu'une maquette doit montrer ce qu'elle propose. */
+.conv-foot { flex-shrink: 0; border-top: 1px solid var(--rule); background: var(--recess); }
+.foot-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--sp-6) var(--sp-9); padding: var(--sp-7) var(--sp-8); }
+.foot-col h4 { margin: 0 0 var(--sp-5); font-family: var(--mono); font-size: var(--fs-3xs); letter-spacing: var(--tr-caps); text-transform: uppercase; color: var(--ink-3); font-weight: 500; }
+.kv { display: flex; flex-direction: column; gap: var(--sp-3); font-size: var(--fs-xs); color: var(--ink-2); }
+.kv div { display: flex; justify-content: space-between; gap: var(--sp-5); }
+.kv dt { color: var(--ink-3); }
+.kv dd { margin: 0; color: var(--ink); font-variant-numeric: tabular-nums; }
+.kv .mono { font-family: var(--mono); font-size: var(--fs-3xs); }
+.empty-note { font-size: var(--fs-xs); color: var(--ink-3); line-height: var(--lh-body); margin: 0; }
+
+.composer { flex-shrink: 0; padding: var(--sp-6) var(--sp-8) var(--sp-7); border-top: 1px solid var(--rule); background: var(--sheet); display: flex; gap: var(--sp-5); align-items: center; }
+.field { flex: 1; height: 30px; display: flex; align-items: center; padding: 0 var(--sp-6); border: 1px solid var(--rule-2); border-radius: var(--r-2); background: var(--recess); color: var(--ink-3); font-size: var(--fs-xs); }
+.btn { height: 30px; display: inline-flex; align-items: center; gap: var(--sp-4); padding: 0 var(--sp-7); border-radius: var(--r-2); border: 1px solid var(--accent); background: var(--accent); color: var(--paper); font-size: var(--fs-xs); font-weight: 600; }
+
+.caption { font-family: var(--mono); font-size: var(--fs-2xs); color: var(--ink-3); letter-spacing: .02em; margin: 0; }
+
+/* ── DÉCISIONS ─────────────────────────────────────────────────────────── */
+.decisions { display: flex; flex-direction: column; gap: var(--sp-6); }
+.dec { background: var(--sheet); border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: var(--r-2); padding: var(--sp-8) var(--sp-9); display: flex; flex-direction: column; gap: var(--sp-4); }
+.dec h3 { color: var(--ink); }
+.dec p { margin: 0; font-size: var(--fs-sm); color: var(--ink-2); line-height: var(--lh-body); }
+
+/* ── RISQUES ───────────────────────────────────────────────────────────── */
+.risks { display: flex; flex-direction: column; gap: var(--sp-6); }
+.risk { border: 1px solid var(--wait-line); background: var(--wait-wash); border-radius: var(--r-2); padding: var(--sp-8) var(--sp-9); display: flex; flex-direction: column; gap: var(--sp-4); }
+.risk h3 { color: var(--ink); }
+.risk p { margin: 0; font-size: var(--fs-sm); color: var(--ink-2); line-height: var(--lh-body); }
+
+footer { border-top: 1px solid var(--rule); padding-top: var(--sp-9); font-size: var(--fs-xs); color: var(--ink-3); line-height: var(--lh-body); }
+
+@media (max-width: 700px) {
+  .doc { padding: var(--sp-11) var(--sp-7); gap: var(--sp-12); }
+  h1 { font-size: var(--fs-3xl); }
+  .foot-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="doc">
+
+  <header class="prose">
+    <p class="eyebrow">Direction · 26 août · révision de mise en page</p>
+    <h1>Canaux en panel</h1>
+    <p class="lede">
+      La vue Canaux livrée hier replie le rail de l'application en bande d'icônes. On y gagne une
+      colonne et on y perd le projet sur lequel on travaille. Voici ce qu'elle devient si elle
+      cesse d'être une application dans l'application, et redevient une page à panel, comme le wiki.
+    </p>
+  </header>
+
+  <!-- ═══ LE CONSTAT ═══ -->
+  <section class="section">
+    <div class="prose">
+      <h2>Ce qui ne va pas</h2>
+      <p>
+        Trois choses, et seule la première a été signalée. Les deux autres sont la même cause vue
+        sous un autre angle : la page s'est construite comme un écran autonome, pas comme une page
+        d'Legion.
+      </p>
+    </div>
+
+    <div class="griefs">
+      <article class="grief">
+        <h3>Le projet disparaît</h3>
+        <p>
+          Toute l'application est scopée par projet — l'URL elle-même est <code>/p/$projectId/…</code>.
+          Replié, le rail ne montre plus que des icônes : le nom du projet ouvert n'est plus écrit
+          nulle part à l'écran. On sait ce qu'on lit, plus où on est.
+        </p>
+        <p class="proof">ui/shell.tsx · Rail data-compact → 52px</p>
+      </article>
+
+      <article class="grief">
+        <h3>La coquille change de forme</h3>
+        <p>
+          Le rail se replie parce qu'on est sur cette route, et se redéploie quand on la quitte.
+          La seule chose qui devrait rester stable pendant qu'on navigue est justement ce qui bouge.
+          C'est un cas particulier posé dans le routeur, et les cas particuliers se paient.
+        </p>
+        <p class="proof">router.tsx · MainArea bleed + Rail compact</p>
+      </article>
+
+      <article class="grief">
+        <h3>L'état répète l'en-tête</h3>
+        <p>
+          La troisième colonne ouvre sur statut, agent et modèle — les trois pastilles déjà posées
+          dans l'en-tête du canal, à trente centimètres de là. Une colonne entière tenue ouverte
+          pour redire ce qui est écrit au-dessus.
+        </p>
+        <p class="proof">channels/channel-state.tsx · État</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ═══ GÉOMÉTRIE ═══ -->
+  <section class="section">
+    <div class="prose">
+      <h2>Quatre bandes, dont trois de navigation</h2>
+      <p>
+        Le problème se voit mieux sans le contenu. À gauche ce qui est livré, à droite ce que
+        propose cette direction : une bande de moins, et celle qui portait le projet revient.
+      </p>
+    </div>
+
+    <div class="geo">
+      <div class="geo-card">
+        <div class="geo-title"><h3>Livré</h3><span class="tag">26/08</span></div>
+        <div class="bands">
+          <div class="band" data-role="lost" style="width:38px">rail<br>52</div>
+          <div class="band" data-role="nav" style="width:110px">canaux<br>236</div>
+          <div class="band" data-role="content">conversation</div>
+          <div class="band" data-role="meta" style="width:120px">état<br>280</div>
+        </div>
+        <p class="geo-note">
+          Trois colonnes fixes encadrent la conversation. Celle de gauche a perdu ses mots pour
+          faire de la place aux deux autres.
+        </p>
+        <p class="geo-count">4 bandes · 568 px figés · 0 nom de projet</p>
+      </div>
+
+      <div class="geo-card">
+        <div class="geo-title"><h3>Proposé</h3><span class="tag">panel</span></div>
+        <div class="bands">
+          <div class="band" data-role="kept" style="width:118px">rail<br>224</div>
+          <div class="band" data-role="nav" style="width:110px">canaux<br>236</div>
+          <div class="band" data-role="content">conversation</div>
+        </div>
+        <p class="geo-note">
+          Le rail retrouve sa largeur, l'état quitte la marge pour le pied de la conversation.
+          La conversation gagne 168 px au passage.
+        </p>
+        <p class="geo-count">3 bandes · 460 px figés · le projet est écrit</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ LA MAQUETTE ═══ -->
+  <section class="section">
+    <div class="prose">
+      <h2>La page</h2>
+      <p>
+        Le rail est intact et le projet ouvert se lit. La page a un titre, comme toutes les autres.
+        Sous ce titre, deux volets : la liste des canaux à gauche, la conversation à droite. C'est
+        exactement la géométrie du wiki, avec le même composant du design system.
+      </p>
+    </div>
+
+    <figure class="mock-frame">
+      <div class="mock-scroll">
+        <div class="mock" data-theme-demo>
+
+          <!-- topbar -->
+          <div class="tb">
+            <span class="logo"><span class="logo-mark">A</span>Legion</span>
+            <div class="cmd">
+              <span>Lancer une tâche, chercher…</span>
+              <span class="kbd"><span>⌘</span><span>K</span></span>
+            </div>
+            <span class="spacer"></span>
+            <span class="pill"><span class="dot"></span>2 sessions actives</span>
+            <span class="avatar">R</span>
+          </div>
+
+          <div class="body">
+            <!-- RAIL PLEIN -->
+            <nav class="rail">
+              <p class="rail-label">Piloter</p>
+              <span class="nav"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>Dashboard</span>
+              <span class="nav"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>Inbox</span>
+
+              <p class="rail-label">Projets</p>
+              <span class="nav is-project"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>Legion</span>
+              <div class="sub">
+                <span class="nav">Board</span>
+                <span class="nav">Goals</span>
+                <span class="nav">Issues</span>
+                <span class="nav">Reviews</span>
+                <span class="nav is-active">Canaux</span>
+                <span class="nav">Projet</span>
+                <span class="nav">Agents</span>
+                <span class="nav">Capacités</span>
+              </div>
+
+              <p class="rail-label">Système</p>
+              <span class="nav"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/></svg>Infra</span>
+              <span class="nav"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Wiki</span>
+            </nav>
+
+            <!-- CONTENU -->
+            <div class="main">
+              <div class="page-head">
+                <h2>Canaux</h2>
+                <span class="sub-text">les tâches vivantes, lues comme des conversations</span>
+              </div>
+
+              <div class="panel">
+                <!-- volet gauche : la liste -->
+                <aside class="aside-card">
+                  <div class="aside-head"><span>En cours</span><span>2</span></div>
+                  <div class="aside-scroll">
+                    <span class="chan is-active" data-state="run"><span class="mark"></span>Inbox : questions repliables, repliées par défaut</span>
+                    <span class="chan" data-state="run"><span class="mark"></span>Relais web : allowedTools réglable dans permissions.tsx</span>
+                    <div class="aside-head" style="border-top:1px solid var(--rule);border-bottom:none;padding-left:var(--sp-5)"><span>En suspens</span><span>1</span></div>
+                    <span class="chan" data-state="wait"><span class="mark"></span>Relais backend : routes API Environnements</span>
+                  </div>
+                  <div class="aside-foot">
+                    5 canaux fermés aujourd'hui. 15 tâches en « Plus tard » — <a href="#">sur le board</a>, pas ici : rien n'y parle encore.
+                  </div>
+                </aside>
+
+                <!-- volet droit : la conversation -->
+                <section class="conv-card">
+                  <header class="conv-head">
+                    <h3>Inbox : questions repliables</h3>
+                    <span class="chip" data-tone="run"><span class="dot"></span>en cours</span>
+                    <span class="chip">front</span>
+                    <span class="chip" data-mono>haiku</span>
+                    <span class="chip" data-mono>legion/fxHi2IpRXo</span>
+                    <a class="head-link" href="#">Ouvrir la page tâche ↗</a>
+                  </header>
+
+                  <div class="conv-scroll">
+                    <div class="msg" data-who="human">
+                      <span class="who">R</span>
+                      <div class="msg-body">
+                        <div class="msg-meta"><b>l'opérateur</b><span>14:39</span></div>
+                        <div class="brief">
+                          <span class="pin">Brief · épinglé</span>
+                          <b>Travail.</b> Rendre chaque question d'inbox repliable, repliée par défaut.
+                          La ligne repliée doit suffire à décider si on l'ouvre maintenant : qui demande,
+                          sur quelle tâche, depuis combien de temps, et le titre de la question.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="work"><b>a travaillé 5 s</b> — 0 outil, 0 lecture, 0 écriture <span class="chev">›</span></div>
+
+                    <div class="msg" data-who="agent">
+                      <span class="who">F</span>
+                      <div class="msg-body">
+                        <div class="msg-meta"><b>front</b><span>11:23</span></div>
+                        <p class="said">
+                          Je vais implémenter le repliage des questions d'inbox, repliées par défaut.
+                          Commençons par explorer le code existant et les règles de design.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="work"><b>a travaillé 2 min</b> — 19 outils, 10 lectures, 4 écritures <span class="chev">›</span></div>
+                  </div>
+
+                  <!-- LE PIED : l'état, posé -->
+                  <div class="conv-foot">
+                    <div class="foot-grid">
+                      <div class="foot-col">
+                        <h4>Session</h4>
+                        <dl class="kv">
+                          <div><dt>coût</dt><dd>pas encore mesuré</dd></div>
+                          <div><dt>rounds</dt><dd>0</dd></div>
+                          <div><dt>branche</dt><dd class="mono">legion/fxHi2IpRXo</dd></div>
+                        </dl>
+                      </div>
+                      <div class="foot-col">
+                        <h4>Livrables</h4>
+                        <p class="empty-note">Aucun artifact déposé. Ils apparaîtront ici dès le premier fichier.</p>
+                      </div>
+                      <div class="foot-col">
+                        <h4>Filiation</h4>
+                        <p class="empty-note">Aucune filiation. Cette tâche n'a ni parente ni tâche déposée.</p>
+                      </div>
+                      <div class="foot-col">
+                        <h4>Droits</h4>
+                        <dl class="kv">
+                          <div><dt>dépôts</dt><dd>écriture · 1</dd></div>
+                          <div><dt>réseau</dt><dd>ouvert</dd></div>
+                          <div><dt>secrets</dt><dd class="mono">GITHUB_TOKEN</dd></div>
+                        </dl>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="composer">
+                    <span class="field">dis-lui quelque chose…</span>
+                    <span class="btn">Envoyer</span>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </figure>
+    <p class="caption">Le pied est posé, sans bandeau ni chevron — c'est la correction du 26/08, une heure après la première version qui le repliait.</p>
+  </section>
+
+  <!-- ═══ DÉCISIONS ═══ -->
+  <section class="section">
+    <div class="prose">
+      <h2>Les quatre décisions que cette maquette porte</h2>
+    </div>
+    <div class="decisions">
+      <article class="dec">
+        <h3>Le rail ne change jamais de forme</h3>
+        <p>
+          Plus de <code>compact</code>, plus de cas particulier dans le routeur. La coquille de
+          l'application est la seule chose qui ne dépend pas de la page ouverte, et c'est ce qui
+          permet de savoir où l'on est sans y penser.
+        </p>
+      </article>
+      <article class="dec">
+        <h3>Une seule navigation dans la page, et c'est un aside du design system</h3>
+        <p>
+          La liste des canaux passe par <code>SplitPane side="left"</code> — le composant qui sert
+          déjà au sommaire du wiki et à l'arbre de fichiers d'un diff. Rien de nouveau n'est
+          inventé : la page hérite du comportement, des seuils responsive et du nom accessible
+          que ces deux écrans ont déjà éprouvés.
+        </p>
+      </article>
+      <article class="dec">
+        <h3>L'état se range par moment, pas par colonne</h3>
+        <p>
+          Ce qu'on regarde <em>avant</em> de lire — statut, agent, modèle, branche — reste dans
+          l'en-tête, en pastilles. Ce qu'on regarde <em>après</em> — coût, rounds, livrables,
+          filiation, droits — descend au pied. C'est le raisonnement exact du wiki avec ses
+          rétroliens : on les consulte après avoir lu, donc ils sont dessous et pas en marge.
+        </p>
+        <p>
+          Le pied a d'abord été un REPLI, et il ne l'est plus resté une heure. Son bandeau
+          « Détails du canal » et son chevron coûtaient plus que les trois chiffres qu'ils
+          cachaient : un repli se justifie quand ce qu'il masque est long ou rare, et quatre
+          colonnes courtes qu'on regarde en arrivant ne sont ni l'un ni l'autre. Il est donc posé,
+          sans titre — les noms de colonnes disent ce que c'est.
+        </p>
+      </article>
+      <article class="dec">
+        <h3>La conversation garde sa hauteur de fenêtre</h3>
+        <p>
+          On reprend la géométrie du wiki, pas son modèle de défilement. Le fil défile pour son
+          compte et le composer reste collé en bas : un champ de steering qu'il faut aller chercher
+          au bout de trois cents événements n'est pas un composer. C'est la seule chose que cette
+          page garde de son ancienne autonomie.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ═══ RISQUES ═══ -->
+  <section class="section">
+    <div class="prose">
+      <h2>Ce qu'il faut regarder de près avant de s'engager</h2>
+    </div>
+    <div class="risks">
+      <article class="risk">
+        <h3>Un clic de plus pour la branche et les livrables</h3>
+        <p>
+          Si tu regardes la branche ou les artifacts en permanence pendant qu'une session tourne,
+          le pied replié est le mauvais choix et il faut vraiment une troisième colonne. Mais alors
+          le rail doit rétrécir, et on revient au problème qu'on vient de corriger. La question à
+          trancher est donc celle-là, et pas la mise en page : est-ce que tu consultes l'état
+          pendant, ou entre deux lectures ?
+        </p>
+      </article>
+      <article class="risk">
+        <h3>La page reste bord à bord</h3>
+        <p>
+          Elle garde <code>bleed</code> pour tenir la hauteur de fenêtre : elle n'est donc pas
+          <em>exactement</em> le wiki, qui défile entièrement. Si tu veux la stricte égalité, le
+          composer part en fin de fil et on perd la décision quatre. À dire maintenant, parce que
+          cela change la structure du composant, pas sa peinture.
+        </p>
+      </article>
+      <article class="risk">
+        <h3>Sous 1100 px, la liste doit disparaître aussi</h3>
+        <p>
+          Aujourd'hui c'est la colonne d'état qui se retire à ce seuil. Avec deux volets au lieu
+          de trois, c'est la liste des canaux qui devient le point de bascule : elle doit passer
+          en sélecteur au-dessus de la conversation, pas simplement s'effacer, sinon on perd le
+          moyen de changer de canal.
+        </p>
+      </article>
+      <article class="risk">
+        <h3>Si un jour on réduit vraiment le rail</h3>
+        <p>
+          Tu n'es pas contre le principe, et il resservira. La règle à poser alors : le nom du
+          projet ouvert survit au repli. Ce sont ses sous-entrées qui se rangent, pas son
+          identité — un rail replié peut se permettre de perdre « Board » et « Agents », jamais
+          « Legion ».
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <footer class="prose">
+    <p>
+      Palette, typographie et géométrie recopiées de <code>web/src/ui/tokens.css</code> et
+      <code>web/src/ui/theme-dark.css</code>. Cette direction ne propose aucune couleur nouvelle :
+      elle ne discute que la mise en page. Elle fait suite à <code>direction-canaux.html</code>
+      (25/08), qui posait le principe du canal, et le corrige sur un point : le canal n'a pas
+      besoin de prendre l'écran pour être une conversation.
+    </p>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,31 @@
+{
+  "name": "legion",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "packageManager": "pnpm@11.22.0",
+  "scripts": {
+    "dev": "pnpm --parallel --filter @legion/server --filter @legion/web dev",
+    "dev:server": "pnpm --filter @legion/server dev",
+    "dev:web": "pnpm --filter @legion/web dev",
+    "build:image": "make image-session",
+    "typecheck": "pnpm --workspace-concurrency=1 --filter @legion/server --filter @legion/web --filter @legion/runner-payload typecheck",
+    "seed:demo": "pnpm --filter @legion/server seed:demo",
+    "lint": "oxlint --react-plugin web/src server/src server/scripts runner-payload",
+    "lint:fix": "oxlint --react-plugin --fix web/src server/src server/scripts runner-payload && oxfmt web/src server/src server/scripts runner-payload",
+    "format": "oxfmt web/src server/src server/scripts runner-payload",
+    "format:check": "oxfmt --check web/src server/src server/scripts runner-payload",
+    "test": "pnpm --filter @legion/server --filter @legion/web test",
+    "test:verbose": "pnpm --filter @legion/server --filter @legion/web test:verbose",
+    "seed:self": "pnpm --filter @legion/server seed:self",
+    "smoke": "pnpm --filter @legion/server smoke"
+  },
+  "devDependencies": {
+    "dependency-cruiser": "^18.2.0",
+    "knip": "^6.34.0",
+    "oxfmt": "^0.64.0",
+    "oxlint": "^1.79.0",
+    "tsx": "^4.23.12"
+  }
+}

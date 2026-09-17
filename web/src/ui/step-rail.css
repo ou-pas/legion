@@ -1,0 +1,227 @@
+/* A recess left of a sheet: the current step stands out by taking the sheet's color and an accent
+   line, "joining" the screen it points to. */
+.ui-steprail {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: var(--sp-8) 0;
+  background: var(--recess);
+}
+
+.ui-steprail-head {
+  padding: 0 var(--sp-9) var(--sp-4);
+}
+
+.ui-steprail-items {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ui-steprail-item {
+  display: grid;
+  grid-template-columns: var(--sz-choice) minmax(0, 1fr);
+  gap: var(--sp-5);
+  align-items: start;
+  width: 100%;
+  padding: var(--sp-5) var(--sp-9);
+  border: 0;
+  border-left: 2px solid transparent;
+  background: none;
+  color: var(--ink-2);
+  font: inherit;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-snug);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease);
+}
+
+.ui-steprail-item:hover {
+  color: var(--ink);
+}
+
+.ui-steprail-item[aria-current="step"] {
+  color: var(--ink);
+  background: var(--sheet);
+  border-left-color: var(--accent);
+}
+
+.ui-steprail-index {
+  padding-top: var(--sp-1);
+  font-family: var(--mono);
+  font-size: var(--fs-2xs);
+  color: var(--ink-3);
+}
+
+/* An answered step's index turns green: the rail reads like a list being checked off. */
+.ui-steprail-item[data-done] .ui-steprail-index {
+  color: var(--ok);
+}
+
+.ui-steprail-text {
+  display: block;
+  min-width: 0;
+}
+
+.ui-steprail-title {
+  display: block;
+}
+
+.ui-steprail-sub {
+  display: block;
+  margin-top: var(--sp-1);
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+  overflow-wrap: anywhere;
+}
+
+.ui-steprail-rule {
+  margin: var(--sp-4) 0 var(--sp-6);
+  border: 0;
+  border-top: 1px solid var(--border-separator);
+}
+
+.ui-steprail-progress {
+  margin: var(--sp-7) var(--sp-9) 0;
+}
+
+/* Below 900px the rail goes above the screen as a scrolling horizontal band, each step keeping its
+   reading width. Mobile is for triage (PRODUCT.md): you see where you are, you do not need the whole
+   list on screen. */
+@media (max-width: 900px) {
+  .ui-steprail {
+    padding: var(--sp-6) 0;
+  }
+
+  .ui-steprail-items {
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 0 var(--sp-6);
+  }
+
+  .ui-steprail-item {
+    flex: 0 0 auto;
+    max-width: var(--w-steprail);
+    border-left: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: var(--r-2) var(--r-2) 0 0;
+  }
+
+  .ui-steprail-item[aria-current="step"] {
+    border-bottom-color: var(--accent);
+  }
+
+  .ui-steprail-rule {
+    display: none;
+  }
+}
+
+/* Phone breakpoint: steps become dots (13/09, operator: "it's supposed to be a rail but on mobile is
+   it really useful? you can't see or understand anything").
+
+   The medium band above is a scrolling strip of cards; at 375px one and a half of five are visible.
+   It is still reachable (it scrolls, which is why `make responsive` lets it pass) but no longer says
+   where you are and how many remain. Scrolling is not understanding.
+
+   Labels are not lost: the page already shows "QUESTION 1 OF 5" and the current step's title below.
+   The strip only carries position, which a dot does better than a truncated card. Titles stay
+   readable to screen readers, each dot keeping its button and text.
+
+   Degradation is gentle: dots share the width but never go below the touch target, so a
+   twelve-question form scrolls again instead of rendering twelve unreadable dots (the block
+   above's `overflow-x` takes over). */
+@media (max-width: 640px) {
+  .ui-steprail {
+    padding: var(--sp-5) 0;
+  }
+
+  .ui-steprail-items {
+    align-items: center;
+    gap: 0;
+  }
+
+  .ui-steprail-item {
+    position: relative;
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    align-items: center;
+    /* 44px is Apple's touch target. Below that, the band should rather scroll than render dots
+       you cannot aim at. */
+    min-width: max(44px, 2.75rem);
+    max-width: none;
+    padding: var(--sp-3) 0;
+    border: 0;
+    border-radius: 0;
+  }
+
+  /* The connecting line, drawn from each dot to the previous one, behind them. On the item, not the
+     container: one segment per interval, nothing to recompute when the step count changes. */
+  .ui-steprail-item + .ui-steprail-item::before {
+    content: "";
+    position: absolute;
+    top: calc(var(--sp-3) + var(--sz-choice) / 2);
+    right: 50%;
+    left: -50%;
+    height: 1px;
+    background: var(--border-separator);
+  }
+
+  .ui-steprail-index {
+    /* Above the line, and `position: relative` was not enough (14/09). The line is the next step's
+       `::before`, so it paints after the previous dot and covered it (visible on four dots of a
+       five-step form): two positioned elements at `z-index: auto` are ordered by DOM order.
+       `z-index: 1` settles it: no ancestor creates a stacking context, so the dot sits above every
+       line, not just its own. */
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: var(--sz-choice);
+    height: var(--sz-choice);
+    padding-top: 0;
+    border: 1px solid var(--border-separator);
+    border-radius: var(--r-round);
+    background: var(--recess);
+  }
+
+  /* The current step is marked on the dot, not by a box. The band's recess survived here and drew a
+     rectangle wider than the dot: two marks for one fact, the bigger one the less precise. */
+  .ui-steprail-item[aria-current="step"] {
+    background: none;
+  }
+
+  .ui-steprail-item[aria-current="step"] .ui-steprail-index {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--sheet);
+  }
+
+  .ui-steprail-item[data-done] .ui-steprail-index {
+    border-color: var(--ok);
+  }
+
+  /* The label leaves the view, never the DOM: it is the button's accessible name. Same technique as
+     `.ui-sr` in `base.css`, copied rather than borrowed because rule 9bis requires a class and a
+     class cannot depend on viewport width. What the rule protects holds: the element stays in flow,
+     so it does not inflate the document's scroll height. */
+  .ui-steprail-text {
+    position: static;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* The progress meter would repeat what the dots show. */
+  .ui-steprail-progress {
+    display: none;
+  }
+}

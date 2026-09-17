@@ -1,0 +1,8 @@
+/* `auto-fit` rather than a column count: the card lives in a page whose width changes, and a tile
+   has a minimum width (`--w-connect-tile`) below which the code to copy breaks onto two lines. No
+   media query: the grid wraps on its own. */
+.connections-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(var(--w-connect-tile), 100%), 1fr));
+  gap: var(--sp-6);
+}

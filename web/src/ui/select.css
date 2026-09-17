@@ -1,0 +1,254 @@
+/* The trigger imitates a field, the list is a design system surface: no more system menu we cannot
+   style. */
+.ui-select {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-4);
+  width: 100%;
+  min-width: 0;
+  text-align: left;
+  color: var(--ink);
+  background: var(--sheet);
+  border: 1px solid var(--border-control);
+  border-radius: var(--r-2);
+  padding-block: 0;
+  padding-inline: var(--sp-5);
+  font-size: var(--fs-md);
+  transition:
+    border-color var(--dur-1) var(--ease),
+    box-shadow var(--dur-1) var(--ease);
+}
+
+.ui-select[data-size="md"] {
+  height: var(--h-control-md);
+}
+
+.ui-select[data-size="sm"] {
+  height: var(--h-control-sm);
+  padding-block: 0;
+  padding-inline: var(--sp-4);
+  font-size: var(--fs-sm);
+}
+
+.ui-select:hover:not(:disabled):not(:focus):not([data-open="true"]) {
+  border-color: var(--border-strong);
+}
+
+/* One focus treatment like other fields: border plus halo, no extra ring (the global ring excludes
+   fields, see base.css). */
+.ui-select:focus-visible,
+.ui-select[data-open="true"] {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: var(--field-ring);
+}
+
+.ui-select[aria-invalid="true"] {
+  border-color: var(--bad);
+}
+
+.ui-select[aria-invalid="true"]:focus-visible {
+  box-shadow: var(--field-ring-bad);
+}
+
+.ui-select:disabled {
+  background: var(--recess);
+  color: var(--ink-3);
+  cursor: not-allowed;
+}
+
+.ui-select[data-placeholder="true"] .ui-select-value {
+  color: var(--ink-3);
+}
+
+.ui-select-value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Drawn in CSS: two strokes, so it follows the theme color without an image. */
+.ui-select-chevron {
+  width: 7px;
+  height: 7px;
+  flex-shrink: 0;
+  margin-bottom: 2px;
+  border-right: 1.5px solid var(--ink-3);
+  border-bottom: 1.5px solid var(--ink-3);
+  transform: rotate(45deg);
+  transition:
+    transform var(--dur-1) var(--ease),
+    border-color var(--dur-1) var(--ease);
+}
+
+.ui-select:hover:not(:disabled) .ui-select-chevron {
+  border-color: var(--ink-2);
+}
+
+.ui-select[data-open="true"] .ui-select-chevron {
+  transform: rotate(225deg) translate(-2px, -2px);
+  border-color: var(--accent);
+}
+
+/* Mounted but invisible until measured, otherwise it flashes top-left for a frame (the position is
+   only computable once in the DOM). */
+.ui-select-list:not([data-placed="true"]) {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ui-select-list {
+  position: fixed;
+  z-index: var(--z-popover);
+  /* `--surface-max-w` comes from floating.ts (inline style in `select.tsx`): the width left before
+     leaving the window. Without it a long label widened the list off screen (measured: 393px in
+     a 375px window). */
+  max-width: var(--surface-max-w, none);
+  padding: var(--sp-2);
+  background: var(--sheet);
+  border: 1px solid var(--border-floating);
+  border-radius: var(--r-3);
+  box-shadow: var(--el-2);
+  animation: ui-select-in var(--dur-2) var(--ease-out);
+}
+
+/* The scrolling viewport, separate from the surface (see select.tsx). `position: relative`: option
+   offsetTop is measured from the view, keyboard following depends on it. */
+.ui-select-scroll {
+  position: relative;
+  max-height: var(--h-scroll-md);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Edge shadows, same gesture as ScrollArea, driven by data-edge on scroll. Always in the DOM, only
+   opacity moves. Lowest named plane (no local z-index): the selected option is positioned (its
+   ::before marker) and would otherwise sit above the shadow. */
+.ui-select-list::before,
+.ui-select-list::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  height: var(--sp-9);
+  z-index: var(--z-sticky);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--dur-1) var(--ease);
+}
+
+.ui-select-list::before {
+  top: 0;
+  border-radius: var(--r-3) var(--r-3) 0 0;
+  background: linear-gradient(to bottom, var(--edge-shade), transparent);
+}
+
+.ui-select-list::after {
+  bottom: 0;
+  border-radius: 0 0 var(--r-3) var(--r-3);
+  background: linear-gradient(to top, var(--edge-shade), transparent);
+}
+
+.ui-select-list[data-edge="top"]::before,
+.ui-select-list[data-edge="both"]::before {
+  opacity: 1;
+}
+
+.ui-select-list[data-edge="bottom"]::after,
+.ui-select-list[data-edge="both"]::after {
+  opacity: 1;
+}
+
+@keyframes ui-select-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.ui-select-group {
+  padding: var(--sp-5) var(--sp-4) var(--sp-2);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-semi);
+  text-transform: uppercase;
+  letter-spacing: var(--tr-caps);
+  color: var(--ink-3);
+}
+
+.ui-select-option {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+  width: 100%;
+  min-height: var(--h-control-md);
+  padding: var(--sp-3) var(--sp-5);
+  border-radius: var(--r-2);
+  font-size: var(--fs-sm);
+  /* Same drawing as a <MenuItem>: full ink at rest, recess on hover. */
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease);
+}
+
+.ui-select-option[data-active="true"] {
+  background: var(--row-hover);
+}
+
+/* The chosen option carries the rail's active-entry mark: wash, line and a left marker, two of
+   which do not rely on color. No dark fill, which dug a hole in the panel on dark backgrounds
+   (operator feedback). */
+.ui-select-option[aria-selected="true"] {
+  position: relative;
+  background: var(--row-selected);
+  border: 1px solid var(--row-selected-line);
+  padding: calc(var(--sp-3) - 1px) calc(var(--sp-5) - 1px);
+  color: var(--ink);
+  font-weight: var(--fw-semi);
+}
+
+.ui-select-option[aria-selected="true"]::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -1px;
+  width: 2px;
+  height: 60%;
+  translate: 0 -50%;
+  border-radius: 0 var(--r-pill) var(--r-pill) 0;
+  background: var(--accent);
+}
+
+/* Hovering the already chosen option keeps its mark instead of the neutral highlight (two tints
+   fought over the row). */
+.ui-select-option[aria-selected="true"][data-active="true"] {
+  background: var(--row-selected);
+}
+
+.ui-select-option[aria-disabled="true"] {
+  color: var(--ink-3);
+  cursor: not-allowed;
+  background: none;
+}
+
+.ui-select-mark {
+  display: grid;
+  place-items: center;
+  width: 13px;
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+/* Wrapping and ellipsis come from `.ui-ellipsis[data-lines="2"]` (`ellipsis.tsx`): a label wraps to
+   two lines before being cut. The title is what tells two options apart, and a one-line ellipsis
+   cut two titles out of seven at 359px. */
+.ui-select-label {
+  flex: 1;
+}

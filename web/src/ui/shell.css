@@ -1,0 +1,650 @@
+/* Only the content area scrolls. Layout since 04/09 (flat mockup): the icon rail and the rail run
+   to the top, the bar only caps the content, so the project head sits on the same line as the
+   screen name. A 3×3 grid; `.ui-shell-body` is `display: contents` so its children (both rails,
+   the content) are placed by the grid without changing DOM order. */
+.ui-shell {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-areas:
+    "icon rail top"
+    "icon rail banner"
+    "icon rail main";
+  height: 100vh;
+  /* `dvh`, not `vh`, on phones: `100vh` is the screen height without the browser bars, which
+     Safari draws on top. The shell overflowed the visible area by ~100px, its last row (the tab
+     bar) fell under Safari's toolbar and the document scrolled to reach it (iPhone 16, 13/09).
+     `dvh` follows the bars as they retract. The `vh` line above is the fallback for browsers
+     without the unit. */
+  height: 100dvh;
+  /* Anchor of the rail reopen button (`.ui-shell-body` has no box). */
+  position: relative;
+}
+
+.ui-topbar {
+  grid-area: top;
+}
+
+/* The update return banner (`infra/update-return-banner.tsx`) is a direct child of the shell,
+   between bar and content; the shell does the placing, so it is stated here. */
+.ui-shell > .update-return-banner-slot {
+  grid-area: banner;
+}
+
+.ui-topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-7);
+  flex-shrink: 0;
+  /* No wrapping on normal screens (29/08). `wrap` was added for a real reason: below 640px the bar
+     pushed 736px of content and overflowed the document by 286px on all 14 routes (responsive
+     audit, P0). But on 29/08 the bar took over everything the rail held, eleven children, and
+     wrapping kicked in at 1180px: the avatar dropped to a second line and the bar grew from 44 to
+     95px on every page.
+
+     `flex-shrink` on the status group was not enough: `wrap` beats `shrink`, the browser breaks
+     the line rather than compressing. So the bar never wraps; the status group yields instead: it
+     can truncate, a button cannot. */
+  flex-wrap: nowrap;
+  /* Explicit band height (13/09). It used to be "two gutters plus the tallest child", so it moved
+     whenever a button changed size and the two neighbouring rails could not follow. Now a token
+     all three share. */
+  min-height: var(--h-head);
+  padding: var(--sp-0) var(--sp-9);
+  /* The notch ate the title (14/09). `viewport-fit=cover`, set for the installed PWA to fill the
+     screen, puts the page under the status bar and notch: the screen name went behind the clock.
+     `env()` is zero everywhere else, so these lines cost nothing.
+
+     Sides matter too, in landscape only, where the notch bites the left edge. `max()` keeps the
+     bar's gutter when the inset is zero instead of replacing it. */
+  padding-top: env(safe-area-inset-top, 0);
+  padding-left: max(var(--sp-9), env(safe-area-inset-left, 0));
+  padding-right: max(var(--sp-9), env(safe-area-inset-right, 0));
+  background: var(--sheet);
+  border-bottom: 1px solid var(--border-separator);
+}
+
+/* The palette trigger's elasticity lives in ui/command-trigger with its geometry: the shell does
+   not need to know which child of its bar yields. */
+
+/* Skip link: first focusable element, invisible until focused. Without it, reaching the content
+   by keyboard cost 13 to 20 tabs on every page change (WCAG 2.4.1, a11y audit P1). */
+.ui-skip {
+  position: absolute;
+  top: var(--sp-2);
+  left: var(--sp-2);
+  z-index: var(--z-toast);
+  padding: var(--sp-4) var(--sp-6);
+  background: var(--sheet);
+  border: 1px solid var(--border-floating);
+  border-radius: var(--r-2);
+  box-shadow: var(--el-2);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semi);
+  color: var(--ink);
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+.ui-skip:focus-visible {
+  transform: none;
+}
+
+/* No box: its children are placed by `.ui-shell`'s grid (see top). */
+.ui-shell-body {
+  display: contents;
+}
+
+/* The permanent band left of everything. Three columns instead of two (direction-double-nav mockup,
+   variant B): this is what makes collapsing the neighbouring rail acceptable, since the project's
+   identity stays visible here. */
+.ui-iconrail {
+  grid-area: icon;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  width: var(--w-iconrail);
+  flex-shrink: 0;
+  /* No top gutter: `.ui-iconrail-mark` carries the head band, and two height sources for one line
+     are exactly what caused the drift. */
+  padding: var(--sp-0) var(--sp-0) var(--sp-5);
+  background: var(--recess-2);
+  border-right: 1px solid var(--border-separator);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Mark at the top of the band, foot at the bottom: `margin-top: auto` takes the room the project
+   squares leave.
+
+   The mark fills the head band instead of floating on it, which puts the logo, project name and
+   screen title on one line whatever their sizes. It also carries the line like its two neighbours:
+   the separator crossed the bar and rail head then stopped at this column, and without it this
+   column's band had 52px of content against 51 elsewhere (the line is inside the box), dropping
+   the logo half a pixel. */
+.ui-iconrail-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* `align-self: stretch` because the column centers its children: otherwise the mark is as wide
+     as its logo and the line crosses 22px instead of the column. `flex: none` plus `min-height`,
+     not `height`: this column is a scrolling flex, and a fixed height does not stop a child from
+     being squeezed (measured on /wiki in a short window: the band fell from 52 to 25px). */
+  flex: none;
+  align-self: stretch;
+  min-height: var(--h-head);
+  margin-bottom: var(--sp-3);
+  border-bottom: 1px solid var(--border-separator);
+}
+
+.ui-iconrail-foot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-top: auto;
+  padding-top: var(--sp-5);
+}
+
+/* Title voice, then the identifier in mono. `min-width: 0` plus ellipsis: a long title yields
+   before pushing the machine status. */
+.ui-topbar-title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-5);
+  min-width: 0;
+  white-space: nowrap;
+}
+
+/* Same voice as the rail head ("Legion"): sans, semibold, body size. A serif title here was the
+   only one in the shell and clashed (operator feedback, 04/09). */
+.ui-topbar-title-name {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semi);
+  letter-spacing: var(--tr-tight);
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Bar toggles (theme, notifications) get no frame when on: a pressed button's accent frame said
+   "press here" where the icon already shows the state. */
+.ui-topbar .ui-btn.ui-topbar-toggle[aria-pressed="true"] {
+  background: transparent;
+  border-color: transparent;
+  color: var(--ink-2);
+}
+
+.ui-topbar-crumb {
+  display: inline-flex;
+  gap: var(--sp-4);
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+
+.ui-rail {
+  grid-area: rail;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  width: var(--w-rail);
+  flex-shrink: 0;
+  /* The top aligns with the bar and `--h-head` holds it: the rail head carries the band, so this
+     edge adds no top gutter. */
+  padding: var(--sp-0) var(--sp-5) var(--sp-7);
+  background: var(--sheet);
+  border-right: 1px solid var(--border-separator);
+  overflow-y: auto;
+  /* A navigation column never scrolls horizontally, labels truncate. It must be stated, because
+     `overflow-y: auto` alone turns the other axis to `auto` too, and the project rail's slide (slice
+     nav/09, the list enters shifted by 32px) showed a horizontal bar during the animation. */
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+}
+
+/* Last row of the column. `margin-top: auto` pins it to the bottom when nothing pushes above (a
+   story, a short rail); in the app the foot's <Spacer /> already took the room. */
+.ui-rail-collapse {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+  width: 100%;
+  margin-top: auto;
+  min-height: var(--h-control-md);
+  padding: var(--sp-3) var(--sp-5);
+  border: 0;
+  border-radius: var(--r-2);
+  background: transparent;
+  color: var(--ink-3);
+  font: inherit;
+  font-size: var(--fs-sm);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease);
+}
+
+.ui-rail-collapse:hover {
+  background: var(--recess);
+  color: var(--ink-2);
+}
+
+.ui-rail-collapse svg {
+  width: var(--icon-row);
+  height: var(--icon-row);
+  flex-shrink: 0;
+}
+
+.ui-rail-collapse-keys {
+  margin-left: auto;
+}
+
+/* A floating pill, not a column: it sits in the space the rail just freed without taking it back,
+   otherwise collapsing would gain nothing. */
+.ui-rail-reopen {
+  position: absolute;
+  top: var(--sp-4);
+  left: calc(var(--w-iconrail) + var(--sp-4));
+  z-index: var(--z-sticky);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-5);
+  border: 1px solid var(--border-control);
+  border-radius: var(--r-2);
+  background: var(--sheet-hi);
+  box-shadow: var(--el-1);
+  color: var(--ink-2);
+  font: inherit;
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  transition:
+    color var(--dur-1) var(--ease),
+    border-color var(--dur-1) var(--ease);
+}
+
+.ui-rail-reopen:hover {
+  border-color: var(--border-strong);
+  color: var(--ink);
+}
+
+.ui-rail-reopen svg {
+  width: var(--icon-control);
+  height: var(--icon-control);
+  flex-shrink: 0;
+}
+
+.ui-main {
+  grid-area: main;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  padding: var(--sp-10) var(--sp-11);
+  /* The grid lives only on the content area (04/09): on `body` it also ran under the bar, rail and
+     right panel, sheets through which the grid showed. Minor 16, major 96. */
+  background-image:
+    linear-gradient(to right, var(--grid-minor) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-minor) 1px, transparent 1px),
+    linear-gradient(to right, var(--grid-major) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-major) 1px, transparent 1px);
+  background-size:
+    var(--grid-minor-size) var(--grid-minor-size),
+    var(--grid-minor-size) var(--grid-minor-size),
+    var(--grid-major-size) var(--grid-major-size),
+    var(--grid-major-size) var(--grid-major-size);
+}
+
+/* Edge to edge: the page fills the area and manages its own scrolling panes. */
+.ui-main[data-bleed] {
+  padding: 0;
+  overflow: hidden;
+}
+
+.ui-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-4);
+  font-family: var(--sans);
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tr-tight);
+  color: var(--ink);
+}
+
+.ui-logo-mark {
+  display: grid;
+  place-items: center;
+  /* Same size and radius as the project squares below it (15/09): at 22px the mark looked like one
+     thumbnail short, not the head of the column. */
+  width: var(--sz-prj);
+  height: var(--sz-prj);
+  border-radius: var(--r-3);
+  /* Paper background, not accent (15/09). The square was accent when it held a monochrome glyph.
+     The mark has three masses and the third (the agent) is accent, so it vanished on an accent
+     background. These three tokens are the icon's three colors: `--paper`, `--ink`, `--accent`, in
+     both themes. */
+  background: var(--paper);
+  border: 1px solid var(--border-surface);
+  box-shadow: var(--el-btn);
+}
+
+/* Glyph at control icon size. The mark's viewBox is not square; `preserveAspectRatio` centers it
+   without distortion. */
+.ui-logo-mark > svg {
+  width: var(--icon-brand);
+  height: var(--icon-brand);
+}
+
+.ui-avatar {
+  display: grid;
+  place-items: center;
+  width: var(--sz-avatar);
+  height: var(--sz-avatar);
+  flex-shrink: 0;
+  border-radius: var(--r-round);
+  background: var(--accent-wash);
+  border: 1px solid var(--accent-line);
+  color: var(--accent-deep);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+}
+
+/* Below 900px the rail becomes a scrollable horizontal band. The product stays a desktop tool
+   (product decision: mobile = triage only), but the shell must not break. */
+@media (max-width: 900px) {
+  /* When narrow the grid becomes a stack: bar, rails as bands, then content. */
+  .ui-shell {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ui-shell-body {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    flex-direction: column;
+  }
+
+  /* As a band, `flex-direction: row` only applied to the rail: its children stayed columns, giving
+     a 217px tall band and 1269px of content off screen (responsive audit P1). Wrap, do not scroll,
+     and what is not navigation (toggles, counters) leaves the band. */
+  .ui-rail {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-2);
+    overflow-x: visible;
+    border-right: none;
+    border-bottom: 1px solid var(--border-separator);
+    padding: var(--sp-4) var(--sp-5);
+  }
+
+  /* Same band for the icon rail: stacked, it would be a 56px wide column the full height for a
+     handful of squares. */
+  .ui-iconrail {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    border-right: none;
+    border-bottom: 1px solid var(--border-separator);
+    padding: var(--sp-3) var(--sp-5);
+  }
+
+  /* The head band only exists in columns. When narrow the columns become stacked bands with no
+     shared line, and the reserved height left a stray bit of line under the logo. Same for a
+     global section's head. */
+  .ui-iconrail-mark,
+  .ui-rail-head[data-size="lg"] {
+    min-height: 0;
+    align-self: center;
+    margin-bottom: var(--sp-0);
+    border-bottom: none;
+  }
+
+  /* The reopen pill returns to the flow: the icon rail is no longer a column, so
+     `left: calc(--w-iconrail + …)` would put it on top of it. */
+  .ui-rail-reopen {
+    position: static;
+    align-self: flex-start;
+    margin: var(--sp-4) var(--sp-5) var(--sp-0);
+  }
+
+  .ui-rail > .ui-spacer,
+  .ui-rail > .ui-divider,
+  .ui-rail [data-rail-aside] {
+    display: none;
+  }
+
+  .ui-main {
+    padding: var(--sp-8);
+  }
+}
+
+/* Phone breakpoint (13/09, responsive lot 2). The medium band above was written for tablets and
+   fails at 375px: since the 12/09 navigation work `.ui-rail` has three direct children, one of
+   them `.prj-rail-swap`, a 403px column holding eleven links. Wrapping direct children wraps that
+   column, which stays a column: `.ui-main` started at 683px in an 812px window. Making
+   `.prj-rail-swap` a row too was tried and measured: 497 → 519px, worse.
+
+   So the rail leaves the flow and `app/tab-bar.tsx` navigates. Both rails stay in the DOM: the
+   "More" drawer renders the same rail content outside `.ui-shell-body`, hence the direct-child
+   selector. */
+@media (max-width: 640px) {
+  .ui-shell-body > .ui-rail,
+  .ui-shell-body > .ui-iconrail,
+  .ui-shell-body > .ui-rail-reopen {
+    display: none;
+  }
+
+  /* Longhands on purpose (14/09): a `padding` shorthand erased the three `env()` of the base rule,
+     at the one breakpoint where they matter (landscape phone with a notch). */
+  .ui-topbar {
+    padding-block: var(--sp-4);
+    padding-top: max(var(--sp-4), env(safe-area-inset-top, 0));
+    padding-left: max(var(--sp-5), env(safe-area-inset-left, 0));
+    padding-right: max(var(--sp-5), env(safe-area-inset-right, 0));
+  }
+
+  /* Below 640px the "/ task id" crumb is hidden: the task name is already written large just
+     under the bar. */
+  .ui-topbar-crumb {
+    display: none;
+  }
+
+  .ui-main {
+    padding: var(--sp-6);
+  }
+}
+
+/* Bar tools, collapsed at the phone breakpoint (14/09).
+ *
+ * Above the breakpoint the group does not exist for layout: `display: contents` makes its children
+ * direct children of the bar. The button that opens it only exists below the breakpoint. */
+.ui-topbar-tools-slot,
+.ui-topbar-tools {
+  display: contents;
+}
+
+.ui-topbar-tools-toggle {
+  display: none;
+}
+
+/* Hidden everywhere except below the phone breakpoint (see below); above it, the rail head carries
+   this menu. */
+.ui-topbar .ui-topbar-switch {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  /* The group leaves the flow and slides over the bar (14/09). The first version gave it its own
+     row: the bar grew from 61 to 115px on open and the whole screen moved down. A tools panel has
+     no reason to push what you are reading. How the panel unfolds is described on
+     `.ui-topbar-tools[data-open]` below; this group only provides an anchor.
+
+     `position: relative` only at the compact breakpoint: above, this group is `display: contents`
+     with nothing to anchor. */
+  .ui-topbar-tools-slot {
+    display: flex;
+    align-items: center;
+    /* The wrapper takes the room the `Spacer` gave the target alone. */
+    margin-left: auto;
+    position: relative;
+  }
+
+  .ui-topbar-tools {
+    display: none;
+    align-items: center;
+    gap: var(--sp-5);
+  }
+
+  /* A column under the target (14/09, fourth version, touch audit). The third put six icons on a
+     row: at 44px targets that needs 334px where anchoring left of the trigger leaves 305, so 29px
+     went off screen. A right-aligned column has no width constraint and still pushes nothing
+     (`position: absolute`).
+
+     Only 44px targets in the band. Background and gap borrowed from the icon rail (same
+     `--recess-2`): the material of the open trigger, not a floating sheet. No horizontal padding and
+     no border: that puts the band at exactly 44px and its icon axis on the "…" axis (0px off,
+     against 23 before); a 1px border would make alignment a tolerance. */
+  .ui-topbar-tools[data-open] {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: calc(100% + var(--sp-3));
+    right: 0;
+    z-index: var(--z-popover);
+    padding: var(--sp-3) 0;
+    gap: var(--sp-3);
+    background: var(--recess-2);
+    border: 0;
+    border-radius: var(--r-2);
+    box-shadow: var(--el-2);
+  }
+
+  /* The wiki/system pair follows the panel as a column; left as a row it would lie across the
+     middle of a vertical column. */
+  .ui-topbar-tools[data-open] .ui-topbar-poste {
+    flex-direction: column;
+  }
+
+  /* Panel buttons grow to the touch floor. `.ui-btn[data-size="md"]` (32px) and its
+     `--icon-control` glyph are sized for a cursor; scoped to the open panel, otherwise every icon
+     button in the app would change size. */
+  .ui-topbar-tools[data-open] .ui-btn[data-size="md"] {
+    height: var(--h-touch);
+  }
+
+  .ui-topbar-tools[data-open] .ui-btn-icon[data-size="md"] {
+    width: var(--h-touch);
+  }
+
+  .ui-topbar-tools[data-open] .ui-btn svg {
+    width: var(--icon-touch);
+    height: var(--icon-touch);
+  }
+
+  /* The concierge is not a `.ui-btn`: its popover renders its own button (`ui/popover.tsx`), styled
+     by `.concierge-button` (`concierge/concierge-button.css`). The rules above miss it, and it stayed
+     at 32px while its neighbours grew to 44 (missed by the 14/09 touch audit). */
+  .ui-topbar-tools[data-open] .concierge-button {
+    width: var(--h-touch);
+    height: var(--h-touch);
+  }
+
+  /* The bar's dividers do not follow into the panel. They separated five families on a
+     thousand-pixel line; here a few icons sit in a frame that already separates. All of them, not
+     just the first: which ones are visible depends on what the bar renders at the moment (the
+     version only shows when there is an update). */
+  .ui-topbar-tools[data-open] > .ui-divider {
+    display: none;
+  }
+
+  .ui-topbar-tools-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    /* Same target as the tab bar, for the same reason: a thumb aims, not a cursor (`--h-touch`). */
+    min-width: var(--h-touch);
+    min-height: var(--h-touch);
+    margin-left: auto;
+    border: 0;
+    border-radius: var(--r-2);
+    background: none;
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+
+  .ui-topbar-tools-toggle[aria-expanded="true"] {
+    color: var(--ink);
+    background: var(--recess-2);
+  }
+
+  .ui-topbar-tools-toggle > svg {
+    width: var(--icon-control);
+    height: var(--icon-control);
+  }
+
+  /* The project switcher only exists below the breakpoint (14/09). Above, the rail head carries it,
+     and two visible triggers for the same menu would be redundant. Below, both rails leave the flow
+     and there was no path from one project to another.
+
+     Hidden by default and shown here, not the reverse: `min-width: 641px` would add a fourth
+     breakpoint to a three-step scale (DESIGN.md § Width) and `breakpointsOffScale` would count it
+     as debt.
+
+     50%, not 40% (14/09, operator: "a bit small"). At 40% the project name got 7 to 8 characters,
+     not enough to read. The screen title yields instead: it already truncates
+     (`.ui-topbar-title-name`). */
+  .ui-topbar .ui-topbar-switch {
+    display: inline-flex;
+    max-width: 50%;
+    min-height: var(--h-touch);
+  }
+
+  /* The chevron grows to the touch floor (14/09); `size={13}` (`top-bar-project-switch.tsx`) is
+     sized for the rail head on a wide screen. The square needs no rule here: below this breakpoint
+     the rail head is off screen, so `.prj-sm` only appears in this trigger and its menu, covered by
+     one rule on the mark itself (`projects/project-rail.css`). */
+  .ui-topbar-switch > svg {
+    width: var(--icon-touch);
+    height: var(--icon-touch);
+    flex-shrink: 0;
+  }
+
+  /* Project name added to the trigger (14/09): without it the switcher did not say which project
+     is open. `min-width: 0` plus ellipsis like the screen title: a long name yields, it never pushes
+     the chevron out. */
+  .ui-topbar-switch-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--fs-sm);
+    color: var(--ink-2);
+  }
+}
+
+/* Wiki and system in the tools panel, at the phone breakpoint only.
+ *
+ * On a wide screen they live at the foot of the icon rail. Below the breakpoint that foot leaves the
+ * flow and nothing replaced it: from a project, no path led there. */
+.ui-topbar-poste {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .ui-topbar-poste {
+    display: inline-flex;
+    align-items: center;
+    /* Same rhythm as the rest of the band (14/09): the wiki/system pair kept `--sp-5` when its
+       neighbours moved to `--sp-3`. */
+    gap: var(--sp-3);
+  }
+}

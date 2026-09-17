@@ -1,0 +1,40 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "ignore": [".claude/**", "docs/**", "deploy/**"],
+  "ignoreBinaries": ["make"],
+  "ignoreDependencies": ["dependency-cruiser", "tsx"],
+  "ignoreExportsUsedInFile": true,
+  "workspaces": {
+    ".": {
+      "entry": ["scripts/*.mjs"],
+      "project": ["scripts/*.mjs"]
+    },
+    "runner-payload": {
+      "entry": ["session-runner.mts"],
+      "project": ["*.mts"]
+    },
+    "server": {
+      "entry": [
+        "src/index.ts",
+        "src/**/*.test.ts",
+        "src/http/smoke.ts",
+        "src/projects/seed-*.ts",
+        "scripts/*.ts"
+      ],
+      "project": ["src/**/*.ts"],
+      "ignore": ["src/shared/migrations/v*.ts"]
+    },
+    "web": {
+      "entry": [
+        "src/main.tsx",
+        "src/**/*.stories.tsx",
+        "src/**/*.test.ts",
+        "src/**/*.test.tsx",
+        ".storybook/*.ts",
+        ".storybook/*.tsx",
+        "scripts/*.mjs"
+      ],
+      "project": ["src/**/*.ts", "src/**/*.tsx"]
+    }
+  }
+}

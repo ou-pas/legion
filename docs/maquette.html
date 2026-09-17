@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Legion — Exploration design</title>
+<style>
+  /* ============ THÈMES ============ */
+  :root{
+    --font-ui: -apple-system, "Inter", "Segoe UI", sans-serif;
+    --font-mono: "SF Mono", "JetBrains Mono", ui-monospace, Menlo, monospace;
+  }
+  body[data-theme="linear"]{
+    --bg:#0e0f13; --surface:#16181f; --surface2:#1c1f28; --border:#262933; --border-soft:#1f222b;
+    --ink:#e8eaf0; --ink2:#9aa0b0; --ink3:#666c7c;
+    --accent:#7b85f7; --accent-soft:rgba(123,133,247,.13);
+    --ok:#4cc38a; --ok-soft:rgba(76,195,138,.12);
+    --warn:#e5a13d; --warn-soft:rgba(229,161,61,.12);
+    --bad:#e5534b; --bad-soft:rgba(229,83,75,.12);
+    --gate:#b18cf5; --gate-soft:rgba(177,140,245,.13);
+    --run:#58a6ff; --run-soft:rgba(88,166,255,.12);
+    --radius:8px; --radius-sm:6px;
+    --font-head: var(--font-ui); --density:1;
+    --card-shadow: 0 1px 2px rgba(0,0,0,.25);
+  }
+  body[data-theme="terminal"]{
+    --bg:#080a08; --surface:#0e120e; --surface2:#131813; --border:#223022; --border-soft:#1a241a;
+    --ink:#d4e8d4; --ink2:#7fa07f; --ink3:#4e654e;
+    --accent:#4ade80; --accent-soft:rgba(74,222,128,.1);
+    --ok:#4ade80; --ok-soft:rgba(74,222,128,.1);
+    --warn:#facc15; --warn-soft:rgba(250,204,21,.1);
+    --bad:#f87171; --bad-soft:rgba(248,113,113,.1);
+    --gate:#c084fc; --gate-soft:rgba(192,132,252,.1);
+    --run:#38bdf8; --run-soft:rgba(56,189,248,.1);
+    --radius:4px; --radius-sm:3px;
+    --font-ui: var(--font-mono); --font-head: var(--font-mono); --density:.85;
+    --card-shadow:none;
+  }
+  body[data-theme="warm"]{
+    --bg:#faf6ef; --surface:#ffffff; --surface2:#f5efe4; --border:#e6dccb; --border-soft:#efe8da;
+    --ink:#3b372e; --ink2:#7d7566; --ink3:#a89e8c;
+    --accent:#c15f3c; --accent-soft:rgba(193,95,60,.09);
+    --ok:#3d8a5f; --ok-soft:rgba(61,138,95,.1);
+    --warn:#b07b2e; --warn-soft:rgba(176,123,46,.12);
+    --bad:#bf4237; --bad-soft:rgba(191,66,55,.09);
+    --gate:#7c5cb0; --gate-soft:rgba(124,92,176,.1);
+    --run:#3672a4; --run-soft:rgba(54,114,164,.1);
+    --radius:12px; --radius-sm:8px;
+    --font-head: Georgia, "Times New Roman", serif; --density:1.15;
+    --card-shadow: 0 1px 3px rgba(80,60,30,.08);
+  }
+
+  /* ============ BASE ============ */
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font-ui);font-size:13.5px;line-height:1.5;height:100vh;display:flex;flex-direction:column;overflow:hidden;transition:background .25s,color .25s}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;font-size:inherit}
+  input,select{font-family:inherit;font-size:inherit;color:var(--ink);background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 10px;outline:none}
+  input:focus{border-color:var(--accent)}
+  h1,h2,h3{font-family:var(--font-head);font-weight:600}
+  .mono{font-family:var(--font-mono)}
+
+  /* ============ TOPBAR ============ */
+  .topbar{display:flex;align-items:center;gap:14px;padding:10px 18px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0}
+  .logo{display:flex;align-items:center;gap:9px;font-family:var(--font-head);font-weight:700;font-size:15px;letter-spacing:.2px}
+  .logo-mark{width:22px;height:22px;border-radius:6px;background:var(--accent);display:grid;place-items:center;color:var(--bg);font-size:12px;font-weight:800}
+  .cmdk{margin-left:6px;display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 12px;color:var(--ink3);min-width:340px;font-size:12.5px}
+  .cmdk kbd{margin-left:auto;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:10.5px;font-family:var(--font-mono)}
+  .topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+  .theme-switch{display:flex;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
+  .theme-switch button{padding:6px 13px;font-size:12px;color:var(--ink2);border-right:1px solid var(--border)}
+  .theme-switch button:last-child{border-right:none}
+  .theme-switch button.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+  .avatar{width:28px;height:28px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:700;font-size:12px}
+
+  /* ============ LAYOUT ============ */
+  .app{display:flex;flex:1;overflow:hidden}
+  .rail{width:208px;border-right:1px solid var(--border);background:var(--surface);padding:14px 10px;display:flex;flex-direction:column;gap:2px;flex-shrink:0}
+  .rail-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink3);padding:10px 10px 5px}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:var(--radius-sm);color:var(--ink2);font-size:13px;text-align:left;width:100%}
+  .nav-item:hover{background:var(--surface2);color:var(--ink)}
+  .nav-item.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+  .nav-item .ico{width:16px;text-align:center;opacity:.9}
+  .nav-badge{margin-left:auto;background:var(--warn-soft);color:var(--warn);font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:20px}
+  .rail-footer{margin-top:auto;padding:10px;border-top:1px solid var(--border-soft);font-size:11px;color:var(--ink3);line-height:1.7}
+  .main{flex:1;overflow-y:auto;padding:calc(22px * var(--density)) calc(26px * var(--density))}
+  .screen{display:none;max-width:1200px;margin:0 auto}
+  .screen.active{display:block}
+  .screen-head{margin-bottom:calc(18px * var(--density))}
+  .screen-head h1{font-size:19px;margin-bottom:3px}
+  .screen-head .sub{color:var(--ink2);font-size:13px}
+  .section-title{font-size:11.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink3);margin:calc(22px * var(--density)) 0 10px;display:flex;align-items:center;gap:8px}
+  .section-title .count{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:0 7px;font-size:10.5px;color:var(--ink2)}
+
+  /* ============ COMPOSANTS ============ */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--card-shadow)}
+  .chip{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+  .chip.mono{font-family:var(--font-mono);font-weight:500}
+  .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+  .st-run{background:var(--run-soft);color:var(--run)} .st-run .dot{background:var(--run);animation:pulse 1.6s infinite}
+  .st-wait{background:var(--warn-soft);color:var(--warn)} .st-wait .dot{background:var(--warn)}
+  .st-gate{background:var(--gate-soft);color:var(--gate)} .st-gate .dot{background:var(--gate)}
+  .st-ok{background:var(--ok-soft);color:var(--ok)} .st-ok .dot{background:var(--ok)}
+  .st-bad{background:var(--bad-soft);color:var(--bad)} .st-bad .dot{background:var(--bad)}
+  .st-neutral{background:var(--surface2);color:var(--ink2);border:1px solid var(--border)}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  .diff-chip{font-family:var(--font-mono);font-size:11px}
+  .diff-chip .add{color:var(--ok)} .diff-chip .del{color:var(--bad)}
+  .btn{padding:7px 14px;border-radius:var(--radius-sm);font-size:12.5px;font-weight:600;border:1px solid var(--border);background:var(--surface2);color:var(--ink)}
+  .btn:hover{border-color:var(--ink3)}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  body[data-theme="terminal"] .btn.primary{color:#04120a}
+  .btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+  body[data-theme="terminal"] .btn.ok{color:#04120a}
+  .btn.ghost-bad{background:transparent;color:var(--bad);border-color:var(--border)}
+  .btn.sm{padding:4px 11px;font-size:11.5px}
+  .agent-tag{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink2)}
+  .agent-dot{width:18px;height:18px;border-radius:5px;display:grid;place-items:center;font-size:9.5px;font-weight:800;color:#fff;flex-shrink:0}
+  body[data-theme="warm"] .agent-dot{color:#fff}
+
+  /* ============ DASHBOARD ============ */
+  .launch-bar{display:flex;gap:9px;margin-bottom:calc(20px * var(--density))}
+  .launch-bar input{flex:1;padding:10px 14px}
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .stat-tile{padding:14px 16px}
+  .stat-tile .label{font-size:11.5px;color:var(--ink2);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+  .stat-tile .value{font-size:22px;font-weight:700;font-family:var(--font-head);letter-spacing:-.3px}
+  .stat-tile .value small{font-size:12px;font-weight:500;color:var(--ink3)}
+  .stat-tile .meter{margin-top:8px;height:4px;border-radius:2px;background:var(--surface2);overflow:hidden}
+  .stat-tile .meter i{display:block;height:100%;border-radius:2px;background:var(--accent)}
+  .attention-item{display:flex;align-items:center;gap:14px;padding:13px 16px;border-bottom:1px solid var(--border-soft)}
+  .attention-item:last-child{border-bottom:none}
+  .att-ico{width:34px;height:34px;border-radius:var(--radius-sm);display:grid;place-items:center;font-size:15px;flex-shrink:0}
+  .att-body{flex:1;min-width:0}
+  .att-title{font-weight:600;font-size:13.5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .att-sub{color:var(--ink2);font-size:12.5px;margin-top:1px}
+  .att-actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
+  .att-wait{font-size:11px;color:var(--ink3);white-space:nowrap}
+  .artifact-chip{display:inline-flex;align-items:center;gap:5px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:2px 8px;font-size:11px;font-family:var(--font-mono);color:var(--ink2)}
+  .session-row{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--border-soft)}
+  .session-row:last-child{border-bottom:none}
+  .sess-task{flex:1;min-width:0}
+  .sess-task .t{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sess-hud{font-size:11.5px;color:var(--ink3);font-family:var(--font-mono);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sess-hud b{color:var(--run);font-weight:500}
+  .sess-meta{display:flex;gap:8px;align-items:center;flex-shrink:0;font-size:11px;color:var(--ink3)}
+
+  /* ============ INBOX ============ */
+  .inbox-item{padding:16px 18px;margin-bottom:12px}
+  .inbox-head{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+  .inbox-from{font-weight:700;font-size:13px}
+  .inbox-ctx{color:var(--ink3);font-size:12px}
+  .inbox-time{margin-left:auto;font-size:11px;color:var(--ink3)}
+  .inbox-body{font-size:13.5px;margin-bottom:12px;line-height:1.55}
+  .receipt{background:var(--surface2);border:1px solid var(--border-soft);border-radius:var(--radius-sm);padding:10px 13px;font-size:12.5px;margin-bottom:12px}
+  .receipt .r-row{display:flex;gap:8px;padding:2px 0}
+  .receipt .r-k{color:var(--ink3);min-width:110px;flex-shrink:0}
+  .choices{display:flex;flex-direction:column;gap:7px;margin-bottom:13px}
+  .choice{display:flex;align-items:center;gap:10px;padding:9px 13px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;cursor:pointer}
+  .choice:hover{border-color:var(--accent)}
+  .choice.selected{border-color:var(--accent);background:var(--accent-soft)}
+  .radio{width:15px;height:15px;border-radius:50%;border:1.5px solid var(--ink3);flex-shrink:0;position:relative}
+  .choice.selected .radio{border-color:var(--accent)}
+  .choice.selected .radio::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--accent)}
+  .inbox-actions{display:flex;gap:9px;align-items:center}
+  .always-allow{margin-left:auto;font-size:11.5px;color:var(--ink3);text-decoration:underline;cursor:pointer}
+
+  /* ============ KANBAN ============ */
+  .proj-head{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+  .board{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;align-items:start}
+  .col{background:var(--surface2);border:1px solid var(--border-soft);border-radius:var(--radius);padding:9px}
+  .col-head{display:flex;align-items:center;gap:7px;padding:4px 6px 9px;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--ink2)}
+  .kcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 12px;margin-bottom:8px;box-shadow:var(--card-shadow);cursor:pointer}
+  .kcard:hover{border-color:var(--ink3)}
+  .kcard .kt{font-weight:600;font-size:12.5px;line-height:1.4;margin-bottom:7px}
+  .kcard .krow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;color:var(--ink3)}
+  .kcard .step{font-family:var(--font-mono);font-size:10.5px;color:var(--ink3)}
+  .gate-lock{color:var(--gate);font-size:11px}
+  .kcard .knote{font-size:11.5px;color:var(--ink2);margin-top:7px;padding-top:7px;border-top:1px dashed var(--border-soft);font-style:italic}
+
+  /* ============ TASK DETAIL ============ */
+  .task-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+  .task-head h1{font-size:17px;margin-right:4px}
+  .task-head .spacer{flex:1}
+  .split{display:grid;grid-template-columns:380px 1fr;gap:14px;align-items:start}
+  .pane{overflow:hidden}
+  .pane-title{font-size:11.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--ink3);padding:11px 15px;border-bottom:1px solid var(--border-soft)}
+  .convo{padding:13px 15px;display:flex;flex-direction:column;gap:12px;max-height:430px;overflow-y:auto}
+  .msg .who{font-size:11px;font-weight:700;margin-bottom:3px;display:flex;gap:6px;align-items:center}
+  .msg .txt{font-size:12.5px;color:var(--ink2);line-height:1.55}
+  .msg.human .txt{color:var(--ink)}
+  .steer{display:flex;gap:8px;padding:11px 13px;border-top:1px solid var(--border-soft)}
+  .steer input{flex:1}
+  .tabs{display:flex;border-bottom:1px solid var(--border);padding:0 8px}
+  .tab{padding:10px 14px;font-size:12.5px;color:var(--ink2);border-bottom:2px solid transparent;margin-bottom:-1px}
+  .tab.active{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+  .tab .n{font-size:10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:0 5px;margin-left:4px;color:var(--ink3)}
+  .hud-bar{display:flex;align-items:center;gap:10px;padding:10px 15px;background:var(--run-soft);border-bottom:1px solid var(--border-soft);font-size:12.5px}
+  .hud-bar .spin{width:12px;height:12px;border:2px solid var(--run);border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;flex-shrink:0}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .hud-bar .mono{color:var(--run)}
+  .timeline{padding:6px 0;max-height:400px;overflow-y:auto}
+  .tl-group{border-bottom:1px solid var(--border-soft)}
+  .tl-row{display:flex;align-items:center;gap:10px;padding:8px 15px;font-size:12.5px;cursor:pointer}
+  .tl-row:hover{background:var(--surface2)}
+  .tl-ico{width:16px;text-align:center;flex-shrink:0}
+  .tl-name{font-family:var(--font-mono);font-size:12px}
+  .tl-meta{margin-left:auto;font-size:11px;color:var(--ink3);font-family:var(--font-mono);flex-shrink:0}
+  .tl-detail{display:none;background:var(--surface2);border-top:1px solid var(--border-soft);padding:10px 15px 10px 41px;font-family:var(--font-mono);font-size:11.5px;color:var(--ink2);white-space:pre-wrap;line-height:1.6}
+  .tl-group.open .tl-detail{display:block}
+  .tl-check{color:var(--ok)} .tl-wait{color:var(--warn)}
+  .provision{padding:9px 15px;font-size:12px;color:var(--ink3);display:flex;flex-direction:column;gap:4px;border-bottom:1px solid var(--border-soft)}
+  .provision .p{display:flex;gap:8px;align-items:center}
+
+  /* ============ AGENTS ============ */
+  .agent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:13px}
+  .agent-card{padding:15px 17px}
+  .agent-card .a-head{display:flex;align-items:center;gap:10px;margin-bottom:11px}
+  .agent-card .a-name{font-weight:700;font-size:14px;font-family:var(--font-head)}
+  .agent-card .a-title{font-size:11.5px;color:var(--ink2)}
+  .grants{display:flex;flex-direction:column;gap:5px;font-size:12px}
+  .grant{display:flex;gap:8px}
+  .grant .g-k{color:var(--ink3);min-width:78px;flex-shrink:0}
+  .grant .g-v{color:var(--ink2);font-family:var(--font-mono);font-size:11.5px;line-height:1.6}
+  .grant .deny{color:var(--bad);font-weight:600}
+  .a-stats{display:flex;gap:14px;margin-top:12px;padding-top:11px;border-top:1px solid var(--border-soft);font-size:11.5px;color:var(--ink3)}
+  .a-stats b{color:var(--ink)}
+
+  /* ============ GOALS ============ */
+  .goal-card{padding:18px 20px;margin-bottom:14px}
+  .goal-head{display:flex;align-items:center;gap:11px;margin-bottom:13px;flex-wrap:wrap}
+  .goal-head h2{font-size:16px}
+  .goal-grid{display:grid;grid-template-columns:1fr 290px;gap:20px}
+  .dod{display:flex;flex-direction:column;gap:7px}
+  .dod-item{display:flex;gap:10px;align-items:flex-start;font-size:13px}
+  .checkbox{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--ink3);flex-shrink:0;margin-top:1px;display:grid;place-items:center;font-size:11px}
+  .dod-item.done .checkbox{background:var(--ok);border-color:var(--ok);color:#fff}
+  .dod-item.done span{color:var(--ink3);text-decoration:line-through}
+  .rails{display:flex;flex-direction:column;gap:12px}
+  .rail-gauge .rg-head{display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink2);margin-bottom:5px}
+  .rail-gauge .rg-head b{color:var(--ink);font-family:var(--font-mono);font-weight:600}
+  .rail-gauge .meter{height:5px;border-radius:3px;background:var(--surface2);border:1px solid var(--border-soft);overflow:hidden}
+  .rail-gauge .meter i{display:block;height:100%}
+  .plog{margin-top:15px;padding-top:13px;border-top:1px solid var(--border-soft)}
+  .plog-title{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--ink3);margin-bottom:8px}
+  .plog-item{display:flex;gap:10px;font-size:12px;padding:4px 0;color:var(--ink2)}
+  .plog-item .t{font-family:var(--font-mono);font-size:10.5px;color:var(--ink3);flex-shrink:0;padding-top:1px}
+  .orch{margin-top:13px;background:var(--accent-soft);border:1px solid var(--border-soft);border-radius:var(--radius-sm);padding:10px 13px;font-size:12.5px}
+  .orch b{color:var(--accent)}
+
+  .hint{margin-top:26px;text-align:center;color:var(--ink3);font-size:11.5px}
+</style>
+</head>
+<body data-theme="linear" data-palette="#7b85f7,#4cc38a,#e5a13d,#e5534b,#b18cf5">
+
+<!-- ================= TOPBAR ================= -->
+<div class="topbar">
+  <div class="logo"><div class="logo-mark">A</div>Legion</div>
+  <div class="cmdk">🔍 Lancer une tâche, chercher… <kbd>⌘K</kbd></div>
+  <div class="topbar-right">
+    <div class="theme-switch">
+      <button class="active" data-set-theme="linear">Linear</button>
+      <button data-set-theme="terminal">Terminal</button>
+      <button data-set-theme="warm">Chaleureux</button>
+    </div>
+    <div class="avatar">R</div>
+  </div>
+</div>
+
+<div class="app">
+<!-- ================= NAV ================= -->
+<nav class="rail">
+  <div class="rail-label">Piloter</div>
+  <button class="nav-item active" data-screen="dashboard"><span class="ico">◧</span> Dashboard</button>
+  <button class="nav-item" data-screen="inbox"><span class="ico">◈</span> Inbox <span class="nav-badge">3</span></button>
+  <button class="nav-item" data-screen="goals"><span class="ico">◎</span> Goals</button>
+  <div class="rail-label">Projets</div>
+  <button class="nav-item" data-screen="project"><span class="ico">▤</span> acme-app</button>
+  <button class="nav-item" data-screen="task" style="padding-left:26px"><span class="ico">◉</span> Session live</button>
+  <button class="nav-item" style="opacity:.45;cursor:default"><span class="ico">▤</span> legion</button>
+  <div class="rail-label">Configurer</div>
+  <button class="nav-item" data-screen="agents"><span class="ico">⬡</span> Agents</button>
+  <button class="nav-item" style="opacity:.45;cursor:default"><span class="ico">⚙</span> Settings</button>
+  <div class="rail-footer">
+    Quota hebdo · Max 5x<br>
+    <b style="color:var(--ink2)">34 %</b> consommé · reset lun.<br>
+    Runners : <span style="color:var(--ok)">●</span> local <span style="color:var(--ok)">●</span> home-server
+  </div>
+</nav>
+
+<main class="main">
+
+<!-- ================= DASHBOARD ================= -->
+<section class="screen active" id="dashboard">
+  <div class="screen-head"><h1>Bonsoir l'opérateur</h1><div class="sub">Mardi 18 août · 3 sessions actives · 2 choses ont besoin de vous</div></div>
+
+  <div class="launch-bar">
+    <input placeholder="Décrire une tâche… ex. « Ajoute l'export PDF des rapports clients »">
+    <select><option>acme-app</option><option>legion</option></select>
+    <select><option>agent : auto</option><option>senior-dev</option><option>spec</option><option>plan</option></select>
+    <button class="btn primary">Lancer ↵</button>
+  </div>
+
+  <div class="stats-row">
+    <div class="card stat-tile"><div class="label">Sessions actives</div><div class="value">3</div></div>
+    <div class="card stat-tile"><div class="label">En attente de vous</div><div class="value" style="color:var(--warn)">2</div></div>
+    <div class="card stat-tile"><div class="label">Coût aujourd'hui</div><div class="value">$12.40 <small>/ cap $50</small></div><div class="meter"><i style="width:25%"></i></div></div>
+    <div class="card stat-tile"><div class="label">Quota hebdo (subscription)</div><div class="value">34 % <small>reset lundi</small></div><div class="meter"><i style="width:34%"></i></div></div>
+  </div>
+
+  <div class="section-title">Besoin de vous <span class="count">2</span></div>
+  <div class="card">
+    <div class="attention-item">
+      <div class="att-ico" style="background:var(--gate-soft);color:var(--gate)">✋</div>
+      <div class="att-body">
+        <div class="att-title">Spec prête à valider <span class="chip st-gate"><span class="dot"></span>gate</span> <span class="artifact-chip">📄 spec-export-pdf.md</span></div>
+        <div class="att-sub">Export PDF des rapports clients · étape 1/9 · agent <b>spec</b> · compound-engineer</div>
+      </div>
+      <div class="att-actions"><span class="att-wait">en attente · 24 min</span><button class="btn sm">Voir l'artifact</button><button class="btn sm ok">Approuver</button></div>
+    </div>
+    <div class="attention-item">
+      <div class="att-ico" style="background:var(--warn-soft);color:var(--warn)">?</div>
+      <div class="att-body">
+        <div class="att-title">Question de <b>senior-dev</b> <span class="chip st-wait"><span class="dot"></span>session en pause</span></div>
+        <div class="att-sub">« Deux libs PDF possibles : pdfkit (léger) ou puppeteer (fidèle au rendu HTML). Laquelle ? »</div>
+      </div>
+      <div class="att-actions"><span class="att-wait">8 min</span><button class="btn sm primary">Répondre</button></div>
+    </div>
+  </div>
+
+  <div class="section-title">Sessions en cours <span class="count">3</span></div>
+  <div class="card">
+    <div class="session-row">
+      <span class="chip st-run"><span class="dot"></span>running</span>
+      <span class="agent-tag"><span class="agent-dot" style="background:#5b8def">ip</span>implementation-executioner</span>
+      <div class="sess-task"><div class="t">Étape 5/9 — Implémentation · Export PDF</div><div class="sess-hud">en train de : <b>Bash</b> npm run test:e2e -- --grep "export"</div></div>
+      <div class="sess-meta"><span class="chip mono st-neutral">opus-4</span><span class="chip mono st-neutral">local</span><span>1 h 12</span><span class="mono">$4.85</span></div>
+    </div>
+    <div class="session-row">
+      <span class="chip st-run"><span class="dot"></span>running</span>
+      <span class="agent-tag"><span class="agent-dot" style="background:#9a6ee8">rc</span>review-coordinator</span>
+      <div class="sess-task"><div class="t">Revue du plan · Refonte onboarding</div><div class="sess-hud">en train de : <b>Agent</b> spawn feasibility, scope-guardian, coherence</div></div>
+      <div class="sess-meta"><span class="chip mono st-neutral">sonnet-4.5</span><span class="chip mono st-neutral">home-server</span><span>14 min</span><span class="mono">$0.92</span></div>
+    </div>
+    <div class="session-row">
+      <span class="chip st-wait"><span class="dot"></span>waiting-inbox</span>
+      <span class="agent-tag"><span class="agent-dot" style="background:#42a5f5">sd</span>senior-dev</span>
+      <div class="sess-task"><div class="t">Fix bug #214 — timeout webhooks Front</div><div class="sess-hud">en pause · question posée il y a 8 min · container détruit, resume à la réponse</div></div>
+      <div class="sess-meta"><span class="chip mono st-neutral">sonnet-4.5</span><span class="chip mono st-neutral">local</span><span>32 min</span><span class="mono">$1.60</span></div>
+    </div>
+  </div>
+
+  <div class="section-title">Terminé récemment</div>
+  <div class="card">
+    <div class="session-row">
+      <span class="chip st-ok"><span class="dot"></span>done</span>
+      <span class="agent-tag"><span class="agent-dot" style="background:#7cb342">li</span>librarian</span>
+      <div class="sess-task"><div class="t">Wiki à jour · module facturation</div></div>
+      <div class="sess-meta"><span class="artifact-chip">📄 wiki-diff.md</span><span>il y a 1 h</span><span class="mono">$0.31</span></div>
+    </div>
+    <div class="session-row">
+      <span class="chip st-ok"><span class="dot"></span>done</span>
+      <span class="agent-tag"><span class="agent-dot" style="background:#42a5f5">sd</span>senior-dev</span>
+      <div class="sess-task"><div class="t">Corrections review · API exports</div></div>
+      <div class="sess-meta"><span class="diff-chip"><span class="add">+128</span> <span class="del">−41</span></span><span class="artifact-chip">🖼 e2e-pass.png</span><span>il y a 3 h</span><span class="mono">$2.10</span></div>
+    </div>
+    <div class="session-row">
+      <span class="chip st-bad"><span class="dot"></span>failed</span>
+      <span class="agent-tag"><span class="agent-dot" style="background:#ef6c60">dg</span>diagnostic</span>
+      <div class="sess-task"><div class="t">Diagnostic ticket #892 · clone repo impossible (credential expiré)</div></div>
+      <div class="sess-meta"><button class="btn sm">Relancer</button><span>il y a 5 h</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= INBOX ================= -->
+<section class="screen" id="inbox">
+  <div class="screen-head"><h1>Inbox</h1><div class="sub">Le seul canal où les agents vous interrompent — miroir du bot Telegram</div></div>
+
+  <div class="card inbox-item">
+    <div class="inbox-head">
+      <span class="agent-dot" style="background:#42a5f5">sd</span>
+      <span class="inbox-from">senior-dev</span>
+      <span class="chip st-wait"><span class="dot"></span>session en pause</span>
+      <span class="inbox-ctx">Fix bug #214 · acme-app</span>
+      <span class="inbox-time">il y a 8 min</span>
+    </div>
+    <div class="inbox-body">Deux approches possibles pour générer les PDF. La spec ne tranche pas — j'ai besoin de votre choix avant de continuer.</div>
+    <div class="choices">
+      <div class="choice selected"><span class="radio"></span><div><b>pdfkit</b> — léger (2 Mo), rendu programmatique, pas de dépendance navigateur</div></div>
+      <div class="choice"><span class="radio"></span><div><b>puppeteer</b> — rendu fidèle au HTML existant, mais +280 Mo dans l'image Docker</div></div>
+      <div class="choice"><span class="radio"></span><div>Autre chose — je vous écris un message</div></div>
+    </div>
+    <div class="inbox-actions"><button class="btn primary">Envoyer & reprendre la session</button><span class="always-allow">déléguer ce type de choix à l'agent</span></div>
+  </div>
+
+  <div class="card inbox-item">
+    <div class="inbox-head">
+      <span class="agent-dot" style="background:#e8a13c">sp</span>
+      <span class="inbox-from">spec</span>
+      <span class="chip st-gate"><span class="dot"></span>gate d'approbation</span>
+      <span class="inbox-ctx">Export PDF · étape 1/9 · compound-engineer</span>
+      <span class="inbox-time">il y a 24 min</span>
+    </div>
+    <div class="inbox-body">La spécification est prête. Elle couvre : formats A4/US, en-têtes brandés par client, pagination, i18n FR/EN, et la limite de 500 lignes par rapport.</div>
+    <div class="receipt">
+      <div class="r-row"><span class="r-k">Livrable</span><span class="artifact-chip">📄 spec-export-pdf.md · 214 lignes</span></div>
+      <div class="r-row"><span class="r-k">Si approuvé</span><span>déblocage de l'étape 2/9 (plan) — 8 sessions estimées, ~$25–40</span></div>
+      <div class="r-row"><span class="r-k">Rayon d'impact</span><span>branche <span class="mono">feat/pdf-export</span> uniquement · aucun accès prod</span></div>
+    </div>
+    <div class="inbox-actions"><button class="btn ok">Approuver la spec</button><button class="btn">Ouvrir l'artifact</button><button class="btn ghost-bad">Demander une révision…</button></div>
+  </div>
+
+  <div class="card inbox-item" style="opacity:.65">
+    <div class="inbox-head">
+      <span class="agent-dot" style="background:#26a69a">cs</span>
+      <span class="inbox-from">customer-support</span>
+      <span class="chip st-ok"><span class="dot"></span>info</span>
+      <span class="inbox-ctx">Trigger · support-inbound</span>
+      <span class="inbox-time">il y a 2 h</span>
+    </div>
+    <div class="inbox-body">Conversation #4812 analysée et assignée à Marie (AE du compte). Motif : question de facturation entreprise. Aucune action requise.</div>
+  </div>
+</section>
+
+<!-- ================= KANBAN PROJET ================= -->
+<section class="screen" id="project">
+  <div class="proj-head">
+    <h1 style="font-size:18px">acme-app</h1>
+    <span class="chip mono st-neutral">github.com/acme/app</span>
+    <span class="chip st-neutral">🔒 réseau limité · 4 hôtes</span>
+    <span class="chip st-neutral">🔑 3 secrets</span>
+    <span class="spacer" style="flex:1"></span>
+    <button class="btn sm">legion.yml</button>
+    <button class="btn sm primary">+ Nouvelle tâche</button>
+  </div>
+  <div class="board">
+    <div class="col">
+      <div class="col-head">Todo <span class="count" style="margin-left:auto;color:var(--ink3)">3</span></div>
+      <div class="kcard"><div class="kt">Étape 6/9 — Code review</div><div class="krow"><span class="agent-tag"><span class="agent-dot" style="background:#9a6ee8">rc</span>review-coordinator</span><span class="step">⛓ bloquée par 5/9</span></div></div>
+      <div class="kcard"><div class="kt">Étape 7/9 — Corrections review</div><div class="krow"><span class="agent-tag"><span class="agent-dot" style="background:#42a5f5">sd</span>senior-dev</span><span class="step">⛓ chaîne</span></div></div>
+      <div class="kcard"><div class="kt">Résumé hebdo des tickets Front</div><div class="krow"><span class="agent-tag"><span class="agent-dot" style="background:#26a69a">cs</span>customer-support</span><span class="chip mono st-neutral" style="font-size:10px">↻ lun. 9:00</span></div></div>
+    </div>
+    <div class="col">
+      <div class="col-head" style="color:var(--run)">Doing <span class="count" style="margin-left:auto;color:var(--ink3)">2</span></div>
+      <div class="kcard" style="border-color:var(--run)"><div class="kt">Étape 5/9 — Implémentation · Export PDF</div><div class="krow"><span class="agent-tag"><span class="agent-dot" style="background:#5b8def">ip</span>impl-executioner</span><span class="chip st-run" style="font-size:10px"><span class="dot"></span>1 h 12</span></div><div class="knote">E2E en cours — 14/17 tests verts</div></div>
+      <div class="kcard"><div class="kt">Revue du plan · Refonte onboarding</div><div class="krow"><span class="agent-tag"><span class="agent-dot" style="background:#9a6ee8">rc</span>review-coordinator</span><span class="step">3 sous-agents</span></div></div>
+    </div>
+    <div class="col">
+      <div class="col-head" style="color:var(--gate)">Review <span class="count" style="margin-left:auto;color:var(--ink3)">2</span></div>
+      <div class="kcard" style="border-color:var(--gate)"><div class="kt">Étape 1/9 — Spec · Export PDF</div><div class="krow"><span class="gate-lock">✋ gate humain</span><span class="artifact-chip" style="font-size:10px">📄 spec.md</span></div><div class="knote">« Prête pour votre lecture » — spec</div></div>
+      <div class="kcard"><div class="kt">Diagnostic ticket #892</div><div class="krow"><span class="agent-tag"><span class="agent-dot" style="background:#ef6c60">dg</span>diagnostic</span><span class="artifact-chip" style="font-size:10px">📄 cause-report.md</span></div></div>
+    </div>
+    <div class="col">
+      <div class="col-head" style="color:var(--ok)">Done <span class="count" style="margin-left:auto;color:var(--ink3)">4</span></div>
+      <div class="kcard" style="opacity:.7"><div class="kt">Étape 4/9 — Révision du plan</div><div class="krow"><span class="agent-tag"><span class="agent-dot" style="background:#8d6e63">pl</span>plan</span><span class="diff-chip" style="font-size:10px"><span class="add">plan v2</span></span></div></div>
+      <div class="kcard" style="opacity:.7"><div class="kt">Étape 3/9 — Revue du plan (3 reviewers)</div><div class="krow"><span class="agent-tag"><span class="agent-dot" style="background:#9a6ee8">rc</span>review-coordinator</span></div></div>
+      <div class="kcard" style="opacity:.7"><div class="kt">Étape 2/9 — Plan</div><div class="krow"><span class="agent-tag"><span class="agent-dot" style="background:#8d6e63">pl</span>plan</span></div></div>
+      <div class="kcard" style="opacity:.7"><div class="kt">Wiki module facturation</div><div class="krow"><span class="agent-tag"><span class="agent-dot" style="background:#7cb342">li</span>librarian</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SESSION LIVE ================= -->
+<section class="screen" id="task">
+  <div class="task-head">
+    <h1>Étape 5/9 — Implémentation · Export PDF</h1>
+    <span class="chip st-run"><span class="dot"></span>running</span>
+    <span class="chip mono st-neutral">⎇ feat/pdf-export</span>
+    <span class="chip mono st-neutral">opus-4</span>
+    <span class="chip mono st-neutral">runner : local</span>
+    <span class="spacer"></span>
+    <span class="mono" style="color:var(--ink3);font-size:12px">1 h 12 · $4.85</span>
+    <button class="btn sm ghost-bad">■ Stop</button>
+  </div>
+  <div class="split">
+    <div class="card pane">
+      <div class="pane-title">Conversation & pilotage</div>
+      <div class="convo">
+        <div class="msg"><div class="who"><span class="agent-dot" style="background:#5b8def">ip</span>impl-executioner · 15:02</div><div class="txt">Plan reçu (plan-v2.md). 6 étapes d'implémentation identifiées. Je commence par le service de génération, puis les templates, puis les tests E2E.</div></div>
+        <div class="msg human"><div class="who">Vous · 15:40</div><div class="txt">Attention à bien réutiliser le service de templating existant dans src/lib/templates, pas de duplication.</div></div>
+        <div class="msg"><div class="who"><span class="agent-dot" style="background:#5b8def">ip</span>impl-executioner · 15:41</div><div class="txt">Bien noté — j'ai refactoré pour passer par TemplateService. Le point 3 du plan est adapté en conséquence, note laissée dans l'activity log.</div></div>
+        <div class="msg"><div class="who"><span class="agent-dot" style="background:#5b8def">ip</span>impl-executioner · 16:10</div><div class="txt">Implémentation terminée, je lance la suite E2E complète avant de committer.</div></div>
+      </div>
+      <div class="steer"><input placeholder="Envoyer une consigne sans stopper la session…"><button class="btn primary sm">↵</button></div>
+    </div>
+    <div class="card pane">
+      <div class="tabs">
+        <div class="tab active">Timeline</div>
+        <div class="tab">Terminal</div>
+        <div class="tab">Diff <span class="n">+486 −112</span></div>
+        <div class="tab">Artifacts <span class="n">2</span></div>
+      </div>
+      <div class="hud-bar"><div class="spin"></div>en train de : <span class="mono">Bash · npm run test:e2e -- --grep "export"</span><span style="margin-left:auto;color:var(--ink3);font-size:11px">42 s</span></div>
+      <div class="provision">
+        <div class="p"><span class="tl-check">✓</span> container provisionné · réseau limité (4 hôtes) · secrets injectés (2)</div>
+        <div class="p"><span class="tl-check">✓</span> clone acme-app → /workspace/app · MCP : legion, inbox, fs</div>
+      </div>
+      <div class="timeline">
+        <div class="tl-group"><div class="tl-row"><span class="tl-ico tl-check">✓</span><span class="tl-name">Read · plan-v2.md</span><span class="tl-meta">2 s</span></div></div>
+        <div class="tl-group open"><div class="tl-row"><span class="tl-ico tl-check">✓</span><span class="tl-name">Edit · src/services/pdf-export.ts</span><span class="tl-meta">+214 lignes · 8 s</span></div>
+          <div class="tl-detail">+ export class PdfExportService {
++   constructor(private templates: TemplateService) {}
++   async render(report: Report, opts: ExportOptions): Promise&lt;Buffer&gt; { … }</div></div>
+        <div class="tl-group"><div class="tl-row"><span class="tl-ico tl-check">✓</span><span class="tl-name">Edit · src/lib/templates/pdf-header.ts</span><span class="tl-meta">+48 · 4 s</span></div></div>
+        <div class="tl-group"><div class="tl-row"><span class="tl-ico tl-check">✓</span><span class="tl-name">Bash · npm run test:unit</span><span class="tl-meta">✓ 96/96 · 1 m 20</span></div></div>
+        <div class="tl-group"><div class="tl-row"><span class="tl-ico tl-check">✓</span><span class="tl-name">mcp__legion__update_task · note d'activité</span><span class="tl-meta">1 s</span></div></div>
+        <div class="tl-group"><div class="tl-row"><span class="tl-ico tl-check">✓</span><span class="tl-name">mcp__fs__write · /artifacts/e2e-report.html</span><span class="tl-meta">3 s</span></div></div>
+        <div class="tl-group"><div class="tl-row"><span class="tl-ico tl-wait">◌</span><span class="tl-name">Bash · npm run test:e2e -- --grep "export"</span><span class="tl-meta">en cours · 14/17 ✓</span></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="hint">Cliquer sur un tool call pour le déplier — le HUD affiche toujours l'action en cours, les détails restent repliés.</div>
+</section>
+
+<!-- ================= AGENTS ================= -->
+<section class="screen" id="agents">
+  <div class="screen-head"><h1>Agents</h1><div class="sub">Chaque agent n'a que ce qui est listé ici — défaut : tout refusé</div></div>
+  <div class="agent-grid">
+    <div class="card agent-card">
+      <div class="a-head"><span class="agent-dot" style="background:#42a5f5;width:26px;height:26px;font-size:11px">sd</span><div><div class="a-name">senior-dev</div><div class="a-title">Implémente & corrige dans les repos autorisés</div></div><span class="chip mono st-neutral" style="margin-left:auto">sonnet-4.5</span></div>
+      <div class="grants">
+        <div class="grant"><span class="g-k">MCPs</span><span class="g-v">legion · inbox · fs · github</span></div>
+        <div class="grant"><span class="g-k">Repos</span><span class="g-v">acme-app <b style="color:var(--ok)">git-write</b></span></div>
+        <div class="grant"><span class="g-k">Réseau</span><span class="g-v">limité · npmjs.org, github.com, api.anthropic.com</span></div>
+        <div class="grant"><span class="g-k">Dossiers</span><span class="g-v">/agents/senior-dev <b style="color:var(--ok)">rw</b> · /wiki <b>r</b></span></div>
+        <div class="grant"><span class="g-k">Collab</span><span class="g-v">—</span></div>
+        <div class="grant"><span class="g-k">Runner</span><span class="g-v">auto (local ou home-server)</span></div>
+      </div>
+      <div class="a-stats"><span><b>34</b> runs</span><span><b>91 %</b> succès</span><span><b>$1.20</b> coût médian</span></div>
+    </div>
+    <div class="card agent-card">
+      <div class="a-head"><span class="agent-dot" style="background:#8d6e63;width:26px;height:26px;font-size:11px">pl</span><div><div class="a-name">plan</div><div class="a-title">Transforme une spec approuvée en plan ordonné</div></div><span class="chip mono st-neutral" style="margin-left:auto">opus-4</span></div>
+      <div class="grants">
+        <div class="grant"><span class="g-k">MCPs</span><span class="g-v">legion · inbox · fs</span></div>
+        <div class="grant"><span class="g-k">Repos</span><span class="g-v">acme-app <b>git-read</b></span></div>
+        <div class="grant"><span class="g-k">Réseau</span><span class="g-v">limité · api.anthropic.com uniquement</span></div>
+        <div class="grant"><span class="g-k">Skills</span><span class="g-v">plan-mode · artifact-builder</span></div>
+        <div class="grant"><span class="g-k">Collab</span><span class="g-v">—</span></div>
+        <div class="grant"><span class="g-k">Runner</span><span class="g-v">local</span></div>
+      </div>
+      <div class="a-stats"><span><b>18</b> runs</span><span><b>100 %</b> succès</span><span><b>$0.85</b> coût médian</span></div>
+    </div>
+    <div class="card agent-card">
+      <div class="a-head"><span class="agent-dot" style="background:#9a6ee8;width:26px;height:26px;font-size:11px">rc</span><div><div class="a-name">review-coordinator</div><div class="a-title">Orchestre les reviewers, consolide must-fix / should-fix</div></div><span class="chip mono st-neutral" style="margin-left:auto">sonnet-4.5</span></div>
+      <div class="grants">
+        <div class="grant"><span class="g-k">MCPs</span><span class="g-v">legion · inbox · fs</span></div>
+        <div class="grant"><span class="g-k">Repos</span><span class="g-v">acme-app <b>git-read</b></span></div>
+        <div class="grant"><span class="g-k">Collab</span><span class="g-v">feasibility · scope-guardian · coherence</span></div>
+        <div class="grant"><span class="g-k">Modèle reviewers</span><span class="g-v">haiku-4.5 (routing par étape)</span></div>
+      </div>
+      <div class="a-stats"><span><b>12</b> runs</span><span><b>3</b> sous-agents / run</span><span><b>$0.60</b> coût médian</span></div>
+    </div>
+    <div class="card agent-card" style="border-color:var(--warn)">
+      <div class="a-head"><span class="agent-dot" style="background:#26a69a;width:26px;height:26px;font-size:11px">cs</span><div><div class="a-name">customer-support</div><div class="a-title">Triage des conversations entrantes (trigger webhook)</div></div><span class="chip mono st-neutral" style="margin-left:auto">haiku-4.5</span></div>
+      <div class="grants">
+        <div class="grant"><span class="g-k">MCPs</span><span class="g-v">front · inbox — <span class="deny">pas de github, pas de gmail</span></span></div>
+        <div class="grant"><span class="g-k">Repos</span><span class="g-v"><span class="deny">aucun</span> — le code ne doit pas fuiter en support</span></div>
+        <div class="grant"><span class="g-k">Réseau</span><span class="g-v">limité · api.front.com, api.anthropic.com</span></div>
+        <div class="grant"><span class="g-k">Dossiers</span><span class="g-v">/agents/customer-support <b style="color:var(--ok)">rw</b></span></div>
+      </div>
+      <div class="a-stats"><span><b>612</b> runs</span><span><b>déclenché par</b> webhook</span><span><b>$0.04</b> coût médian</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= GOALS ================= -->
+<section class="screen" id="goals">
+  <div class="screen-head"><h1>Goals <span style="font-size:12px;font-weight:400;color:var(--ink3)">· tous projets</span></h1><div class="sub">L'orchestrateur relance des spécialistes jusqu'à la Definition of Done — ou jusqu'à un garde-fou. Chaque goal appartient à un projet ; cette vue les agrège.</div></div>
+  <div class="card goal-card">
+    <div class="goal-head">
+      <h2>Refonte du système d'export</h2>
+      <span class="chip mono st-neutral">▤ acme-app</span>
+      <span class="chip st-run"><span class="dot"></span>actif</span>
+      <span class="chip st-neutral">DoD approuvée ✓</span>
+      <span class="spacer" style="flex:1"></span>
+      <button class="btn sm">⏸ Pause</button><button class="btn sm ghost-bad">Kill switch</button>
+    </div>
+    <div class="goal-grid">
+      <div>
+        <div class="dod">
+          <div class="dod-item done"><span class="checkbox">✓</span><span>Export PDF fonctionnel pour les 3 formats de rapport</span></div>
+          <div class="dod-item done"><span class="checkbox">✓</span><span>Templates brandés par client (logo + couleurs)</span></div>
+          <div class="dod-item done"><span class="checkbox">✓</span><span>Tests E2E verts sur les 3 formats</span></div>
+          <div class="dod-item"><span class="checkbox"></span><span>Export planifié (cron par client) avec envoi par email</span></div>
+          <div class="dod-item"><span class="checkbox"></span><span>Documentation wiki à jour + entrée changelog</span></div>
+        </div>
+        <div class="orch">🧭 <b>Orchestrateur</b> · dernière décision (16:40) : <i>« items 1-3 satisfaits, progrès réel → prochaine session : <b>senior-dev</b> sur l'item 4 (export planifié) »</i></div>
+        <div class="plog">
+          <div class="plog-title">Progress log (partagé entre sessions)</div>
+          <div class="plog-item"><span class="t">16:38</span><span>impl-executioner : E2E verts 17/17, commit 8f2c41a poussé</span></div>
+          <div class="plog-item"><span class="t">15:02</span><span>impl-executioner : démarrage implémentation selon plan-v2</span></div>
+          <div class="plog-item"><span class="t">14:15</span><span>plan : plan révisé après consolidation des 3 reviews</span></div>
+        </div>
+      </div>
+      <div class="rails">
+        <div class="rail-gauge"><div class="rg-head"><span>Budget</span><b>$18.40 / $50</b></div><div class="meter"><i style="width:37%;background:var(--ok)"></i></div></div>
+        <div class="rail-gauge"><div class="rg-head"><span>Durée</span><b>2 h 10 / 8 h max</b></div><div class="meter"><i style="width:27%;background:var(--ok)"></i></div></div>
+        <div class="rail-gauge"><div class="rg-head"><span>Itérations sans progrès</span><b>0 / 3</b></div><div class="meter"><i style="width:0%;background:var(--warn)"></i></div></div>
+        <div class="rail-gauge"><div class="rg-head"><span>Sessions</span><b>7</b></div></div>
+        <div style="font-size:11.5px;color:var(--ink3);line-height:1.7;border-top:1px solid var(--border-soft);padding-top:10px">Agents autorisés : plan, senior-dev, impl-executioner, review-coordinator, librarian<br>Modèle forcé : — (routing par agent)</div>
+      </div>
+    </div>
+  </div>
+  <div class="card goal-card" style="opacity:.6">
+    <div class="goal-head">
+      <h2>Migration des webhooks v2</h2>
+      <span class="chip mono st-neutral">▤ legion</span>
+      <span class="chip st-bad"><span class="dot"></span>stopped-stuck</span>
+      <span class="spacer" style="flex:1"></span>
+      <button class="btn sm">Reprendre avec un nouveau brief</button>
+    </div>
+    <div style="font-size:12.5px;color:var(--ink2)">Arrêté après 3 itérations sans progrès — l'orchestrateur butait sur l'item « rétrocompatibilité clients legacy » : la DoD était ambiguë. À re-spécifier.</div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+// nav écrans
+document.querySelectorAll("[data-screen]").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
+  b.classList.add("active");
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(b.dataset.screen)?.classList.add("active");
+}));
+// thèmes
+document.querySelectorAll("[data-set-theme]").forEach(b=>b.addEventListener("click",()=>{
+  document.body.dataset.theme=b.dataset.setTheme;
+  document.querySelectorAll("[data-set-theme]").forEach(x=>x.classList.toggle("active",x===b));
+}));
+// tool calls repliables
+document.addEventListener("click",e=>{
+  const r=e.target.closest(".tl-row"); if(r) r.parentElement.classList.toggle("open");
+  const c=e.target.closest(".choice"); if(c){c.parentElement.querySelectorAll(".choice").forEach(x=>x.classList.remove("selected"));c.classList.add("selected");}
+  const t=e.target.closest(".tab"); if(t){t.parentElement.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));t.classList.add("active");}
+});
+</script>
+</body>
+</html>

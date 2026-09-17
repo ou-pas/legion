@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "The phone path",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "column_fit": "spread",
+    "viewBox": [930, 900],
+    "views": [
+      { "id": "ask", "label": "The agent asks", "focus": ["agent", "control", "runner"], "note": "The question is posted with the session token, the session goes waiting and its container is destroyed." },
+      { "id": "notify", "label": "The phone rings", "focus": ["control", "pushsvc", "phone", "discord"], "note": "An encrypted Web Push reaches the installed app; Discord is a second, optional channel." },
+      { "id": "resume", "label": "The answer resumes work", "focus": ["phone", "caddy", "control", "runner", "agent"], "note": "answerInbox records the answer and starts a new container on the same conversation and workspace." }
+    ]
+  },
+  "participants": [
+    { "id": "agent", "type": "backend", "label": "Agent", "sublabel": "session container" },
+    { "id": "runner", "type": "cloud", "label": "Docker runner", "sublabel": "one container per run" },
+    { "id": "control", "type": "backend", "label": "Control plane", "sublabel": "inbox, notifyOut" },
+    { "id": "caddy", "type": "security", "label": "Caddy", "sublabel": "HTTPS on the tailnet" },
+    { "id": "pushsvc", "type": "external", "label": "Push service", "sublabel": "browser vendor relay" },
+    { "id": "phone", "type": "frontend", "label": "Phone", "sublabel": "installed PWA, sw.js" },
+    { "id": "discord", "type": "external", "label": "Discord bot", "sublabel": "optional" }
+  ],
+  "segments": [
+    { "from": 150, "to": 330, "label": "Ask and pause" },
+    { "from": 350, "to": 520, "label": "Notify" },
+    { "from": 540, "to": 820, "label": "Answer and resume" }
+  ],
+  "messages": [
+    { "from": "agent", "to": "control", "y": 190, "label": "inbox_ask: POST /internal/.../inbox", "variant": "security", "note": "Bearer callbackToken; refused unless the agent has inbox access (sessions/internal-routes.ts)" },
+    { "from": "control", "to": "agent", "y": 232, "label": "201 inboxId, session waiting", "variant": "return", "note": "createInboxMessage sets waiting, or blocked for an approval (inbox/inbox.ts)" },
+    { "from": "agent", "to": "runner", "y": 274, "label": "runtime pauses and exits", "variant": "dashed" },
+    { "from": "control", "to": "runner", "y": 316, "label": "destroy container, keep sdkSessionId", "variant": "default", "note": "sessions/runner/lifecycle.ts keeps the session row alive" },
+    { "from": "control", "to": "pushsvc", "y": 386, "label": "encrypted Web Push, VAPID, TTL 4 h", "variant": "emphasis", "note": "pushOut in notifications/push.ts, fire and forget" },
+    { "from": "pushsvc", "to": "phone", "y": 428, "label": "push event, showNotification", "variant": "emphasis", "note": "web/public/sw.js does push only, no cache" },
+    { "from": "control", "to": "discord", "y": 470, "label": "question with buttons", "variant": "dashed", "note": "Only when DISCORD_BOT_TOKEN and DISCORD_CHANNEL_ID are set" },
+    { "from": "phone", "to": "caddy", "y": 576, "label": "tap opens the task channel", "variant": "emphasis", "note": "notifTarget: /p/:project/channels/:task" },
+    { "from": "caddy", "to": "control", "y": 618, "label": "POST /api/inbox/:id/reply", "variant": "emphasis", "note": "Same call from a desktop browser" },
+    { "from": "discord", "to": "control", "y": 660, "label": "button or modal answer", "variant": "dashed", "note": "Also calls answerInbox" },
+    { "from": "control", "to": "runner", "y": 712, "label": "answerInbox, resumeSession: new container", "variant": "emphasis" },
+    { "from": "runner", "to": "agent", "y": 754, "label": "resume prompt, same conversation", "variant": "emphasis", "note": "spec.resume carries sdkSessionId; the workspace survived the pause (resume-prompt.ts)" },
+    { "from": "agent", "to": "control", "y": 796, "label": "events, work continues", "variant": "return" }
+  ],
+  "activations": [
+    { "participant": "agent", "from": 180, "to": 282 },
+    { "participant": "control", "from": 180, "to": 478 },
+    { "participant": "control", "from": 610, "to": 804 },
+    { "participant": "agent", "from": 746, "to": 804 }
+  ],
+  "cards": [
+    { "dot": "amber", "title": "Waiting costs nothing", "items": ["The session goes waiting, or blocked for an approval", "Its container is destroyed while it waits", "The conversation id and the workspace are kept"] },
+    { "dot": "cyan", "title": "Reaching the phone", "items": ["HTTPS through Caddy, or no service worker", "On iOS the app must be added to the home screen", "Discord is a second channel, never required"] },
+    { "dot": "emerald", "title": "One answer, any screen", "items": ["Phone, desktop or Discord all call answerInbox", "The first answer wins, the question closes", "A failed resume gives the question back"] }
+  ]
+}

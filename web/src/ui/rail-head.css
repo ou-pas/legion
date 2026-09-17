@@ -1,0 +1,66 @@
+/* The mockup (direction-double-nav) puts a 22px mark with the name in display type beside it. */
+.ui-rail-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  /* Band and column inset (13/09). Vertical padding was 2px top, 10px bottom, from when this head
+     was a plain block; since it became the projects menu trigger (04/09), its hover background
+     showed the content glued to the top. Horizontal inset matches the nav rows (--sp-5): the
+     project mark started 10px left of the icons below. */
+  min-height: var(--h-head);
+  padding: var(--sp-0) var(--sp-5);
+  min-width: 0;
+}
+
+/* Sans at body size (04/09, flat mockup): the open context's name, a label reread a hundred times a
+   day, not a title read once. */
+.ui-rail-head-name {
+  font-family: var(--sans);
+  font-weight: var(--fw-semi);
+  font-size: var(--fs-md);
+  letter-spacing: var(--tr-tight);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The second segment ("Legion · Settings") stays in the name's block so the ellipsis eats the
+   section before the project when the column is narrow. Normal weight, secondary ink: a detail on
+   the name, not a second title. */
+.ui-rail-head-sub {
+  font-weight: var(--fw-normal);
+  color: var(--ink-3);
+}
+
+/* A global section's head reads as a title: larger name and mark. The band is the same as
+   elsewhere, with its line and spacing after. */
+.ui-rail-head[data-size="lg"] {
+  margin-bottom: var(--sp-3);
+  border-bottom: 1px solid var(--border-separator);
+}
+
+.ui-rail-head[data-size="lg"] .ui-rail-head-name {
+  font-size: var(--fs-xl);
+}
+
+.ui-rail-head[data-size="lg"] .ui-rail-head-mark {
+  width: var(--sz-avatar);
+  height: var(--sz-avatar);
+}
+
+.ui-rail-head[data-size="lg"] .ui-rail-head-mark > svg {
+  width: var(--icon-control);
+  height: var(--icon-control);
+}
+
+/* Same square as a project's mark, without its tint. */
+.ui-rail-head-mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: var(--sz-mark);
+  height: var(--sz-mark);
+  border-radius: var(--r-2);
+  background: var(--recess-2);
+  color: var(--ink-2);
+}

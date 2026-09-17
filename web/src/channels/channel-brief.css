@@ -1,0 +1,23 @@
+/* The pinned brief: a sheet on the board, in the body of the first message. */
+.ch-brief {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  max-width: var(--measure);
+  padding: var(--sp-7) var(--sp-8);
+  background: var(--sheet);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-3);
+}
+
+.ch-brief-label {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+/* Icon size comes from the SLOT, never the call site (rule 13). */
+.ch-brief-label > svg {
+  width: var(--icon-control-sm);
+  height: var(--icon-control-sm);
+}

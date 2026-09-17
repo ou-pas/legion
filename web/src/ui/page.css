@@ -1,0 +1,94 @@
+/* Page vertical rhythm: one gap between all stacked blocks. Only some surface pairs (card+card,
+   panel+panel…) used to get a margin, so a card followed by a metrics bar stayed glued and both
+   read as one object (operator feedback on the dashboard and board). A flex column with `gap`
+   cannot forget a case. */
+.ui-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-9);
+  width: 100%;
+  min-width: 0;
+}
+
+.ui-page-head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-5);
+  flex-wrap: wrap;
+}
+
+/* A page's actions, alone on the right: the title is in the top bar (04/09). */
+.ui-page-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--sp-5);
+  flex-wrap: wrap;
+}
+
+/* Title and subtitle form the group actions must never split, and the subtitle lives under the
+   title (operator, 02/09): beside a large title it hung on its baseline and wrapped anywhere.
+   `min-width: 0` lets the group shrink under the actions button instead of pushing it out. */
+.ui-page-heading-line {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
+/* inline-flex: the title can carry an icon and chips without manual margins. Class, not tag: a
+   header specimen in a story is not an h1. */
+.ui-page-heading {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+  min-width: 0;
+  font-size: var(--fs-3xl);
+  letter-spacing: var(--tr-display);
+  line-height: var(--lh-tight);
+}
+
+/* Capped at reading measure: a subtitle across a 27" screen cannot be read. */
+.ui-page-sub {
+  min-width: 0;
+  max-width: var(--measure);
+  font-size: var(--fs-md);
+  color: var(--ink-2);
+}
+
+.ui-section + .ui-section {
+  margin-top: var(--sp-11);
+}
+
+.ui-section-title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-5);
+  /* More air above a heading than below (craft floor): the gap gives 20px below, this adds up to
+     32px above. */
+  margin-top: var(--sp-6);
+  padding-bottom: var(--sp-4);
+  border-bottom: 1px solid var(--border-separator);
+}
+
+/* At the top of a page or section, there is no top margin to make up. */
+.ui-page-head + .ui-section-title,
+.ui-section > .ui-section-title:first-child,
+.ui-page > .ui-section-title:first-child {
+  margin-top: 0;
+}
+
+/* Class, not tag: the heading's tag depends on depth (ui/heading-level), its visual size does
+   not. */
+.ui-section-heading {
+  font-size: var(--fs-lg);
+  letter-spacing: var(--tr-tight);
+}
+
+/* A count is data: mono and discreet, not a shouting pill. */
+.ui-section-count {
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}

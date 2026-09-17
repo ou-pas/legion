@@ -1,0 +1,75 @@
+/* 32px targets, tabular figures, the current page in accent wash. */
+.ui-pagination {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+
+.ui-pagination-list {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  list-style: none;
+}
+
+.ui-page-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--h-control-md);
+  height: var(--h-control-md);
+  padding: 0 var(--sp-4);
+  border: 1px solid transparent;
+  border-radius: var(--r-2);
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  transition:
+    background var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease),
+    border-color var(--dur-1) var(--ease);
+}
+
+.ui-page-btn:hover:not(:disabled) {
+  background: var(--recess);
+  border-color: var(--border-control);
+  color: var(--ink);
+}
+
+.ui-page-btn[aria-current="page"] {
+  background: var(--accent-wash);
+  border-color: var(--accent-line);
+  color: var(--accent-deep);
+  font-weight: var(--fw-semi);
+}
+
+.ui-page-btn:disabled {
+  color: var(--ink-3);
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ui-page-gap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--h-control-md);
+  height: var(--h-control-md);
+  color: var(--ink-3);
+}
+
+.ui-pagination-size {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-4);
+  margin-left: var(--sp-5);
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+
+.ui-pagination-size select {
+  height: var(--h-control-md);
+  padding-top: 0;
+  padding-bottom: 0;
+  font-size: var(--fs-sm);
+}

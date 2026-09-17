@@ -1,0 +1,50 @@
+/* Row/Stack keep inline style: a flex row has no variant, its values are its props. */
+.ui-grid {
+  display: grid;
+  min-width: 0;
+}
+
+.ui-grid[data-cols="2"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ui-grid[data-cols="3"] {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.ui-grid[data-cols="4"] {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+/* 5 columns: the board since it has "Later". A kanban lane under 200px wraps every task name on
+   two lines, hence an earlier fallback. */
+.ui-grid[data-cols="5"] {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+@media (max-width: 1180px) {
+  .ui-grid[data-cols="5"] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* 4 and 3 columns become 2 when the content area narrows, then 1. Below 150px a stat tile no
+   longer shows its figure: that is the real threshold. */
+@media (max-width: 900px) {
+  .ui-grid[data-cols="3"],
+  .ui-grid[data-cols="4"],
+  .ui-grid[data-cols="5"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .ui-grid[data-cols] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.ui-spacer {
+  flex: 1 1 auto;
+  min-width: 0;
+}

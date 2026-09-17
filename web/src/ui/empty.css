@@ -1,0 +1,150 @@
+/* The drawing is a board: dashed frame, ruled lines, nothing cute. */
+.ui-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--sp-6);
+  min-width: 0;
+}
+
+.ui-empty-text {
+  max-width: var(--measure);
+  min-width: 0;
+}
+
+.ui-empty-title {
+  font-family: var(--sans);
+  font-weight: var(--fw-semi);
+  letter-spacing: var(--tr-tight);
+  line-height: var(--lh-snug);
+  color: var(--ink);
+}
+
+.ui-empty-body {
+  margin-top: var(--sp-3);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-body);
+  color: var(--ink-2);
+}
+
+.ui-empty-art {
+  height: auto;
+  flex-shrink: 0;
+}
+
+.ui-empty-frame {
+  fill: none;
+  stroke: var(--border-separator);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+}
+
+.ui-empty-rules path {
+  fill: none;
+  stroke: var(--border-separator);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+/* Clean board: the rules fade, the check stays. The good news. */
+.ui-empty-art[data-art="cleared"] .ui-empty-rules {
+  opacity: 0.4;
+}
+
+.ui-empty-check {
+  fill: none;
+  stroke: var(--ok);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ui-empty-strike {
+  fill: none;
+  stroke: var(--border-separator);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+/* A page's empty state is a card (04/09, operator: "it needs to be unified"): the same bordered
+   sheet whether the page put it in a Card or not. `panel` stays bare, it already lives in a card
+   or panel. */
+.ui-empty[data-variant="page"] {
+  padding: var(--sp-13) var(--sp-9);
+  background: var(--sheet);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-3);
+}
+
+.ui-empty[data-variant="page"] .ui-empty-art {
+  width: calc(var(--sp-13) * 3);
+}
+
+.ui-empty[data-variant="page"] .ui-empty-title {
+  font-size: var(--fs-2xl);
+}
+
+.ui-empty[data-variant="panel"] {
+  padding: var(--sp-11) var(--sp-9);
+}
+
+.ui-empty[data-variant="panel"] .ui-empty-art {
+  width: calc(var(--sp-13) * 2);
+}
+
+.ui-empty[data-variant="panel"] .ui-empty-title {
+  font-size: var(--fs-lg);
+}
+
+/* Empty column or inset: the drawing on the left, text beside it, the exit on the same row. */
+.ui-empty[data-variant="inline"] {
+  flex-direction: row;
+  align-items: center;
+  text-align: left;
+  gap: var(--sp-7);
+  padding: var(--sp-7) var(--sp-8);
+}
+
+.ui-empty[data-variant="inline"] .ui-empty-art {
+  width: var(--sp-13);
+}
+
+.ui-empty[data-variant="inline"] .ui-empty-text {
+  flex: 1;
+}
+
+.ui-empty[data-variant="inline"] .ui-empty-title {
+  font-size: var(--fs-md);
+}
+
+.ui-empty[data-variant="inline"] .ui-empty-body {
+  margin-top: var(--sp-1);
+  font-size: var(--fs-xs);
+}
+
+@media (max-width: 560px) {
+  .ui-empty[data-variant="inline"] {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* The tear (14/09), the only colored stroke of the board series. A broken screen is an empty
+   state but not an ordinary one: color makes the difference without a new grammar. */
+.ui-empty-tear {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* The rules part around the tear, so the sheet looks split rather than crossed out. */
+.ui-empty-art[data-art="torn"] .ui-empty-rules path:nth-child(2) {
+  d: path("M22 44 h24");
+}
+
+.ui-empty-art[data-art="torn"] .ui-empty-rules path:nth-child(3) {
+  d: path("M64 58 h34");
+}

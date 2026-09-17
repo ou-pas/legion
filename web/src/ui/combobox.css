@@ -1,0 +1,196 @@
+/* Closed, it reads like a Select; open, it is the design system's floating surface. The
+   difference is inside the control: a real text field, because you type in it. */
+.ui-combobox {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-4);
+  width: 100%;
+  min-width: 0;
+  color: var(--ink);
+  background: var(--sheet);
+  border: 1px solid var(--border-control);
+  border-radius: var(--r-2);
+  padding-inline: var(--sp-5);
+  transition:
+    border-color var(--dur-1) var(--ease),
+    box-shadow var(--dur-1) var(--ease);
+}
+
+.ui-combobox[data-size="md"] {
+  height: var(--h-control-md);
+}
+
+.ui-combobox[data-size="sm"] {
+  height: var(--h-control-sm);
+  padding-inline: var(--sp-4);
+}
+
+.ui-combobox:hover:not([data-open="true"]):not(:focus-within) {
+  border-color: var(--border-strong);
+}
+
+/* The halo goes on the wrapper, not the field: the chevron is part of the control. */
+.ui-combobox:focus-within,
+.ui-combobox[data-open="true"] {
+  border-color: var(--accent);
+  box-shadow: var(--field-ring);
+}
+
+.ui-combobox:has(.ui-combobox-input:disabled) {
+  background: var(--recess);
+  color: var(--ink-3);
+}
+
+.ui-combobox-input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: var(--fs-md);
+  text-overflow: ellipsis;
+}
+
+.ui-combobox[data-size="sm"] .ui-combobox-input {
+  font-size: var(--fs-sm);
+}
+
+.ui-combobox-input::placeholder {
+  color: var(--ink-3);
+}
+
+.ui-combobox-input:disabled {
+  cursor: not-allowed;
+}
+
+/* Drawn in CSS like the Select's: two strokes, so it follows the theme without an image. */
+.ui-combobox-chevron {
+  width: 7px;
+  height: 7px;
+  flex-shrink: 0;
+  margin-bottom: 2px;
+  border-right: 1.5px solid var(--ink-3);
+  border-bottom: 1.5px solid var(--ink-3);
+  transform: rotate(45deg);
+  transition:
+    transform var(--dur-1) var(--ease),
+    border-color var(--dur-1) var(--ease);
+}
+
+.ui-combobox[data-open="true"] .ui-combobox-chevron {
+  transform: rotate(225deg) translate(-2px, -2px);
+  border-color: var(--accent);
+}
+
+/* Mounted but invisible until measured, otherwise it flashes top-left for a frame (the position
+   is only computable once in the DOM). */
+.ui-combobox-list:not([data-placed="true"]) {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ui-combobox-list {
+  position: fixed;
+  z-index: var(--z-popover);
+  /* `--surface-max-w` comes from floating.ts (inline style in `combobox.tsx`): the width left
+     before leaving the window. Same defect and same fix as `select.css`. */
+  max-width: var(--surface-max-w, none);
+  padding: var(--sp-2);
+  background: var(--sheet);
+  border: 1px solid var(--border-floating);
+  border-radius: var(--r-3);
+  box-shadow: var(--el-2);
+  animation: ui-combobox-in var(--dur-2) var(--ease-out);
+}
+
+@keyframes ui-combobox-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.ui-combobox-scroll {
+  position: relative;
+  max-height: var(--h-scroll-md);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* "No results", "Loading…": same height as an option so the surface does not jump. */
+.ui-combobox-note {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  min-height: var(--h-control-md);
+  padding: var(--sp-3) var(--sp-5);
+  font-size: var(--fs-sm);
+  color: var(--ink-3);
+}
+
+.ui-combobox-option {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+  width: 100%;
+  min-height: var(--h-control-md);
+  padding: var(--sp-3) var(--sp-5);
+  border-radius: var(--r-2);
+  font-size: var(--fs-sm);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--dur-1) var(--ease);
+}
+
+.ui-combobox-option[data-active="true"] {
+  background: var(--row-hover);
+}
+
+/* Same mark as the Select's selected option: accent wash, line and an edge marker, two of which
+   do not rely on color. */
+.ui-combobox-option[aria-selected="true"] {
+  position: relative;
+  background: var(--row-selected);
+  border: 1px solid var(--row-selected-line);
+  padding: calc(var(--sp-3) - 1px) calc(var(--sp-5) - 1px);
+  font-weight: var(--fw-semi);
+}
+
+.ui-combobox-option[aria-selected="true"]::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -1px;
+  width: 2px;
+  height: 60%;
+  translate: 0 -50%;
+  border-radius: 0 var(--r-pill) var(--r-pill) 0;
+  background: var(--accent);
+}
+
+.ui-combobox-option[aria-selected="true"][data-active="true"] {
+  background: var(--row-selected);
+}
+
+.ui-combobox-mark {
+  display: grid;
+  place-items: center;
+  width: 13px;
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+/* Wrapping and ellipsis come from `.ui-ellipsis[data-lines="2"]` (`ellipsis.tsx`), as for
+   `.ui-select-label`: see select.css for why. */
+.ui-combobox-label {
+  flex: 1;
+}

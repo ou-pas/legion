@@ -1,0 +1,86 @@
+/* The pattern comes from shared tokens (--hatch-step / --hatch-gap / --hatch-angle): every hatch
+   in the app has the same pitch, otherwise it is an accident rather than a signature. The tint is
+   the tone's (--gate-hatch / --bad-hatch), never an rgba written here. */
+.ui-hatch {
+  --ui-hatch-tint: var(--neutral-hatch);
+  --ui-hatch-line: var(--border-surface);
+  --ui-hatch-wash: var(--recess);
+  --ui-hatch-ink: var(--ink-3);
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+}
+
+/* Frame in :where(), specificity 0: in a card or registry row the caller flattens radius and lines
+   with its own class. */
+:where(.ui-hatch) {
+  background: var(--ui-hatch-wash);
+  border: 1px solid var(--ui-hatch-line);
+  border-radius: var(--r-3);
+  overflow: hidden;
+}
+
+.ui-hatch[data-side="right"] {
+  flex-direction: row-reverse;
+}
+
+.ui-hatch-edge {
+  flex: none;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  width: var(--sp-11);
+  /* Aligned with the body's first line: the mark fits a list row as well as a 300px card. */
+  padding-top: var(--sp-5);
+  color: var(--ui-hatch-ink);
+  border-right: 1px solid var(--ui-hatch-line);
+  background-image: repeating-linear-gradient(
+    var(--hatch-angle),
+    var(--ui-hatch-tint) 0 var(--hatch-step),
+    transparent var(--hatch-step) var(--hatch-gap)
+  );
+}
+
+.ui-hatch[data-side="right"] .ui-hatch-edge {
+  border-right: none;
+  border-left: 1px solid var(--ui-hatch-line);
+}
+
+.ui-hatch-body {
+  flex: 1;
+  min-width: 0;
+  padding: var(--sp-5) var(--sp-7);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-body);
+  color: var(--ink);
+}
+
+.ui-hatch[data-tone="gate"] {
+  --ui-hatch-tint: var(--gate-hatch);
+  --ui-hatch-line: var(--gate-line);
+  --ui-hatch-wash: var(--gate-wash);
+  --ui-hatch-ink: var(--gate);
+}
+
+.ui-hatch[data-tone="bad"] {
+  --ui-hatch-tint: var(--bad-hatch);
+  --ui-hatch-line: var(--bad-line);
+  --ui-hatch-wash: var(--bad-wash);
+  --ui-hatch-ink: var(--bad);
+}
+
+/* The foundations have no neutral hatch tint: the object line gives the same pitch in warm grey. */
+.ui-hatch[data-tone="neutral"] {
+  --ui-hatch-tint: var(--neutral-hatch);
+  --ui-hatch-line: var(--border-surface);
+  --ui-hatch-wash: var(--recess);
+  --ui-hatch-ink: var(--ink-3);
+}
+
+/* Edge mark size imposed here: callers passed 14 or 16px, so a gate band and a failure band had
+   different marks. */
+.ui-hatch-edge > svg {
+  flex: none;
+  width: var(--icon-row);
+  height: var(--icon-row);
+}

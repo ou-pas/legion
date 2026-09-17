@@ -1,0 +1,31 @@
+/* One stroke, no background, no axis. `overflow: visible`: the stroke sometimes touches the exact
+   top/bottom edge (series min or max), and the SVG's default `overflow: hidden` would clip half a
+   pixel right where the reader looks. */
+.ui-sparkline {
+  display: block;
+  overflow: visible;
+  flex-shrink: 0;
+}
+
+.ui-sparkline-line {
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.ui-sparkline[data-tone="accent"] .ui-sparkline-line {
+  stroke: var(--accent);
+}
+.ui-sparkline[data-tone="run"] .ui-sparkline-line {
+  stroke: var(--run);
+}
+.ui-sparkline[data-tone="wait"] .ui-sparkline-line {
+  stroke: var(--wait);
+}
+.ui-sparkline[data-tone="ok"] .ui-sparkline-line {
+  stroke: var(--ok);
+}
+.ui-sparkline[data-tone="bad"] .ui-sparkline-line {
+  stroke: var(--bad);
+}

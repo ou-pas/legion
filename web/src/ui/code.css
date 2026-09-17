@@ -1,0 +1,56 @@
+/* One size below body text: at equal size mono looks bigger than sans and unbalances the line. */
+.ui-code {
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  font-variant-ligatures: none;
+  /* A long path breaks rather than overflowing its card. */
+  overflow-wrap: break-word;
+}
+
+.ui-code[data-variant="wash"] {
+  background: var(--recess);
+  border-radius: var(--r-1);
+  padding: 0 var(--sp-2);
+  color: var(--ink);
+}
+
+.ui-code[data-variant="bare"] {
+  color: inherit;
+}
+
+.ui-codeblock {
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  font-variant-ligatures: none;
+  line-height: var(--lh-snug);
+  color: var(--ink-2);
+  background: var(--recess);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-2);
+  padding: var(--sp-5) var(--sp-6);
+  /* A block never widens the layout: it scrolls inside. */
+  min-width: 0;
+  max-width: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
+  tab-size: 2;
+}
+
+.ui-codeblock[data-variant="scroll"] {
+  white-space: pre;
+}
+
+.ui-codeblock[data-variant="wrap"] {
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+.ui-codeblock[data-variant="preview"] {
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  max-height: 8lh;
+}
+
+.ui-codeblock > code {
+  font: inherit;
+}

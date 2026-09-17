@@ -1,0 +1,95 @@
+/* Full-width sheet. Tone is carried by the wash and the line on all four edges, never by a
+   thick left border (banned by the craft floor). */
+.ui-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-5);
+  flex-wrap: wrap;
+  min-width: 0;
+  padding: var(--sp-5) var(--sp-6);
+  background: var(--sheet);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-3);
+  font-size: var(--fs-sm);
+}
+
+.ui-banner-icon {
+  display: flex;
+  /* Aligns the icon with the title's first line, not with the whole block. */
+  padding-top: var(--sp-1);
+  color: var(--ink-2);
+}
+
+.ui-banner-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.ui-banner-title {
+  font-weight: var(--fw-semi);
+  line-height: var(--lh-snug);
+  color: var(--ink);
+}
+
+.ui-banner-body {
+  margin-top: var(--sp-2);
+  max-width: var(--measure);
+  color: var(--ink-2);
+  line-height: var(--lh-body);
+}
+
+.ui-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  flex-shrink: 0;
+}
+
+/* `info` stays on the neutral sheet: the foundations have no "info" triplet, and tinting
+   neutral information in vermilion would make it read as an action. */
+.ui-banner[data-tone="wait"] {
+  background: var(--wait-wash);
+  border-color: var(--wait-line);
+}
+
+.ui-banner[data-tone="wait"] .ui-banner-icon {
+  color: var(--wait);
+}
+
+.ui-banner[data-tone="gate"] {
+  background: var(--gate-wash);
+  border-color: var(--gate-line);
+}
+
+.ui-banner[data-tone="gate"] .ui-banner-icon {
+  color: var(--gate);
+}
+
+.ui-banner[data-tone="ok"] {
+  background: var(--ok-wash);
+  border-color: var(--ok-line);
+}
+
+.ui-banner[data-tone="ok"] .ui-banner-icon {
+  color: var(--ok);
+}
+
+.ui-banner[data-tone="bad"] {
+  background: var(--bad-wash);
+  border-color: var(--bad-line);
+}
+
+.ui-banner[data-tone="bad"] .ui-banner-icon {
+  color: var(--bad);
+}
+
+/* Below 640px the actions move under the text instead of squeezing it to 3 words per line. */
+@media (max-width: 640px) {
+  .ui-banner-text {
+    flex-basis: 100%;
+  }
+
+  .ui-banner-actions {
+    margin-left: calc(var(--sp-5) + var(--sp-8));
+  }
+}

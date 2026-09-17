@@ -1,0 +1,26 @@
+/* Inbox form (v31). The agent diagram sits on a recessed BOARD (recess + rule), like evidence
+   excerpts: brought content, not UI, and the border says its origin. The SVG inherits the current ink:
+   an agent drawing in currentColor (the tool's instruction) is themed for free, dark mode included.
+   Round layout itself is in inbox-questionnaire.css (07/09). */
+.inbox-form-svg {
+  margin: 0;
+  padding: var(--sp-6);
+  background: var(--recess);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-2);
+}
+
+.inbox-form-svg-canvas {
+  color: var(--ink-2);
+}
+
+/* An SVG without viewBox would overflow; with one it fits the board width. */
+.inbox-form-svg-canvas svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.inbox-form-svg figcaption {
+  margin-top: var(--sp-3);
+}

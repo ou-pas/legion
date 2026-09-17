@@ -1,0 +1,80 @@
+/* The family is declared explicitly: a Text inside a heading or mono block must return to sans,
+   never inherit a voice that is not its own. */
+.ui-text {
+  font-family: var(--sans);
+  letter-spacing: var(--tr-normal);
+}
+
+/* Tones: color is never written on the page side. */
+.ui-text[data-tone="default"] {
+  color: var(--ink);
+}
+
+.ui-text[data-tone="muted"] {
+  color: var(--ink-2);
+}
+
+/* AA floor: ink-3 is the last readable ink, nothing below. */
+.ui-text[data-tone="subtle"] {
+  color: var(--ink-3);
+}
+
+.ui-text[data-tone="wait"] {
+  color: var(--wait);
+}
+
+.ui-text[data-tone="bad"] {
+  color: var(--bad);
+}
+
+.ui-text[data-tone="accent"] {
+  color: var(--accent);
+}
+
+.ui-text[data-tone="ok"] {
+  color: var(--ok);
+}
+
+/* Tight line-height for small sizes (one- or two-line meta), reading line-height from body size up. */
+.ui-text[data-size="2xs"] {
+  font-size: var(--fs-2xs);
+  line-height: var(--lh-snug);
+}
+
+.ui-text[data-size="xs"] {
+  font-size: var(--fs-xs);
+  line-height: var(--lh-snug);
+}
+
+.ui-text[data-size="sm"] {
+  font-size: var(--fs-sm);
+  line-height: var(--lh-body);
+}
+
+.ui-text[data-size="md"] {
+  font-size: var(--fs-md);
+  line-height: var(--lh-body);
+}
+
+.ui-text[data-size="lg"] {
+  font-size: var(--fs-lg);
+  line-height: var(--lh-body);
+}
+
+.ui-text[data-weight="normal"] {
+  font-weight: var(--fw-normal);
+}
+
+.ui-text[data-weight="medium"] {
+  font-weight: var(--fw-medium);
+}
+
+.ui-text[data-weight="semi"] {
+  font-weight: var(--fw-semi);
+}
+
+/* Capitals need air, never heavy bold. */
+.ui-label {
+  text-transform: uppercase;
+  letter-spacing: var(--tr-caps);
+}

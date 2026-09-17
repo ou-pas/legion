@@ -1,0 +1,54 @@
+/* The defect (26/08): only the Done column carries an archive button, and a button is
+ * `--h-control-md` tall while a line of text is less, so the Done header stood taller than the
+ * other four. Shrinking the button to `sm` would only move the problem to the next control placed
+ * there: the header height is fixed once for every column, so an added affordance cannot shift the
+ * neighbours. */
+.bo-col-head {
+  min-height: var(--h-control-sm);
+}
+
+/* Lane picker at the phone breakpoint (13/09). It sits between the launch bar and the grid, which
+ * both carry their own spacing: without this gutter it sticks to the lane it controls and reads
+ * as its header.
+ *
+ * The component decides whether it renders, not this sheet: a lane hidden in CSS would keep its
+ * cards in the DOM.
+ *
+ * Joined buttons, not chips (operator feedback, 13/09: "a chip is for looking, not clicking"). The
+ * first version laid out five chips, which were at once five state markers and five tap targets. A
+ * button group says what it is, carries its state on `aria-pressed` and reads as a single choice. */
+.bo-lanes {
+  display: flex;
+  width: 100%;
+  margin-block: var(--sp-4);
+}
+
+/* Each lane takes an equal share and the LABEL gives way before the count: at 393px a fifth is
+ * under eighty pixels. The count is what people look for, so the word truncates. The selector
+ * weighs as much as the button one, otherwise ordinary button padding and height win. */
+.ui-btn-group > .bo-lane {
+  flex: 1;
+  min-width: 0;
+  /* Padding gives its room back to the word: an ordinary button takes twenty of the ~75 pixels a
+     fifth of the screen is worth, and the label collapsed to an ellipsis. The width is already set
+     by the five-way split, so padding only keeps the text off the rule. */
+  padding-inline: var(--sp-1);
+  gap: var(--sp-1);
+  /* Taller than an `sm` button (14/09, operator feedback): a thumb is aiming, and `sm` is sized for
+     a pointer. 44px is Apple's floor, the same as the tab bar targets, the only other row of this
+     screen used with a finger. */
+  min-height: max(44px, 2.75rem);
+}
+
+.bo-lane-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The count follows the button, not its own tone (operator feedback, 14/09): `Num` sets its colour
+ * (`tone="muted"`), which always beats the colour inherited from the button, so an active lane was
+ * accent everywhere except its grey number. Outside this button the number has no tone to keep. */
+.bo-lane[aria-pressed="true"] .ui-num {
+  color: inherit;
+}

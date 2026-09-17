@@ -1,0 +1,20 @@
+/* Floating, never in the flow (operator feedback, 02/09: "it shifts the whole front"). The slot
+   stays in the shell column but measures nothing (zero height): the banner sits over the content,
+   under the bar, right-aligned. A version arriving is a passing notice, not a new row pushing
+   everything down. Anchored to the slot (absolute in a relative slot) rather than `fixed`: it
+   follows the shell, not the window. */
+.update-return-banner-slot {
+  position: relative;
+  flex-shrink: 0;
+  height: 0;
+  overflow: visible;
+  z-index: var(--z-toast);
+}
+
+.update-return-banner-slot > * {
+  position: absolute;
+  top: var(--sp-5);
+  right: var(--sp-9);
+  max-width: min(520px, calc(100vw - 2 * var(--sp-9)));
+  box-shadow: var(--el-2);
+}

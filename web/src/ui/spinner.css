@@ -1,0 +1,35 @@
+/* Size is carried by CSS (spacing tokens), not a number prop: three sizes, not seventeen. */
+.ui-spinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-3);
+}
+
+.ui-spinner svg {
+  animation: ui-spinner-turn calc(var(--dur-2) * 5) linear infinite;
+}
+
+@keyframes ui-spinner-turn {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+.ui-spinner[data-size="sm"] svg {
+  width: var(--sp-7);
+  height: var(--sp-7);
+}
+
+.ui-spinner[data-size="md"] svg {
+  width: var(--sp-8);
+  height: var(--sp-8);
+}
+
+.ui-spinner[data-size="lg"] svg {
+  width: var(--sp-10);
+  height: var(--sp-10);
+}
+
+/* Read, never seen: clip-path rather than display:none, which would also remove it from the
+   accessibility tree. */

@@ -1,0 +1,60 @@
+/* `max-content` on the key column: values start at the same x on every row, no guessed width. */
+.ui-kv-list {
+  min-width: 0;
+  font-size: var(--fs-sm);
+}
+
+.ui-kv-list[data-variant="aligned"] {
+  display: grid;
+  grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
+  column-gap: var(--sp-8);
+  row-gap: var(--sp-4);
+  align-items: baseline;
+}
+
+.ui-kv-list[data-variant="aligned"][data-density="compact"] {
+  row-gap: var(--sp-2);
+  column-gap: var(--sp-6);
+  font-size: var(--fs-xs);
+}
+
+/* The pair steps out of the grid: its dt/dd become the cells. */
+.ui-kv-list[data-variant="aligned"] > .ui-kv {
+  display: contents;
+}
+
+.ui-kv-list[data-variant="stacked"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+}
+
+.ui-kv-list[data-variant="stacked"][data-density="compact"] {
+  gap: var(--sp-4);
+}
+
+.ui-kv-list[data-variant="stacked"] > .ui-kv {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  min-width: 0;
+}
+
+.ui-kv-key {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+.ui-kv-hint {
+  font-size: var(--fs-2xs);
+  color: var(--ink-3);
+}
+
+.ui-kv-val {
+  min-width: 0;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}

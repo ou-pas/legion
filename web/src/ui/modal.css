@@ -1,0 +1,36 @@
+/* Scrim and shell come from dialog.css. */
+.ui-modal-scrim {
+  display: grid;
+  place-items: center;
+  padding: var(--sp-9);
+  z-index: var(--z-modal);
+}
+
+.ui-modal {
+  width: min(520px, 94vw);
+  max-height: 86vh;
+  border-radius: var(--r-3);
+  animation: ui-modal-in var(--dur-2) var(--ease-out);
+}
+
+.ui-modal[data-size="sm"] {
+  width: min(420px, 94vw);
+}
+.ui-modal[data-size="lg"] {
+  width: min(680px, 94vw);
+}
+.ui-modal[data-size="xl"] {
+  width: min(880px, 94vw);
+}
+
+/* The one moment of movement: the sheet settles, it does not bounce. */
+@keyframes ui-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

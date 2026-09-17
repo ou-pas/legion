@@ -1,0 +1,229 @@
+/* Geometry follows the spacing scale: md = 32px tall, sm = 24px; icon buttons are the matching
+   squares. */
+.ui-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-3);
+  border: 1px solid transparent;
+  border-radius: var(--r-2);
+  font-family: var(--sans);
+  font-weight: var(--fw-semi);
+  letter-spacing: var(--tr-normal);
+  line-height: var(--lh-tight);
+  white-space: nowrap;
+  transition:
+    background-color var(--dur-1) var(--ease),
+    border-color var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease);
+}
+
+.ui-btn[data-size="md"] {
+  height: var(--h-control-md);
+  padding: 0 var(--sp-6);
+  font-size: var(--fs-sm);
+}
+
+.ui-btn[data-size="sm"] {
+  height: var(--h-control-sm);
+  padding: 0 var(--sp-5);
+  font-size: var(--fs-xs);
+  gap: var(--sp-2);
+}
+
+.ui-btn[data-full="true"] {
+  width: 100%;
+}
+
+.ui-btn-body {
+  display: inline-flex;
+  align-items: center;
+  gap: inherit;
+  min-width: 0;
+}
+
+/* Keyboard shortcut hint on `currentColor`, readable on all four variants without a color token
+   per background. Opacity 0.78, not 0.7 (Romuald, 14/09/2026, measured): at 0.7 the Kbd on a
+   primary button drops to 3.81:1 in dark theme, under AA's 4.5:1. At 0.78 it reaches 4.54:1 dark
+   and 5.34:1 light. No token: this is the only place that reads the value. */
+.ui-btn-shortcut {
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-normal);
+  opacity: 0.78;
+}
+
+/* Below the phone breakpoint there is no physical keyboard, so no hint. `display: none` loses
+   nothing for assistive tech: the element is already `aria-hidden`. */
+@media (max-width: 640px) {
+  .ui-btn-shortcut {
+    display: none;
+  }
+}
+
+.ui-btn[data-variant="default"] {
+  background: var(--recess);
+  border-color: var(--border-control);
+  color: var(--ink);
+  box-shadow: var(--el-btn);
+}
+
+.ui-btn[data-variant="default"]:hover:not(:disabled) {
+  background: var(--recess-2);
+  border-color: var(--border-strong);
+}
+
+.ui-btn[data-variant="primary"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--sheet-hi);
+  box-shadow: var(--el-btn);
+}
+
+.ui-btn[data-variant="primary"]:hover:not(:disabled) {
+  background: var(--accent-deep);
+  border-color: var(--accent-deep);
+}
+
+.ui-btn[data-variant="quiet"] {
+  background: transparent;
+  color: var(--ink-2);
+}
+
+.ui-btn[data-variant="quiet"]:hover:not(:disabled) {
+  background: var(--recess);
+  color: var(--ink);
+}
+
+.ui-btn[data-variant="danger"] {
+  background: var(--bad);
+  border-color: var(--bad);
+  color: var(--bad-on);
+  box-shadow: var(--el-btn);
+}
+
+.ui-btn[data-variant="danger"]:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--bad) 86%, var(--ink));
+  border-color: color-mix(in srgb, var(--bad) 86%, var(--ink));
+}
+
+/* Every icon in a button gets the same size whatever the caller passed to lucide: CSS beats the
+   SVG's width/height attributes, which keeps action bars even. The spinner is excluded. */
+.ui-btn svg {
+  width: var(--icon-control);
+  height: var(--icon-control);
+}
+
+.ui-btn[data-size="sm"] svg {
+  width: var(--icon-control-sm);
+  height: var(--icon-control-sm);
+}
+
+/* Pressed state (ToggleButton), after the variants so it overrides them. */
+.ui-btn[aria-pressed="true"] {
+  background: var(--accent-wash);
+  border-color: var(--accent-line);
+  color: var(--accent-deep);
+}
+
+.ui-btn[aria-pressed="true"]:hover:not(:disabled) {
+  background: var(--accent-wash);
+  border-color: var(--accent);
+}
+
+/* Disabled is a rendering of its own (dead surface), not an opacity veil. */
+.ui-btn:disabled:not([data-loading="true"]) {
+  background: var(--recess);
+  border-color: var(--border-control);
+  color: var(--ink-3);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.ui-btn[data-variant="quiet"]:disabled:not([data-loading="true"]) {
+  background: transparent;
+  border-color: transparent;
+}
+
+/* Loading: the label stays in place, the spinner overlays it. */
+.ui-btn[data-loading="true"] {
+  cursor: progress;
+}
+
+.ui-btn[data-loading="true"] .ui-btn-body {
+  visibility: hidden;
+}
+
+.ui-btn-spin {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.ui-btn-spin svg {
+  animation: ui-btn-turn calc(var(--dur-2) * 5) linear infinite;
+}
+
+@keyframes ui-btn-turn {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+.ui-btn-icon[data-size="md"] {
+  width: var(--h-control-md);
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.ui-btn-icon[data-size="sm"] {
+  width: var(--h-control-sm);
+  flex-shrink: 0;
+  padding: 0;
+}
+
+/* As an icon, "danger" stays quiet: solid red on a delete icon would shout on every list row. */
+.ui-btn-icon[data-variant="danger"] {
+  /* Same surface as a plain button (`--recess`) so it sits in the row; it signals through ink
+     and line. */
+  background: var(--recess);
+  border-color: var(--bad-line);
+  color: var(--bad);
+  box-shadow: var(--el-btn);
+}
+
+.ui-btn-icon[data-variant="danger"]:hover:not(:disabled) {
+  background: var(--bad-wash);
+  border-color: var(--bad-line);
+}
+
+.ui-btn-group {
+  display: inline-flex;
+}
+
+.ui-btn-group > .ui-btn {
+  border-radius: 0;
+}
+
+.ui-btn-group > .ui-btn + .ui-btn {
+  margin-left: -1px;
+}
+
+.ui-btn-group > .ui-btn:first-child {
+  border-start-start-radius: var(--r-2);
+  border-end-start-radius: var(--r-2);
+}
+
+.ui-btn-group > .ui-btn:last-child {
+  border-start-end-radius: var(--r-2);
+  border-end-end-radius: var(--r-2);
+}
+
+/* The hovered/focused item's shared line goes above its neighbour's (otherwise the next DOM
+   sibling always hides the previous border). Lowest named plane, no local z-index. */
+.ui-btn-group > .ui-btn:hover,
+.ui-btn-group > .ui-btn:focus-visible,
+.ui-btn-group > .ui-btn[aria-pressed="true"] {
+  z-index: var(--z-sticky);
+}

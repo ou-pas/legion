@@ -1,0 +1,57 @@
+/* The concierge panel: a bounded thread, a field under it. */
+.cc-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+  padding: var(--sp-8);
+}
+
+/* On the page, the thread takes the available height and the field stays at the bottom. In the
+   hover panel, the pane itself bounds the height and there is nothing to stretch. */
+.cc-panel[data-size="fill"] {
+  flex: 1;
+  min-height: 0;
+  padding: 0;
+}
+
+.cc-panel-scroll {
+  min-width: 0;
+}
+
+/* The situation report is the first turn: it reads in the thread, above the questions, and
+   scrolls with them. A banner stuck at the top would say the opposite. */
+.cc-panel-lead {
+  margin-bottom: var(--sp-8);
+}
+
+.cc-turn {
+  max-width: var(--measure);
+}
+
+.cc-turn-who {
+  margin-bottom: var(--sp-2);
+}
+
+/* What comes from the operator is accented, what comes from the concierge is not, same distinction
+   as the channel (channel-message.css). */
+.cc-turn[data-who="user"] .cc-turn-who {
+  color: var(--accent);
+}
+
+.cc-turn-body {
+  font-size: var(--fs-sm);
+  line-height: var(--lh-snug);
+  color: var(--ink-2);
+}
+
+.cc-turn[data-pending="true"] {
+  opacity: 0.7;
+}
+
+.cc-panel-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding-top: var(--sp-6);
+  border-top: 1px solid var(--border-separator);
+}

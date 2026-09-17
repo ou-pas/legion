@@ -1,0 +1,87 @@
+/* Vertical rhythm and reading measure. The library's only descendant selector, on purpose: content
+   (project context, a rule body, an agent reply) arrives without classes. */
+.ui-prose {
+  font-family: var(--sans);
+  line-height: var(--lh-loose);
+  /* A prose block does not break the surrounding layout. */
+  min-width: 0;
+  /* A long unbroken word (a bare file path) overflowed its text box: `scrollWidth` 308 for
+     `clientWidth` 263 in a channel message, silently absorbed by the scrolling ancestor.
+     `break-word`, not `anywhere`: `permission-list.css:137` records that `anywhere` breaks letter
+     by letter once a column narrows; `break-word` only breaks what fits on no line. */
+  overflow-wrap: break-word;
+}
+
+.ui-prose[data-width="measure"] {
+  max-width: var(--measure);
+}
+
+.ui-prose[data-size="md"] {
+  font-size: var(--fs-md);
+}
+
+.ui-prose[data-size="sm"] {
+  font-size: var(--fs-sm);
+}
+
+.ui-prose[data-tone="default"] {
+  color: var(--ink);
+}
+
+.ui-prose[data-tone="muted"] {
+  color: var(--ink-2);
+}
+
+/* Spacing comes from separations, never from a trailing margin that would overflow the container. */
+.ui-prose > :first-child {
+  margin-top: 0;
+}
+
+.ui-prose > :last-child {
+  margin-bottom: 0;
+}
+
+.ui-prose p,
+.ui-prose ul,
+.ui-prose ol,
+.ui-prose > .ui-table-wrap {
+  margin-block: var(--sp-6);
+}
+
+.ui-prose ul,
+.ui-prose ol {
+  padding-left: var(--sp-9);
+}
+
+.ui-prose li + li {
+  margin-top: var(--sp-2);
+}
+
+.ui-prose li::marker {
+  color: var(--ink-3);
+}
+
+.ui-prose strong,
+.ui-prose b {
+  font-weight: var(--fw-semi);
+  color: var(--ink);
+}
+
+.ui-prose em {
+  font-style: italic;
+}
+
+/* Same look as <Code variant="wash">, declared here because the tag arrives without a class.
+   `overflow-wrap` is inherited from `.ui-prose`. */
+.ui-prose code {
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  background: var(--recess);
+  border-radius: var(--r-1);
+  padding: 0 var(--sp-2);
+}
+
+.ui-prose a {
+  text-decoration-line: underline;
+  transition: color var(--dur-1) var(--ease);
+}

@@ -1,0 +1,103 @@
+name: CI
+
+# Added 02/09 after PR #66 reached `main` with six red tests: each PR was green on its own branch, but
+# nobody replayed `make gates` at merge time. On `pull_request`, GitHub checks out the merge commit
+# (main + branch), which is exactly that replay.
+#
+# This workflow is the only required check on `main`: one file, one job (`gates`), one check name to
+# tick in branch protection. The setting itself is set by hand, documented in docs/wiki/guides/ci.md.
+#
+# A green run is only valid for the `main` it ran against. If `main` moves and the PR merges without a
+# rerun, the green is stale (the mechanism behind three breakages on v0.5.0, 02/09). Only "Require
+# branches to be up to date before merging" or the merge queue closes that gap; see the guide.
+on:
+  pull_request:
+  # Safety net while branch protection is not set: a broken `main` shows up when it is born, not at
+  # the next tag (`make release`), as on 02/09.
+  push:
+    branches: [main]
+
+# A new push makes the previous run obsolete; cancel it instead of letting it produce a verdict that
+# gets thrown away.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+# The gates read no project secret and no token beyond Actions' default: `contents: read` suffices.
+permissions:
+  contents: read
+
+jobs:
+  gates:
+    name: gates
+    runs-on: ubuntu-latest
+    # A hanging runner is not a gate. The whole run measured about 110 s locally (02/09); ten minutes
+    # covers a cold pnpm cache.
+    timeout-minutes: 10
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        # On pull_request this is the PR's merge commit against its base, the point of this workflow.
+
+      - name: pnpm
+        uses: pnpm/action-setup@v4
+        # No "version:": the action reads "packageManager" from package.json, the single owner.
+
+      - name: node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+
+      # better-sqlite3 is native and compiles from source when no prebuilt binary matches. python3,
+      # make and g++ are already on GitHub's ubuntu-latest image.
+      - name: install
+        run: pnpm install --frozen-lockfile
+
+      # `make fresh`, the first local gate, has no step: it compares `HEAD` to `origin/main`, and the
+      # checkout above already put `HEAD` on the merge commit, so the branch is fresh by construction.
+      #
+      # Formatter before linter (09/09): `oxfmt` owns layout, `oxlint` meaning. The reverse order
+      # produced 499 files of `{return x;}` on 09/09 when the `curly` autofix ran without reformatting.
+      - name: format
+        run: pnpm -s format:check
+
+      - name: lint
+        run: pnpm -s lint
+
+      - name: types (server + web)
+        run: pnpm -s typecheck
+
+      # Architecture harness gates (05/09), before tests because they take seconds and run no product
+      # code. Listed one by one rather than through `make gates` so a failure reads in the step name,
+      # not in 300 lines of Make output.
+      - name: boundaries (dependency-cruiser)
+        run: node --import tsx scripts/arch-check.ts
+
+      - name: dead code (knip)
+        run: node --import tsx scripts/deadcode-check.ts
+
+      # High advisories on production dependencies only: failing CI on a devDependency advisory, which
+      # touches nothing that runs, teaches people to ignore the gate.
+      - name: dependency audit
+        run: pnpm audit --prod --audit-level=high
+
+      # `pnpm test` also enforces server coverage thresholds (80/75/75). The `dot` reporter prints
+      # nothing when a threshold fails, so it looks like a red test; `make coverage-report` tells them
+      # apart locally.
+      - name: tests (server + web)
+        run: pnpm -s test
+
+      - name: API contract
+        run: node --import tsx scripts/api-contract.ts
+
+      - name: doc contract
+        run: node --import tsx scripts/doc-contract.ts
+
+      - name: web build
+        run: pnpm -s --filter @legion/web build
+
+      # The stories gate has no step of its own: it runs inside `pnpm test` (web/src/stories.test.tsx)
+      # since 09/09. Its Chrome predecessor, `make ds-smoke`, was kept out of CI because it gave
+      # different false failures on every run under contention; jsdom checks the same facts in 1.5 s.
+      # Details in docs/wiki/guides/ci.md.

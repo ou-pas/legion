@@ -1,0 +1,1996 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Legion — direction « Atelier »</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   ATELIER — monde visuel
+   Scène d'usage : poste de travail, lumière du jour, session longue.
+   D'où : papier chaud, trame de planche à dessin, filets structurants.
+   ============================================================ */
+:root{
+  --paper:#F4F0E8;
+  --sheet:#FCFAF6;
+  --recess:#EDE7DA;
+  --recess-2:#E5DDCC;
+
+  --ink:#1E1A15;
+  --ink-2:#584F42;
+  --ink-3:#6B6255;
+
+  --rule:#DCD3C3;
+  --rule-2:#C6BBA6;
+  --rule-3:#AEA18A;
+
+  --verm:#B03F1B;
+  --verm-deep:#8E3213;
+  --verm-wash:#F6E4DA;
+  --teal:#1B6350;
+  --teal-wash:#DEEAE4;
+  --amber:#8A5A00;
+  --amber-mark:#C08A12;
+  --amber-wash:#F6E9CE;
+  --danger:#A02617;
+  --danger-wash:#F7DFDA;
+
+  --u:4px;
+  --sh-1:0 1px 1px rgba(46,36,22,.05), 0 2px 4px -2px rgba(46,36,22,.10);
+  --sh-2:0 1px 2px rgba(46,36,22,.06), 0 18px 34px -26px rgba(46,36,22,.45);
+
+  --sans:'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono:'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none !important}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  font-family:var(--sans);
+  font-size:14px;
+  line-height:1.5;
+  color:var(--ink);
+  background-color:var(--paper);
+  /* trame de planche à dessin : mineure 16, majeure 96 */
+  background-image:
+    linear-gradient(to right, rgba(30,26,21,.030) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(30,26,21,.030) 1px, transparent 1px),
+    linear-gradient(to right, rgba(30,26,21,.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(30,26,21,.055) 1px, transparent 1px);
+  background-size:16px 16px,16px 16px,96px 96px,96px 96px;
+  background-position:-1px -1px,-1px -1px,-1px -1px,-1px -1px;
+  -webkit-font-smoothing:antialiased;
+  scrollbar-color:var(--rule-2) transparent;
+  scrollbar-width:thin;
+}
+
+/* --- surfaces non dessinées : elles portent aussi la direction --- */
+::selection{background:rgba(176,63,27,.20);color:var(--ink)}
+input,textarea{caret-color:var(--verm)}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--rule-2);border:3px solid transparent;background-clip:content-box;border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:var(--rule-3);border:3px solid transparent;background-clip:content-box}
+:focus-visible{outline:2px solid var(--verm);outline-offset:2px;border-radius:2px}
+a{color:var(--verm-deep);text-underline-offset:3px;text-decoration-thickness:1px}
+
+.num,time,.money,.dur{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+table{font-variant-numeric:tabular-nums}
+
+h1,h2,h3{margin:0;font-family:var(--sans);font-weight:600;letter-spacing:-.015em;
+  font-variation-settings:'SOFT' 0,'WONK' 0}
+p{margin:0}
+ul,ol{margin:0;padding:0;list-style:none}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+input,textarea{font:inherit;color:inherit}
+svg{display:block}
+.ic{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.ic-14{width:14px;height:14px}
+.ic-18{width:18px;height:18px}
+.ic-22{width:22px;height:22px}
+.mono{font-family:var(--mono);font-size:.8125rem;letter-spacing:-.01em}
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+.wrap{max-width:1400px;margin:0 auto;padding:0 32px}
+
+/* ============================ EN-TÊTE ============================ */
+.brief{border-bottom:1px solid var(--rule-2);background:
+   linear-gradient(to bottom, rgba(252,250,246,.92), rgba(252,250,246,.72));
+   backdrop-filter:none}
+.brief__in{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);
+  gap:48px;padding:34px 32px 30px;max-width:1400px;margin:0 auto;align-items:start}
+.brief h1{font-size:2.6rem;line-height:1.02;font-weight:700;letter-spacing:-.03em}
+.brief h1 .tag{display:inline-block;vertical-align:middle;margin-left:14px;
+  font-family:var(--sans);font-size:.6875rem;font-weight:600;letter-spacing:.10em;
+  text-transform:uppercase;color:var(--ink-3);border:1px solid var(--rule-2);
+  border-radius:2px;padding:3px 8px;position:relative;top:-4px}
+.thesis{margin-top:12px;font-size:1.0625rem;line-height:1.55;color:var(--ink-2);max-width:62ch}
+.thesis strong{color:var(--ink);font-weight:600}
+.costs{display:grid;gap:10px;padding-top:8px}
+.costs li{display:grid;grid-template-columns:16px minmax(0,1fr);gap:10px;
+  font-size:.8125rem;line-height:1.45;color:var(--ink-2);max-width:62ch}
+.costs li svg{margin-top:2px;color:var(--rule-3)}
+.costs b{font-weight:600;color:var(--ink)}
+
+/* ============================ ONGLETS ============================ */
+.tabs{position:sticky;top:0;z-index:40;background:rgba(244,240,232,.96);
+  border-bottom:1px solid var(--rule-2)}
+.tabs__in{display:flex;align-items:stretch;gap:0;max-width:1400px;margin:0 auto;padding:0 32px}
+.tab{display:flex;align-items:center;gap:9px;padding:13px 20px 12px;
+  font-size:.875rem;font-weight:500;color:var(--ink-3);border-bottom:2px solid transparent;
+  margin-bottom:-1px;transition:color .12s ease, background-color .12s ease;white-space:nowrap}
+.tab:hover{color:var(--ink);background:rgba(255,255,255,.55)}
+.tab svg{color:var(--rule-3);transition:color .12s ease}
+.tab:hover svg{color:var(--ink-3)}
+.tab[aria-selected="true"]{color:var(--ink);font-weight:600;border-bottom-color:var(--verm);background:var(--sheet)}
+.tab[aria-selected="true"] svg{color:var(--verm)}
+.tab__n{font-family:var(--mono);font-size:.6875rem;color:var(--ink-3);
+  border:1px solid var(--rule-2);border-radius:2px;padding:0 4px;line-height:15px}
+.tabs__spacer{flex:1}
+.tabs__meta{display:flex;align-items:center;gap:16px;padding:0 4px;font-size:.75rem;color:var(--ink-3)}
+.tabs__meta .dot{width:6px;height:6px;border-radius:50%;background:var(--teal);flex:none}
+
+/* ============================ COMMUN ============================ */
+.screen{display:none;padding:30px 0 90px}
+.screen.is-on{display:block}
+
+.sheet{background:var(--sheet);border:1px solid var(--rule);border-radius:5px;box-shadow:var(--sh-2)}
+
+.screenhead{display:flex;align-items:flex-end;justify-content:space-between;
+  gap:32px;margin-bottom:20px}
+.screenhead h2{font-size:1.5rem;font-weight:600;letter-spacing:-.02em}
+.screenhead p{margin-top:5px;font-size:.875rem;color:var(--ink-2);max-width:74ch}
+.screenhead__aside{display:flex;align-items:center;gap:18px;font-size:.8125rem;color:var(--ink-2);
+  padding-bottom:3px;white-space:nowrap}
+.screenhead__aside b{font-weight:600;color:var(--ink)}
+
+.hr{height:1px;background:var(--rule);border:0;margin:0}
+
+/* chips & états */
+.state{display:inline-flex;align-items:center;gap:6px;font-size:.75rem;font-weight:600;
+  letter-spacing:.01em;padding:2px 8px 2px 7px;border-radius:2px;border:1px solid transparent;white-space:nowrap}
+.state .bullet{width:6px;height:6px;border-radius:50%;flex:none}
+.state--run{color:var(--teal);background:var(--teal-wash);border-color:#BFD5CC}
+.state--run .bullet{background:var(--teal);animation:beat 1.9s ease-in-out infinite}
+.state--wait{color:var(--amber);background:var(--amber-wash);border-color:#E2CD9C}
+.state--wait .bullet{background:var(--amber-mark)}
+.state--fail{color:var(--danger);background:var(--danger-wash);border-color:#E7C3BB}
+.state--fail .bullet{background:var(--danger)}
+.state--idle{color:var(--ink-3);background:var(--recess);border-color:var(--rule-2)}
+.state--idle .bullet{background:var(--rule-3)}
+.state--done{color:var(--ink-2);background:var(--recess);border-color:var(--rule-2)}
+.state--done .bullet{background:var(--ink-3)}
+@keyframes beat{0%,100%{opacity:1}50%{opacity:.32}}
+@media (prefers-reduced-motion:reduce){.state--run .bullet{animation:none}}
+
+.meta{font-size:.75rem;color:var(--ink-3)}
+.pathchip{font-family:var(--mono);font-size:.75rem;color:var(--ink-2);background:var(--recess);
+  border:1px solid var(--rule);border-radius:2px;padding:1px 5px;white-space:nowrap}
+
+/* boutons */
+.btn{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 13px;border-radius:3px;
+  white-space:nowrap;flex:none;
+  font-size:.8125rem;font-weight:600;border:1px solid var(--rule-2);background:var(--sheet);
+  color:var(--ink);transition:background-color .12s ease,border-color .12s ease,box-shadow .12s ease;
+  box-shadow:0 1px 0 rgba(46,36,22,.04)}
+.btn:hover{background:#fff;border-color:var(--rule-3)}
+.btn:active{background:var(--recess);box-shadow:none}
+.btn--primary{background:var(--verm);border-color:var(--verm-deep);color:#FFF7F2;
+  box-shadow:0 1px 1px rgba(120,40,15,.22)}
+.btn--primary:hover{background:var(--verm-deep);border-color:var(--verm-deep)}
+.btn--danger{color:var(--danger);border-color:#DCB6AC}
+.btn--danger:hover{background:var(--danger-wash);border-color:var(--danger)}
+.btn--quiet{border-color:transparent;background:transparent;font-weight:500;color:var(--ink-2)}
+.btn--quiet:hover{background:var(--recess);border-color:var(--rule)}
+.btn--sm{height:27px;padding:0 10px;font-size:.75rem}
+.btn[disabled],.btn[aria-disabled="true"]{color:var(--ink-3);background:var(--recess);
+  border-color:var(--rule);box-shadow:none;cursor:not-allowed;opacity:.75}
+.btn[disabled]:hover,.btn[aria-disabled="true"]:hover{background:var(--recess);border-color:var(--rule)}
+.btn__why{font-size:.75rem;color:var(--ink-3);font-weight:400}
+
+.field{display:flex;align-items:center;gap:8px;height:34px;padding:0 11px;border-radius:3px;
+  border:1px solid var(--rule-2);background:#fff;flex:1;min-width:0;
+  transition:border-color .12s ease,box-shadow .12s ease}
+.field:focus-within{border-color:var(--verm);box-shadow:0 0 0 3px rgba(176,63,27,.13)}
+.field input{border:0;outline:0;background:none;width:100%;font-size:.8125rem}
+.field input::placeholder{color:var(--ink-3)}
+
+/* ======================= ÉCRAN 1 — ATELIER ======================= */
+/* Le plan de travail est UNE feuille ; les postes sont des bandes
+   séparées par des filets, pas des cartes clonées. */
+.bench{display:grid;grid-template-columns:236px minmax(0,1fr) 292px;gap:0}
+.bench + .bench{border-top:1px solid var(--rule-2)}
+.bench__plate{padding:24px 22px 26px 24px;border-right:1px solid var(--rule);
+  background:linear-gradient(to right, rgba(237,231,218,.55), rgba(237,231,218,.15))}
+.bench__body{padding:24px 24px 26px;min-width:0}
+.bench__rights{padding:24px 22px 26px;border-left:1px solid var(--rule);min-width:0}
+
+.plate__name{display:flex;align-items:baseline;gap:8px}
+.plate__name h3{font-family:var(--mono);font-size:1rem;font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+.plate__role{margin-top:7px;font-size:.8125rem;color:var(--ink-2);line-height:1.4}
+.plate__state{margin-top:14px}
+.plate__facts{margin-top:18px;display:grid;gap:9px;border-top:1px solid var(--rule);padding-top:14px}
+.plate__facts div{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:.75rem}
+.plate__facts dt{color:var(--ink-3)}
+.plate__facts dd{margin:0;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.plate__facts dd.mono{font-weight:500}
+
+/* HUD « en train de » */
+.hud{border:1px solid var(--rule-2);border-radius:4px;background:var(--recess);overflow:hidden}
+.hud__top{display:flex;align-items:center;gap:12px;padding:9px 12px;border-bottom:1px solid var(--rule-2);
+  background:linear-gradient(to bottom,#fff,rgba(255,255,255,.55))}
+.hud__task{font-weight:600;font-size:.875rem;letter-spacing:-.006em;min-width:0;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.hud__spacer{flex:1}
+.hud__doing{display:flex;align-items:center;gap:10px;padding:11px 12px}
+.hud__verb{font-size:.75rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);
+  flex:none}
+.hud__what{display:flex;align-items:center;gap:8px;min-width:0;font-family:var(--mono);font-size:.8125rem;
+  color:var(--ink);white-space:nowrap}
+.hud__what span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.hud__what svg{color:var(--verm)}
+.hud__since{margin-left:auto;font-size:.75rem;color:var(--ink-3);font-variant-numeric:tabular-nums;flex:none}
+.hud__bar{height:2px;background:var(--rule-2);position:relative;overflow:hidden}
+.hud__bar i{position:absolute;inset:0 auto 0 0;width:38%;background:var(--verm);
+  animation:slide 2.6s cubic-bezier(.45,0,.55,1) infinite}
+@keyframes slide{0%{transform:translateX(-100%)}100%{transform:translateX(360%)}}
+@media (prefers-reduced-motion:reduce){.hud__bar i{animation:none;width:38%}}
+
+.subhead{display:flex;align-items:center;gap:9px;margin:22px 0 10px;
+  font-size:.75rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+.subhead::after{content:"";height:1px;flex:1;background:var(--rule)}
+.subhead .cnt{font-family:var(--mono);letter-spacing:0;font-weight:500;color:var(--ink-3)}
+
+/* bandes d'attention (gate / question / échec) posées SUR le poste */
+.att{border:1px solid var(--rule-2);border-radius:4px;background:#fff;padding:13px 14px 14px;position:relative}
+.att + .att{margin-top:10px}
+.att--gate{background:
+   repeating-linear-gradient(135deg, rgba(192,138,18,.09) 0 6px, transparent 6px 13px) left top/44px 100% no-repeat,
+   #fff;border-color:#E2CD9C}
+.att--ask{border-color:var(--rule-2)}
+.att--fail{background:
+   repeating-linear-gradient(135deg, rgba(160,38,23,.09) 0 6px, transparent 6px 13px) left top/44px 100% no-repeat,
+   #fff;border-color:#E7C3BB}
+.att__head{display:flex;align-items:center;gap:9px;margin-left:34px}
+.att--ask .att__head{margin-left:0}
+.att__icon{position:absolute;left:13px;top:14px;color:var(--amber)}
+.att--fail .att__icon{color:var(--danger)}
+.att__title{font-weight:600;font-size:.875rem;letter-spacing:-.006em}
+.att__sub{margin-left:34px;margin-top:3px;font-size:.8125rem;color:var(--ink-2);line-height:1.45}
+.att--ask .att__sub{margin-left:0}
+.att__q{font-size:.9375rem;line-height:1.45;color:var(--ink);margin-top:2px;max-width:70ch}
+.att__act{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:11px}
+.att--gate .att__act,.att--fail .att__act{margin-left:34px}
+.att__err{margin-left:34px;margin-top:8px;font-family:var(--mono);font-size:.8125rem;color:var(--danger);
+  background:var(--danger-wash);border:1px solid #E7C3BB;border-radius:3px;padding:7px 9px;line-height:1.4}
+.att.is-sent{background:var(--recess);border-color:var(--rule-2)}
+.att.is-sent .att__q{color:var(--ink-2)}
+.sent{display:inline-flex;align-items:center;gap:7px;font-size:.8125rem;font-weight:600;color:var(--teal)}
+.spin{width:13px;height:13px;border-radius:50%;border:2px solid rgba(27,99,80,.25);
+  border-top-color:var(--teal);animation:rot .7s linear infinite;flex:none}
+@keyframes rot{to{transform:rotate(360deg)}}
+
+/* file d'attente + livraisons : listes à filets, pas des cartes */
+.qlist{border-top:1px solid var(--rule)}
+.qlist li{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid var(--rule);
+  font-size:.8125rem}
+.qlist li:hover{background:rgba(237,231,218,.5)}
+.qlist .t{font-weight:500;color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qlist .r{margin-left:auto;display:flex;align-items:center;gap:10px;flex:none}
+.rank{font-family:var(--mono);font-size:.6875rem;color:var(--ink-3);width:14px;text-align:right;flex:none}
+.cx{font-size:.6875rem;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);
+  border:1px solid var(--rule);border-radius:2px;padding:1px 5px;background:var(--sheet)}
+
+.deliv li{display:grid;grid-template-columns:18px minmax(0,1fr);gap:10px;padding:8px 2px;
+  border-bottom:1px solid var(--rule);font-size:.8125rem;align-items:start}
+.deliv svg{color:var(--rule-3);margin-top:2px}
+.deliv .t{color:var(--ink)}
+.deliv .m{color:var(--ink-3);font-size:.75rem;margin-top:2px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+/* droits — least privilege visible en permanence */
+.rights__head{display:flex;align-items:center;gap:8px;width:100%;text-align:left;
+  font-size:.75rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);
+  padding-bottom:10px;border-bottom:1px solid var(--rule)}
+.rights__head .chev{margin-left:auto;transition:transform .18s cubic-bezier(.2,.8,.3,1);color:var(--rule-3)}
+.rights__head[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.rights__head:hover{color:var(--ink)}
+.rights__sum{font-size:.75rem;color:var(--ink-3);padding:10px 0 0;line-height:1.5}
+.rights__body{display:grid;gap:2px;padding-top:6px}
+.rights__body[hidden]{display:none}
+.rg{display:grid;grid-template-columns:18px minmax(0,1fr);gap:9px;padding:8px 0;border-bottom:1px solid var(--rule)}
+.rg:last-child{border-bottom:0}
+.rg > svg{color:var(--rule-3);margin-top:2px}
+.rg__k{font-size:.6875rem;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
+.rg__v{margin-top:3px;display:flex;flex-wrap:wrap;gap:5px}
+.perm{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:.75rem;
+  padding:1px 6px;border-radius:2px;border:1px solid var(--rule-2);background:var(--recess);color:var(--ink-2)}
+.perm b{font-family:var(--sans);font-size:.625rem;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;padding:0 3px;border-radius:2px}
+.perm--rw b{background:var(--verm-wash);color:var(--verm-deep)}
+.perm--r b{background:var(--recess-2);color:var(--ink-2)}
+.perm--none{color:var(--ink-3);font-family:var(--sans);font-size:.75rem;background:transparent;border-style:dashed}
+.perm--net{background:var(--amber-wash);border-color:#E2CD9C;color:var(--amber)}
+.perm--cut{background:var(--recess);border-color:var(--rule-2);color:var(--ink-2);font-family:var(--sans)}
+.rights__cost{margin-top:14px;padding-top:12px;border-top:1px solid var(--rule-2);
+  display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.rights__cost span{font-size:.75rem;color:var(--ink-3)}
+.rights__cost b{font-size:1rem;font-weight:600;font-variant-numeric:tabular-nums}
+
+/* poste libre */
+.free{border:1px dashed var(--rule-2);border-radius:4px;padding:26px 24px;
+  background:repeating-linear-gradient(135deg, rgba(30,26,21,.022) 0 8px, transparent 8px 18px)}
+.free h4{margin:0;font-family:var(--sans);font-size:1.125rem;font-weight:600;letter-spacing:-.015em}
+.free p{margin-top:6px;font-size:.8125rem;color:var(--ink-2);max-width:60ch;line-height:1.5}
+.free__form{display:flex;gap:8px;margin-top:16px;max-width:560px}
+.free__alt{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
+.free__ok{margin-top:14px;display:flex;align-items:center;gap:8px;font-size:.8125rem;color:var(--teal);font-weight:600}
+
+/* ==================== ÉCRAN 2 — POSTE OUVERT ==================== */
+.sess__head{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--rule-2);
+  background:linear-gradient(to bottom,#fff,rgba(252,250,246,.6));flex-wrap:wrap}
+.sess__title{font-family:var(--sans);font-size:1.1875rem;font-weight:600;letter-spacing:-.02em}
+.sess__facts{display:flex;align-items:center;gap:14px;margin-left:auto;font-size:.8125rem;color:var(--ink-2)}
+.sess__facts b{font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.vr{width:1px;height:18px;background:var(--rule-2)}
+
+.sess__switch{display:flex;gap:0;padding:0 20px;border-bottom:1px solid var(--rule);background:var(--recess)}
+.sw{display:flex;align-items:center;gap:8px;padding:9px 14px;font-size:.8125rem;color:var(--ink-2);
+  border:1px solid transparent;border-bottom:0;border-radius:3px 3px 0 0;margin-bottom:-1px;
+  transition:background-color .12s ease,color .12s ease}
+.sw:hover{background:rgba(255,255,255,.6);color:var(--ink)}
+.sw[aria-selected="true"]{background:var(--sheet);border-color:var(--rule);color:var(--ink);font-weight:600}
+.sw .dot{width:6px;height:6px;border-radius:50%;flex:none}
+.sw .dot--run{background:var(--teal)}
+.sw .dot--fail{background:var(--danger)}
+.sw .dot--wait{background:var(--amber-mark)}
+.sw .dot--dead{background:var(--rule-3)}
+.sw .money{font-family:var(--mono);font-size:.75rem;color:var(--ink-3)}
+
+.sess__grid{display:grid;grid-template-columns:minmax(0,1.06fr) minmax(0,1fr)}
+.sess__left{border-right:1px solid var(--rule);min-width:0}
+.sess__right{min-width:0;display:flex;flex-direction:column}
+
+.gate{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid #E2CD9C;
+  background:repeating-linear-gradient(135deg, rgba(192,138,18,.10) 0 6px, transparent 6px 13px) left top/40px 100% no-repeat, #FDF7EA}
+.gate svg{color:var(--amber);flex:none;margin-left:28px}
+.gate__t{font-size:.875rem;font-weight:600}
+.gate__s{font-size:.75rem;color:var(--ink-2);margin-top:1px}
+.gate__act{margin-left:auto;display:flex;align-items:center;gap:8px}
+
+/* timeline d'appels d'outils */
+.tl{padding:6px 0 14px}
+.ev{display:grid;grid-template-columns:82px 112px minmax(0,1fr);gap:0;align-items:start;
+  border-bottom:1px solid var(--rule);position:relative}
+.ev:hover{background:rgba(237,231,218,.42)}
+.ev__t{padding:9px 10px 9px 20px;font-family:var(--mono);font-size:.6875rem;color:var(--ink-3);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.ev__k{padding:9px 10px 9px 0}
+.ev__kk{font-family:var(--mono);font-size:.6875rem;font-weight:500;color:var(--ink-2);
+  border:1px solid var(--rule-2);background:var(--recess);border-radius:2px;padding:1px 5px;display:inline-block}
+.ev__c{padding:9px 20px 10px 0;min-width:0;font-size:.8125rem;color:var(--ink);line-height:1.5}
+.ev__c .payload{font-family:var(--mono);font-size:.75rem;color:var(--ink-2);word-break:break-word}
+.ev--sec{background:repeating-linear-gradient(135deg, rgba(160,38,23,.10) 0 6px, transparent 6px 13px) left top/82px 100% no-repeat, var(--danger-wash)}
+.ev--sec:hover{background:repeating-linear-gradient(135deg, rgba(160,38,23,.13) 0 6px, transparent 6px 13px) left top/82px 100% no-repeat, #F9DCD6}
+.ev--sec .ev__kk{border-color:#DCB6AC;background:#fff;color:var(--danger);font-weight:700}
+.ev--sec .ev__c{color:var(--ink)}
+.sec__l1{font-weight:600;display:flex;align-items:center;gap:8px}
+.sec__l1 svg{color:var(--danger)}
+.sec__l2{margin-top:4px;font-family:var(--mono);font-size:.75rem;color:var(--danger)}
+.sec__l3{margin-top:6px;font-size:.75rem;color:var(--ink-2);max-width:64ch}
+.ev--err .ev__kk{border-color:#DCB6AC;background:var(--danger-wash);color:var(--danger);font-weight:700}
+.ev--err .ev__c{color:var(--danger);font-weight:500}
+.ev--steer{background:var(--verm-wash)}
+.ev--steer .ev__kk{border-color:#E3C0B0;background:#fff;color:var(--verm-deep);font-weight:700}
+
+.tool{width:100%;text-align:left;display:flex;align-items:center;gap:9px;min-width:0}
+.tool .chev{color:var(--rule-3);transition:transform .18s cubic-bezier(.2,.8,.3,1);flex:none}
+.tool[aria-expanded="true"] .chev{transform:rotate(90deg)}
+.tool__n{font-weight:600;flex:none}
+.tool__p{font-family:var(--mono);font-size:.75rem;color:var(--ink-2);min-width:0;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.tool__d{margin-left:auto;font-family:var(--mono);font-size:.6875rem;color:var(--ink-3);flex:none;
+  font-variant-numeric:tabular-nums}
+.tool__body{margin-top:9px;border:1px solid var(--rule);border-radius:3px;background:var(--recess);
+  padding:9px 11px;font-family:var(--mono);font-size:.75rem;color:var(--ink-2);line-height:1.6;
+  white-space:pre-wrap;overflow-x:auto}
+.tool__body[hidden]{display:none}
+.tool__body .hl{color:var(--verm-deep)}
+.running-ev{display:flex;align-items:center;gap:8px;color:var(--teal);font-weight:600}
+
+/* steering */
+.steer{border-top:1px solid var(--rule-2);padding:13px 20px;background:var(--recess);
+  display:flex;gap:9px;align-items:center}
+.steer .note{font-size:.75rem;color:var(--ink-3);margin-top:7px}
+
+/* onglets terminal / diff / artifacts */
+.pane__tabs{display:flex;gap:2px;padding:9px 16px 0;border-bottom:1px solid var(--rule);background:var(--recess)}
+.pt{padding:7px 13px;font-size:.8125rem;color:var(--ink-2);border:1px solid transparent;border-bottom:0;
+  border-radius:3px 3px 0 0;margin-bottom:-1px;display:flex;align-items:center;gap:7px}
+.pt:hover{background:rgba(255,255,255,.6);color:var(--ink)}
+.pt[aria-selected="true"]{background:var(--sheet);border-color:var(--rule);color:var(--ink);font-weight:600}
+.pane{padding:16px 18px;flex:1;min-height:0}
+.pane[hidden]{display:none}
+
+.term{font-family:var(--mono);font-size:.75rem;line-height:1.75;color:var(--ink-2);
+  background:var(--recess);border:1px solid var(--rule);border-radius:3px;padding:12px 13px;
+  white-space:pre-wrap;overflow-x:auto;max-height:520px;overflow-y:auto}
+.term .p{color:var(--verm-deep)}
+.term .ok{color:var(--teal);font-weight:500}
+.term .warn{color:var(--amber)}
+.term .cursor{display:inline-block;width:7px;height:13px;background:var(--verm);vertical-align:-2px;
+  animation:blink 1.1s steps(1) infinite}
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.term .cursor{animation:none}}
+
+.difffile{font-family:var(--mono);font-size:.75rem;color:var(--ink-2);padding:7px 10px;
+  border:1px solid var(--rule);border-bottom:0;border-radius:3px 3px 0 0;background:var(--recess);
+  display:flex;align-items:center;gap:8px}
+.difffile .plus{color:var(--teal)}
+.difffile .minus{color:var(--danger)}
+.diff{font-family:var(--mono);font-size:.75rem;line-height:1.7;border:1px solid var(--rule);
+  border-radius:0 0 3px 3px;overflow:hidden;background:#fff}
+.diff div{padding:0 10px;white-space:pre-wrap}
+.diff .h{background:var(--recess);color:var(--ink-3)}
+.diff .a{background:rgba(27,99,80,.10);color:var(--ink)}
+.diff .d{background:rgba(160,38,23,.09);color:var(--ink)}
+.diff .c{color:var(--ink-2)}
+
+.arts li{display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:11px;padding:11px 2px;
+  border-bottom:1px solid var(--rule);align-items:center}
+.arts svg{color:var(--rule-3)}
+.arts .n{font-family:var(--mono);font-size:.8125rem;color:var(--ink)}
+.arts .d{font-size:.75rem;color:var(--ink-2);margin-top:2px}
+.arts .s{font-family:var(--mono);font-size:.75rem;color:var(--ink-3);white-space:nowrap}
+
+.skel{display:grid;gap:9px}
+.skel i{display:block;height:11px;border-radius:2px;
+  background:linear-gradient(90deg,var(--recess) 0%,var(--recess-2) 40%,var(--recess) 80%);
+  background-size:280% 100%;animation:sh 1.15s linear infinite}
+@keyframes sh{0%{background-position:120% 0}100%{background-position:-120% 0}}
+.skel i:nth-child(2){width:82%}.skel i:nth-child(3){width:64%}.skel i:nth-child(4){width:73%}
+.skel i:nth-child(5){width:47%}
+.skel__t{font-size:.75rem;color:var(--ink-3);display:flex;align-items:center;gap:8px;margin-bottom:4px}
+
+/* pied de l'espace de travail : le container et son périmètre */
+.container-band{margin-top:auto;border-top:1px solid var(--rule);background:var(--recess);padding:14px 18px 16px}
+.container-band .h{display:flex;align-items:center;gap:8px;font-size:.6875rem;font-weight:600;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+.container-band .h svg{color:var(--rule-3)}
+.container-band dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 16px;margin:10px 0 0;font-size:.75rem}
+.container-band dt{color:var(--ink-3)}
+.container-band dd{margin:0;color:var(--ink-2);font-family:var(--mono);font-size:.75rem}
+.container-band dd .deny{color:var(--danger)}
+
+.failbox{padding:18px}
+.failbox h4{margin:0 0 6px;font-family:var(--sans);font-size:1.0625rem;font-weight:600}
+.failbox .msg{font-family:var(--mono);font-size:.8125rem;color:var(--danger);background:var(--danger-wash);
+  border:1px solid #E7C3BB;border-radius:3px;padding:10px 12px;line-height:1.5}
+.failbox p{font-size:.8125rem;color:var(--ink-2);margin-top:10px;line-height:1.55;max-width:68ch}
+.failbox .act{display:flex;gap:8px;margin-top:14px}
+
+/* ====================== ÉCRAN 3 — COULOIRS ====================== */
+.axis{display:grid;grid-template-columns:172px repeat(4,minmax(0,1fr));
+  border-bottom:1px solid var(--rule-2);background:var(--recess)}
+.axis__id{padding:10px 16px;font-size:.6875rem;font-weight:600;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--ink-3);border-right:1px solid var(--rule)}
+.axis__st{padding:10px 14px;font-size:.75rem;font-weight:600;color:var(--ink-2);
+  display:flex;align-items:center;gap:8px;border-right:1px dashed var(--rule)}
+.axis__st:last-child{border-right:0}
+.axis__st .n{font-family:var(--mono);font-size:.6875rem;color:var(--ink-3);margin-left:auto}
+.axis__st svg{color:var(--rule-3)}
+
+.lane{display:grid;grid-template-columns:172px repeat(4,minmax(0,1fr));position:relative}
+.lane + .lane{border-top:1px solid var(--rule-2)}
+.lane__id{padding:18px 16px 20px;border-right:1px solid var(--rule);
+  background:linear-gradient(to right, rgba(237,231,218,.5), rgba(237,231,218,.12))}
+.lane__id h3{font-family:var(--mono);font-size:.875rem;font-weight:700;letter-spacing:-.02em}
+.lane__id .r{font-size:.75rem;color:var(--ink-2);margin-top:5px;line-height:1.4}
+.lane__id .f{margin-top:12px;display:flex;flex-direction:column;gap:5px;font-size:.6875rem;color:var(--ink-3)}
+.lane__id .f b{color:var(--ink-2);font-weight:600;font-variant-numeric:tabular-nums}
+.lane__toggle{display:flex;align-items:center;gap:6px;margin-top:12px;font-size:.6875rem;
+  color:var(--ink-3);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.lane__toggle:hover{color:var(--ink)}
+.lane__toggle .chev{transition:transform .18s cubic-bezier(.2,.8,.3,1)}
+.lane__toggle[aria-expanded="false"] .chev{transform:rotate(-90deg)}
+.cell{padding:26px 12px 16px;border-right:1px dashed var(--rule);min-width:0;position:relative}
+.cell:last-child{border-right:0}
+.cell--done{background:rgba(237,231,218,.34)}
+.lane__track{position:absolute;left:172px;right:0;top:14px;height:1px;background:var(--rule-2);pointer-events:none}
+.lane__track i{position:absolute;top:-3px;width:1px;height:7px;background:var(--rule-3)}
+.lane.is-collapsed .cell{padding:8px 12px 9px}
+.lane.is-collapsed .task{display:none}
+.lane.is-collapsed .lane__track{top:9px}
+.collapsed-note{display:none;font-size:.75rem;color:var(--ink-3);padding:2px 0}
+.lane.is-collapsed .collapsed-note{display:block}
+
+.task{position:relative;width:100%;text-align:left;display:block;border:1px solid var(--rule-2);
+  background:#fff;border-radius:3px;padding:9px 10px 9px;box-shadow:0 1px 1px rgba(46,36,22,.04);
+  transition:border-color .12s ease,box-shadow .12s ease,transform .12s ease}
+.task + .task{margin-top:9px}
+.task::before{content:"";position:absolute;left:16px;top:-13px;width:1px;height:13px;background:var(--rule-2)}
+.task + .task::before{display:none}
+.task:hover{border-color:var(--rule-3);box-shadow:0 1px 2px rgba(46,36,22,.09);transform:translateY(-1px)}
+.task[aria-pressed="true"]{border-color:var(--verm);box-shadow:0 0 0 3px rgba(176,63,27,.12)}
+.task__t{font-size:.8125rem;font-weight:500;line-height:1.35;letter-spacing:-.005em}
+.task__m{display:flex;align-items:center;gap:7px;margin-top:7px;flex-wrap:wrap}
+.task--run{border-color:#BFD5CC}
+.task--fail{border-color:#E7C3BB}
+.task--gate{border-color:#E2CD9C}
+.task--done .task__t{color:var(--ink-2)}
+.gatemark{position:absolute;right:-1px;top:-1px;bottom:-1px;width:16px;
+  background:repeating-linear-gradient(135deg, rgba(192,138,18,.22) 0 4px, transparent 4px 9px);
+  border-left:1px solid #E2CD9C;border-radius:0 3px 3px 0;display:flex;align-items:center;justify-content:center}
+.gatemark svg{width:11px;height:11px;color:var(--amber)}
+.task--gate .task__t,.task--gate .task__m,
+.has-mark .task__t,.has-mark .task__m{padding-right:20px}
+.gatemark--open{background:repeating-linear-gradient(135deg, rgba(30,26,21,.10) 0 4px, transparent 4px 9px);
+  border-left-color:var(--rule-2)}
+.gatemark--open svg{color:var(--ink-3)}
+
+.lane--free .cell{display:flex;align-items:center}
+.freelane{border:1px dashed var(--rule-2);border-radius:3px;padding:12px 14px;width:100%;
+  background:repeating-linear-gradient(135deg, rgba(30,26,21,.022) 0 8px, transparent 8px 18px)}
+.freelane p{font-size:.8125rem;color:var(--ink-2);line-height:1.45}
+
+.inspector{padding:20px 20px 24px}
+.inspector h3{font-family:var(--sans);font-size:1.0625rem;font-weight:600;letter-spacing:-.015em;line-height:1.25}
+.inspector .k{font-size:.6875rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-top:18px}
+.inspector .v{font-size:.8125rem;color:var(--ink);margin-top:5px;line-height:1.5}
+.inspector .row{display:flex;align-items:center;gap:8px;margin-top:5px;flex-wrap:wrap}
+.inspector .empty{font-size:.8125rem;color:var(--ink-3);line-height:1.5;max-width:34ch}
+.legend{display:flex;gap:18px;flex-wrap:wrap;padding:12px 20px;border-top:1px solid var(--rule);
+  background:var(--recess);font-size:.75rem;color:var(--ink-2)}
+.legend span{display:flex;align-items:center;gap:7px}
+.legend .sq{width:13px;height:13px;border:1px solid #E2CD9C;border-radius:2px;
+  background:repeating-linear-gradient(135deg, rgba(192,138,18,.22) 0 4px, transparent 4px 9px)}
+.legend .sq2{width:13px;height:13px;border:1px solid var(--rule-2);border-radius:2px;
+  background:repeating-linear-gradient(135deg, rgba(30,26,21,.10) 0 4px, transparent 4px 9px)}
+
+/* ==================== ÉCRAN 4 — GOAL EN GRAPHE ==================== */
+.goalgrid{display:grid;grid-template-columns:minmax(0,1fr) 316px}
+.goal__main{border-right:1px solid var(--rule);min-width:0}
+.goal__head{padding:18px 22px 16px;border-bottom:1px solid var(--rule)}
+.goal__head h2{font-size:1.5rem;font-weight:600;letter-spacing:-.022em}
+.goal__head p{margin-top:6px;font-size:.875rem;color:var(--ink-2);max-width:70ch}
+.goal__headrow{display:flex;align-items:center;gap:12px}
+.graphwrap{padding:8px 14px 4px}
+.graph{width:100%;height:auto;display:block;font-family:var(--sans)}
+.graph text{fill:var(--ink)}
+.gcol{font-size:10.5px;font-weight:600;letter-spacing:.11em;text-transform:uppercase;fill:var(--ink-3)}
+.gnode{cursor:pointer}
+.gnode .box{fill:#fff;stroke:var(--rule-2);stroke-width:1;rx:4}
+.gnode .ttl{font-size:14.5px;font-weight:600;letter-spacing:-.01em;fill:var(--ink)}
+.gnode .ag{font-family:'JetBrains Mono',monospace;font-size:11.5px;fill:var(--ink-2)}
+.gnode .st{font-size:11px;font-weight:600;letter-spacing:.02em}
+.gnode .stbg{rx:2;stroke-width:1}
+.gnode--done .box{fill:var(--recess);stroke:var(--rule-2)}
+.gnode--done .ttl{fill:var(--ink-2)}
+.gnode--done .stbg{fill:var(--recess-2);stroke:var(--rule-2)}
+.gnode--done .st{fill:var(--ink-2)}
+.gnode--run .box{stroke:var(--teal);stroke-width:1.6}
+.gnode--run .stbg{fill:var(--teal-wash);stroke:#BFD5CC}
+.gnode--run .st{fill:var(--teal)}
+.gnode--wait .box{stroke-dasharray:4 3;stroke:var(--rule-3)}
+.gnode--wait .stbg{fill:var(--recess);stroke:var(--rule-2)}
+.gnode--wait .st{fill:var(--ink-3)}
+.gnode--gate .box{stroke:#D7B463}
+.gnode:hover .box,.gnode:focus-visible .box{stroke:var(--verm);stroke-width:1.8}
+.gnode:focus{outline:none}
+.gnode:focus-visible .halo{stroke:rgba(176,63,27,.35);stroke-width:3;fill:none;rx:6}
+.gedge{fill:none;stroke:var(--rule-3);stroke-width:1.4;marker-end:url(#arrow)}
+.gedge--crit{stroke:var(--verm);stroke-width:2.2;marker-end:url(#arrowCrit)}
+.gdod{cursor:default}
+.gdod .pill{fill:var(--sheet);stroke:var(--rule-2);stroke-width:1;rx:11}
+.gdod .lbl{font-size:11.5px;fill:var(--ink-2)}
+.gdod--ok .pill{fill:var(--teal-wash);stroke:#BFD5CC}
+.gdod--ok .lbl{fill:var(--teal)}
+.gdod .link{stroke:var(--rule-2);stroke-width:1;stroke-dasharray:2 3}
+.graph.is-focused .gnode:not(.on),.graph.is-focused .gdod:not(.on){opacity:.28}
+.graph.is-focused .gedge:not(.on){opacity:.16}
+.gnode,.gdod,.gedge{transition:opacity .16s ease}
+.graph.is-focused .gedge.on{stroke:var(--verm);stroke-width:2.4;marker-end:url(#arrowCrit)}
+
+.rails{padding:20px 20px 24px}
+.rail{padding:13px 0;border-bottom:1px solid var(--rule)}
+.rail__top{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.rail__k{font-size:.75rem;color:var(--ink-2)}
+.rail__v{font-family:var(--mono);font-size:.8125rem;font-weight:500;font-variant-numeric:tabular-nums}
+.meter{margin-top:8px;height:5px;background:var(--recess-2);border-radius:99px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--teal);border-radius:99px}
+.meter i.warn{background:var(--amber-mark)}
+.rail__n{margin-top:6px;font-size:.75rem;color:var(--ink-3);line-height:1.45}
+.dod{margin-top:6px}
+.dod li{display:grid;grid-template-columns:18px minmax(0,1fr);gap:9px;padding:9px 0;
+  border-bottom:1px solid var(--rule);align-items:start;font-size:.8125rem;line-height:1.4}
+.dod li svg{margin-top:2px}
+.dod .ok{color:var(--teal)}
+.dod .todo{color:var(--rule-3)}
+.dod .txt{color:var(--ink)}
+.dod .ok ~ .txt{color:var(--ink-2)}
+.dod .src{display:block;font-size:.6875rem;color:var(--ink-3);margin-top:3px}
+.dod li.is-lit{background:var(--verm-wash)}
+.killzone{margin-top:20px;padding-top:16px;border-top:1px solid var(--rule-2)}
+.killzone p{font-size:.75rem;color:var(--ink-3);margin-top:8px;line-height:1.45;max-width:38ch}
+
+.inspect-node{margin:0 20px 18px;border:1px solid var(--rule-2);border-radius:4px;background:var(--recess);
+  padding:13px 15px}
+.inspect-node h4{margin:0;font-size:.875rem;font-weight:600}
+.inspect-node .g{display:grid;grid-template-columns:auto minmax(0,1fr);gap:5px 14px;margin-top:10px;font-size:.75rem}
+.inspect-node dt{color:var(--ink-3)}
+.inspect-node dd{margin:0;color:var(--ink)}
+
+/* ===================== RÉVEIL DU GRAPHE (le seul mouvement authored) */
+.graph.is-armed .gedge{stroke-dasharray:var(--len);stroke-dashoffset:var(--len)}
+.graph.is-armed .gnode,.graph.is-armed .gdod{opacity:0;transform:translateY(7px)}
+.graph.play .gedge{animation:draw .82s cubic-bezier(.16,1,.3,1) forwards}
+.graph.play .gnode{animation:rise .5s cubic-bezier(.16,1,.3,1) forwards}
+.graph.play .gdod{animation:rise .5s cubic-bezier(.16,1,.3,1) forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes rise{to{opacity:1;transform:translateY(0)}}
+.gnode,.gdod{transform-box:fill-box;transform-origin:center}
+@media (prefers-reduced-motion:reduce){
+  .graph.is-armed .gedge{stroke-dashoffset:0}
+  .graph.is-armed .gnode,.graph.is-armed .gdod{opacity:1;transform:none}
+  .graph.play .gedge,.graph.play .gnode,.graph.play .gdod{animation:none}
+}
+
+/* ========================= RESPONSIVE ========================= */
+.narrow-note{display:none}
+@media (max-width:1180px){
+  .bench{grid-template-columns:210px minmax(0,1fr) 260px}
+  .sess__grid{grid-template-columns:1fr}
+  .sess__left{border-right:0;border-bottom:1px solid var(--rule)}
+  .goalgrid{grid-template-columns:1fr}
+  .goal__main{border-right:0;border-bottom:1px solid var(--rule)}
+}
+@media (max-width:900px){
+  .bench{grid-template-columns:1fr}
+  .bench__plate{border-right:0;border-bottom:1px solid var(--rule)}
+  .bench__rights{border-left:0;border-top:1px solid var(--rule)}
+}
+@media (max-width:700px){
+  .wrap{padding:0 16px}
+  .brief__in{grid-template-columns:1fr;gap:22px;padding:24px 16px}
+  .brief h1{font-size:2rem}
+  .tabs__in{padding:0 16px;overflow-x:auto}
+  .tabs__meta{display:none}
+  .narrow-note{display:flex;align-items:flex-start;gap:10px;padding:14px 16px;border:1px solid var(--rule-2);
+    border-radius:4px;background:var(--amber-wash);font-size:.8125rem;color:var(--ink);line-height:1.5;
+    margin-bottom:18px}
+  .narrow-note svg{color:var(--amber);flex:none;margin-top:2px}
+  /* sous 700 px, seul le triage reste utilisable */
+  #screen-poste .sheet,#screen-couloirs .sheet,#screen-goal .sheet{display:none}
+  .bench__plate,.bench__rights,.bench__body .subhead,.bench__body .qlist,
+  .bench__body .deliv,.bench__body .hud,.free__alt{display:none}
+  .bench__body{padding:16px}
+  #bench-writer{display:none}
+  .screenhead{flex-direction:column;align-items:flex-start;gap:10px}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<g id="i-branch"><circle cx="6" cy="6" r="2.4"/><circle cx="6" cy="18" r="2.4"/><circle cx="18" cy="8" r="2.4"/><path d="M6 8.4v7.2"/><path d="M18 10.4c0 3.6-3 5-6 5.3"/><path d="M8.4 6.6h5"/></g>
+<g id="i-folder"><path d="M3 7.5a2 2 0 0 1 2-2h3.6l1.8 2.2H19a2 2 0 0 1 2 2v7.8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></g>
+<g id="i-plug"><path d="M9 3v5M15 3v5"/><path d="M6 8h12v3a6 6 0 0 1-12 0z"/><path d="M12 17v4"/></g>
+<g id="i-globe"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17"/><path d="M12 3.5c2.4 2.6 3.4 5.6 3.4 8.5s-1 5.9-3.4 8.5c-2.4-2.6-3.4-5.6-3.4-8.5S9.6 6.1 12 3.5z"/></g>
+<g id="i-globe-off"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17"/><path d="M12 3.5c2.4 2.6 3.4 5.6 3.4 8.5s-1 5.9-3.4 8.5c-2.4-2.6-3.4-5.6-3.4-8.5S9.6 6.1 12 3.5z"/><path d="M5 5l14 14"/></g>
+<g id="i-clock"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5.2l3.2 2"/></g>
+<g id="i-check"><path d="M4.5 12.5l5 5 10-11"/></g>
+<g id="i-circle"><circle cx="12" cy="12" r="7.5"/></g>
+<g id="i-alert"><path d="M12 4.2 2.8 20h18.4z"/><path d="M12 10.2v4"/><path d="M12 17.1h.02"/></g>
+<g id="i-chev"><path d="M5.5 9l6.5 6.5L18.5 9"/></g>
+<g id="i-chevr"><path d="M9 5.5 15.5 12 9 18.5"/></g>
+<g id="i-arrow"><path d="M4 12h15"/><path d="M13.5 6.2 19.6 12l-6.1 5.8"/></g>
+<g id="i-stop"><rect x="6.5" y="6.5" width="11" height="11" rx="1.6"/></g>
+<g id="i-send"><path d="M20.6 3.4 3.4 10.3l7.1 2.8 2.8 7.1z"/><path d="M10.5 13.1 20.6 3.4"/></g>
+<g id="i-plus"><path d="M12 5v14M5 12h14"/></g>
+<g id="i-ask"><path d="M20.6 12.5c0 3.9-3.9 7.1-8.6 7.1-1.2 0-2.3-.2-3.4-.6l-5 1.3 1.4-4.2c-.9-1.1-1.5-2.3-1.5-3.6 0-3.9 3.9-7.1 8.5-7.1s8.6 3.2 8.6 7.1z"/><path d="M9.9 10.5a2.2 2.2 0 0 1 4.3.7c0 1.4-2.1 1.8-2.1 2.9"/><path d="M12 16.2h.02"/></g>
+<g id="i-terminal"><rect x="2.8" y="4.5" width="18.4" height="15" rx="2"/><path d="M7 9.6l3 2.6-3 2.6"/><path d="M12.6 15.1h4.6"/></g>
+<g id="i-diff"><path d="M6.2 4.2v6.3M3.1 7.4h6.2"/><path d="M14.7 16.7h6.2"/><path d="M20.4 3.6 3.6 20.4"/></g>
+<g id="i-doc"><path d="M13.5 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9z"/><path d="M13.5 3.5V9H19"/></g>
+<g id="i-gate"><path d="M4.2 3.8v16.4"/><path d="M4.2 7.6h15.6v4.6H4.2"/><path d="M9 7.6 7 12.2M13 7.6l-2 4.6M17 7.6l-2 4.6"/></g>
+<g id="i-cost"><path d="M3.6 11.2V4.9a1.3 1.3 0 0 1 1.3-1.3h6.3c.35 0 .68.14.92.38l7.9 7.9a1.3 1.3 0 0 1 0 1.84l-6.3 6.3a1.3 1.3 0 0 1-1.84 0l-7.9-7.9a1.3 1.3 0 0 1-.38-.92z"/><circle cx="7.9" cy="7.9" r="1.15"/></g>
+<g id="i-flow"><rect x="2.6" y="3.6" width="6.4" height="5" rx="1.2"/><rect x="15" y="3.6" width="6.4" height="5" rx="1.2"/><rect x="15" y="15.4" width="6.4" height="5" rx="1.2"/><path d="M9 6.1h6"/><path d="M9 6.1h3v11.8h3"/></g>
+<g id="i-lanes"><path d="M3 6.5h18M3 12h18M3 17.5h18"/><path d="M8 4.6v3.8M13.5 10.1v3.8M18 15.6v3.8"/></g>
+<g id="i-bench"><path d="M2.8 9.6h18.4"/><path d="M5.6 9.6V20M18.4 9.6V20"/><path d="M2.8 9.6 12 4.1l9.2 5.5"/></g>
+<g id="i-poste"><rect x="2.8" y="4.5" width="18.4" height="15" rx="2"/><path d="M2.8 9.1h18.4"/><path d="M5.8 6.8h.02M8.6 6.8h.02"/></g>
+<g id="i-x"><path d="M6 6l12 12M18 6 6 18"/></g>
+<g id="i-restart"><path d="M20.2 12a8.2 8.2 0 1 1-2.7-6.1"/><path d="M20.2 4.1v4.7h-4.7"/></g>
+<g id="i-lock"><rect x="4.6" y="10.4" width="14.8" height="9.6" rx="2"/><path d="M8 10.4V7.8a4 4 0 0 1 8 0v2.6"/></g>
+<g id="i-eye"><path d="M2.6 12S6.1 5.9 12 5.9 21.4 12 21.4 12 17.9 18.1 12 18.1 2.6 12 2.6 12z"/><circle cx="12" cy="12" r="2.8"/></g>
+<g id="i-shield"><path d="M12 3.2 4.6 6.2v5.4c0 4.4 3.1 8.2 7.4 9.2 4.3-1 7.4-4.8 7.4-9.2V6.2z"/></g>
+<g id="i-info"><circle cx="12" cy="12" r="8.5"/><path d="M12 11.2v5"/><path d="M12 7.9h.02"/></g>
+<g id="i-cpu"><rect x="6.6" y="6.6" width="10.8" height="10.8" rx="2"/><path d="M9.6 3.6v3M14.4 3.6v3M9.6 17.4v3M14.4 17.4v3M3.6 9.6h3M3.6 14.4h3M17.4 9.6h3M17.4 14.4h3"/></g>
+<g id="i-play"><path d="M8 5.4 18.6 12 8 18.6z"/></g>
+<g id="i-target"><circle cx="12" cy="12" r="8.4"/><circle cx="12" cy="12" r="3.6"/></g>
+</defs></svg>
+
+<header class="brief">
+  <div class="brief__in">
+    <div>
+      <h1>Atelier<span class="tag">Legion · direction UI/UX</span></h1>
+      <p class="thesis">L'objet central n'est ni la tâche ni le projet : c'est <strong>l'agent</strong>. L'écran d'accueil est le plan de travail de l'équipe — un poste par agent, et sur chaque poste ce qu'il fait à cet instant, ce qui le bloque, <strong>ce qu'il a le droit de toucher</strong>, ce qu'il coûte et ce qu'il a livré. On confie un travail à un agent ; on ne l'empile pas dans une colonne.</p>
+    </div>
+    <ul class="costs">
+      <li><svg class="ic ic-14" viewBox="0 0 24 24"><use href="#i-flow"/></svg><span><b>Il faut construire la vue graphe.</b> L'<span class="mono">agent-flow</span> du backlog devient obligatoire : layout de DAG, calcul du chemin critique, rendu et interactions SVG. C'est le poste de coût principal de cette direction, et il ne se dégrade pas gracieusement — un graphe à moitié fait est pire qu'une liste.</span></li>
+      <li><svg class="ic ic-14" viewBox="0 0 24 24"><use href="#i-bench"/></svg><span><b>Le modèle de navigation change de racine.</b> On passe de <span class="mono">/projet/:id/board</span> à <span class="mono">/agent/:name</span> : routes, deep links, notifications Discord et cible des liens d'inbox sont tous à réécrire. Les capacités quittent la page de config pour devenir une surface de premier plan.</span></li>
+      <li><svg class="ic ic-14" viewBox="0 0 24 24"><use href="#i-alert"/></svg><span><b>On perd la vue par statut.</b> Plus de coup d'œil « combien de tâches en revue, tous agents confondus ». Il faut le réintroduire comme filtre secondaire sur les couloirs, sinon la revue de fin de semaine devient plus lente qu'aujourd'hui.</span></li>
+    </ul>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Écrans de la direction">
+  <div class="tabs__in" role="tablist">
+    <button class="tab" role="tab" id="tab-atelier" aria-controls="screen-atelier" aria-selected="true" data-screen="atelier">
+      <svg class="ic" viewBox="0 0 24 24"><use href="#i-bench"/></svg>Atelier<span class="tab__n">4</span></button>
+    <button class="tab" role="tab" id="tab-poste" aria-controls="screen-poste" aria-selected="false" data-screen="poste" tabindex="-1">
+      <svg class="ic" viewBox="0 0 24 24"><use href="#i-poste"/></svg>Poste ouvert · <span class="mono">senior-dev</span></button>
+    <button class="tab" role="tab" id="tab-couloirs" aria-controls="screen-couloirs" aria-selected="false" data-screen="couloirs" tabindex="-1">
+      <svg class="ic" viewBox="0 0 24 24"><use href="#i-lanes"/></svg>Couloirs<span class="tab__n">12</span></button>
+    <button class="tab" role="tab" id="tab-goal" aria-controls="screen-goal" aria-selected="false" data-screen="goal" tabindex="-1">
+      <svg class="ic" viewBox="0 0 24 24"><use href="#i-flow"/></svg>Goal en graphe</button>
+    <div class="tabs__spacer"></div>
+    <div class="tabs__meta">
+      <span><span class="dot"></span>3 postes en activité</span>
+      <span class="mono">Démo (mock) · HNQJKv0RnO</span>
+    </div>
+  </div>
+</nav>
+
+<main class="wrap">
+<div class="narrow-note"><svg class="ic" viewBox="0 0 24 24"><use href="#i-info"/></svg>
+  <span>Sous 700 px, seul le triage est utilisable : questions, gates et échecs. L'atelier complet, la session, les couloirs et le graphe demandent une largeur de bureau — ils sont masqués plutôt que compressés.</span></div>
+
+<!-- ==================== ÉCRAN 1 — ATELIER ==================== -->
+<section class="screen is-on" id="screen-atelier" role="tabpanel" aria-labelledby="tab-atelier">
+  <div class="screenhead">
+    <div>
+      <h2>Plan de travail</h2>
+      <p>Quatre postes. Ce que chacun fait maintenant, ce qui l'attend, ce qu'il a le droit de toucher, ce qu'il a coûté. Les questions et les gates sont posés sur le poste de l'agent concerné — il n'y a pas de file séparée à dépiler.</p>
+    </div>
+    <div class="screenhead__aside">
+      <span><b>2</b> questions</span><span class="vr"></span>
+      <span><b>1</b> gate</span><span class="vr"></span>
+      <span><b>1</b> échec</span><span class="vr"></span>
+      <span class="money"><b>$6.77</b> cumulés · 8 sessions</span>
+    </div>
+  </div>
+
+  <div class="sheet">
+
+    <!-- ---------- POSTE 1 : senior-dev — chargé, tout est ici ---------- -->
+    <article class="bench" id="bench-senior-dev">
+      <div class="bench__plate">
+        <div class="plate__name"><h3>senior-dev</h3></div>
+        <p class="plate__role">Implémente et corrige</p>
+        <div class="plate__state"><span class="state state--run"><span class="bullet"></span>en session</span></div>
+        <dl class="plate__facts">
+          <div><dt>modèle</dt><dd class="mono">sonnet-4-5</dd></div>
+          <div><dt>sessions ouvertes</dt><dd>2</dd></div>
+          <div><dt>en file</dt><dd>3 tâches</dd></div>
+          <div><dt>coût cumulé</dt><dd class="money">$4.99</dd></div>
+        </dl>
+      </div>
+
+      <div class="bench__body">
+        <div class="hud">
+          <div class="hud__top">
+            <span class="state state--run"><span class="bullet"></span>running</span>
+            <span class="hud__task">Ajouter la recherche par référence de commande</span>
+            <span class="hud__spacer"></span>
+            <span class="meta money">$0.11</span>
+            <button class="btn btn--sm" data-goto="poste">Ouvrir le poste<svg class="ic ic-14" viewBox="0 0 24 24"><use href="#i-arrow"/></svg></button>
+          </div>
+          <div class="hud__doing">
+            <span class="hud__verb">en train de</span>
+            <span class="hud__what"><svg class="ic ic-14" viewBox="0 0 24 24"><use href="#i-eye"/></svg>Read <span>/repos/api/src/orders/search.ts</span></span>
+            <span class="hud__since">3,8 s · session ouverte depuis 14 min</span>
+          </div>
+          <div class="hud__bar"><i></i></div>
+        </div>
+
+        <div class="subhead">Vous attendez sur ce poste <span class="cnt">3</span></div>
+
+        <div class="att att--gate">
+          <svg class="ic ic-18 att__icon" viewBox="0 0 24 24"><use href="#i-gate"/></svg>
+          <div class="att__head">
+            <span class="att__title">Refonte du tunnel de paiement Stripe Checkout</span>
+            <span class="state state--wait"><span class="bullet"></span>gate d'approbation</span>
+          </div>
+          <p class="att__sub">Travail terminé, branche <span class="pathchip">legion/checkout</span> · 7 fichiers · commit <span class="pathchip">5f0be31</span> · $2.87. Rien ne part en revue tant que vous n'avez pas ouvert la porte.</p>
+          <div class="att__act">
+            <button class="btn btn--primary btn--sm" data-goto="poste">Relire puis approuver</button>
+            <button class="btn btn--sm">Demander des changements</button>
+          </div>
+        </div>
+
+        <div class="att att--ask" data-ask="pdf">
+          <div class="att__head">
+            <svg class="ic ic-18" viewBox="0 0 24 24" style="color:var(--ink-3)"><use href="#i-ask"/></svg>
+            <span class="att__title">Export PDF des rapports mensuels</span>
+            <span class="state state--wait"><span class="bullet"></span>session en pause · 26 min</span>
+          </div>
+          <p class="att__q">Pagination du PDF d'export : une page par commande (plus lisible, fichier plus lourd) ou un tableau continu (compact) ?</p>
+          <div class="att__act">
+            <button class="btn btn--sm js-answer" data-a="Une page par commande">Une page par commande</button>
+            <button class="btn btn--sm js-answer" data-a="Tableau continu">Tableau continu</button>
+            <div class="field" style="max-width:280px"><input type="text" placeholder="ou répondre en texte libre…" aria-label="Réponse libre à senior-dev"></div>
+          </div>
+        </div>
+
+        <div class="att att--fail">
+          <svg class="ic ic-18 att__icon" viewBox="0 0 24 24"><use href="#i-alert"/></svg>
+          <div class="att__head">
+            <span class="att__title">Générer les factures PDF en masse</span>
+            <span class="state state--fail"><span class="bullet"></span>session échouée</span>
+          </div>
+          <p class="att__err"><span style="opacity:.75">run_error&nbsp;·&nbsp;</span>Timeout after 600s — heap out of memory at 512 invoices</p>
+          <div class="att__act">
+            <button class="btn btn--sm" data-goto="poste">Voir le journal</button>
+            <button class="btn btn--sm">Relancer par lots de 128</button>
+          </div>
+        </div>
+
+        <div class="subhead">File du poste <span class="cnt">3</span></div>
+        <ul class="qlist">
+          <li><span class="rank">1</span><span class="t">Corriger le calcul de TVA sur les commandes UE</span>
+            <span class="r"><span class="cx">high</span><span class="meta">priorité haute</span></span></li>
+          <li><span class="rank">2</span><span class="t">Implémenter · Programme de fidélité</span>
+            <span class="r"><span class="cx">med</span><span class="meta">étape 2 du goal</span></span></li>
+          <li><span class="rank">3</span><span class="t">Migrer les tests front vers Vitest</span>
+            <span class="r"><span class="cx">med</span><span class="meta">en file</span></span></li>
+        </ul>
+
+        <div class="subhead">Dernières livraisons</div>
+        <ul class="deliv">
+          <li><svg class="ic" viewBox="0 0 24 24"><use href="#i-branch"/></svg>
+            <div><div class="t">Corriger le webhook Stripe qui doublonnait les commandes</div>
+              <div class="m"><span class="mono">api · 4 fichiers · a41c9d2</span><span>il y a 2 j</span><span class="money">$1.24</span></div></div></li>
+          <li><svg class="ic" viewBox="0 0 24 24"><use href="#i-doc"/></svg>
+            <div><div class="t">rapport-migration-checkout.md</div>
+              <div class="m"><span class="mono">/artifacts/senior-dev</span><span>il y a 5 h</span><span>11 Ko</span></div></div></li>
+        </ul>
+      </div>
+
+      <div class="bench__rights">
+        <button class="rights__head js-rights" aria-expanded="true" aria-controls="rights-senior-dev">
+          <svg class="ic ic-14" viewBox="0 0 24 24"><use href="#i-shield"/></svg>Droits accordés
+          <svg class="ic ic-14 chev" viewBox="0 0 24 24"><use href="#i-chev"/></svg></button>
+        <div class="rights__body" id="rights-senior-dev">
+          <div class="rg"><svg class="ic" viewBox="0 0 24 24"><use href="#i-branch"/></svg>
+            <div><div class="rg__k">Repos</div><div class="rg__v">
+              <span class="perm perm--rw"><b>rw</b>front</span><span class="perm perm--r"><b>r</b>api</span></div></div></div>
+          <div class="rg"><svg class="ic" viewBox="0 0 24 24"><use href="#i-folder"/></svg>
+            <div><div class="rg__k">Dossiers en écriture</div><div class="rg__v">
+              <span class="perm">/repos/front/src/checkout</span><span class="perm">/artifacts/senior-dev</span></div></div></div>
+          <div class="rg"><svg class="ic" viewBox="0 0 24 24"><use href="#i-plug"/></svg>
+            <div><div class="rg__k">MCP</div><div class="rg__v">
+              <span class="perm">linear <b style="background:var(--verm-wash);color:var(--verm-deep)">rw</b></span>
+              <span class="perm">stripe-docs <b style="background:var(--recess-2);color:var(--ink-2)">r</b></span></div></div></div>
+          <div class="rg"><svg class="ic" viewBox="0 0 24 24"><use href="#i-globe"/></svg>
+            <div><div class="rg__k">Réseau</div><div class="rg__v">
+              <span class="perm perm--net">limité · 2 hôtes</span><span class="perm">api.stripe.com</span><span class="perm">registry.npmjs.org</span></div></div></div>
+          <div class="rg"><svg class="ic" viewBox="0 0 24 24"><use href="#i-cpu"/></svg>
+            <div><div class="rg__k">Skills</div><div class="rg__v">
+              <span class="perm">pdf-export</span></div></div></div>
+        </div>
+        <div class="rights__cost"><span>coût cumulé · 5 sessions</span><b class="money">$4.99</b></div>
+      </div>
+    </article>
+
+    <!-- ---------- POSTE 2 : spec — une seule chose en cours ---------- -->
+    <article class="bench" id="bench-spec">
+      <div class="bench__plate">
+        <div class="plate__name"><h3>spec</h3></div>
+        <p class="plate__role">Écrit des specs approuvables</p>
+        <div class="plate__state"><span class="state state--run"><span class="bullet"></span>commit en cours</span></div>
+        <dl class="plate__facts">
+          <div><dt>modèle</dt><dd class="mono">opus-4-5</dd></div>
+          <div><dt>sessions ouvertes</dt><dd>1</dd></div>
+          <div><dt>en file</dt><dd>aucune</dd></div>
+          <div><dt>coût cumulé</dt><dd class="money">$1.74</dd></div>
+        </dl>
+      </div>
+
+      <div class="bench__body">
+        <div class="hud">
+          <div class="hud__top">
+            <span class="state state--run"><span class="bullet"></span>committing</span>
+            <span class="hud__task">Spec : notifications de livraison</span>
+            <span class="hud__spacer"></span>
+            <span class="meta money">$0.96</span>
+            <button class="btn btn--sm" data-goto="poste">Ouvrir le poste<svg class="ic ic-14" viewBox="0 0 24 24"><use href="#i-arrow"/></svg></button>
+          </div>
+          <div class="hud__doing">
+            <span class="hud__verb">en train de</span>
+            <span class="hud__what"><svg class="ic ic-14" viewBox="0 0 24 24"><use href="#i-doc"/></svg>Write <span>/agents/spec/spec.md</span></span>
+            <span class="hud__since">1,2 s · session ouverte depuis 41 min</span>
+          </div>
+          <div class="hud__bar"><i></i></div>
+        </div>
+
+        <div class="subhead">Vous attendez sur ce poste <span class="cnt">1</span></div>
+        <div class="att att--ask" data-ask="sms">
+          <div class="att__head">
+            <svg class="ic ic-18" viewBox="0 0 24 24" style="color:var(--ink-3)"><use href="#i-ask"/></svg>
+            <span class="att__title">Spec : notifications de livraison</span>
+            <span class="state state--wait"><span class="bullet"></span>session en pause · 8 min</span>
+          </div>
+          <p class="att__q">Pour les notifications de livraison : on notifie aussi par SMS, ou email seulement pour la v1 ?</p>
+          <div class="att__act">
+            <button class="btn btn--sm js-answer" data-a="Email seulement pour la v1">Email seulement pour la v1</button>
+            <button class="btn btn--sm js-answer" data-a="Email + SMS">Email + SMS</button>
+            <div class="field" style="max-width:280px"><input type="text" placeholder="ou répondre en texte libre…" aria-label="Réponse libre à spec"></div>
+          </div>
+        </div>
+
+        <div class="subhead">Dernières livraisons</div>
+        <ul class="deliv">
+          <li><svg class="ic" viewBox="0 0 24 24"><use href="#i-doc"/></svg>
+            <div><div class="t">Spécifier · Programme de fidélité</div>
+              <div class="m"><span class="mono">/agents/spec/spec.md</span><span>approuvée au gate</span><span class="money">$0.78</span></div></div></li>
+          <li><svg class="ic" viewBox="0 0 24 24"><use href="#i-target"/></svg>
+            <div><div class="t">Auditer le flux de paiement existant</div>
+              <div class="m"><span>étape 1 du goal « Fiabiliser le tunnel de paiement »</span><span>terminée</span></div></div></li>
+        </ul>
+      </div>
+
+      <div class="bench__rights">
+        <button class="rights__head js-rights" aria-expanded="false" aria-controls="rights-spec">
+          <svg class="ic ic-14" viewBox="0 0 24 24"><use href="#i-shield"/></svg>Droits accordés
+          <svg class="ic ic-14 chev" viewBox="0 0 24 24"><use href="#i-chev"/></svg></button>
+        <p class="rights__sum">Aucun repo. Écrit dans 2 dossiers, lit Linear, sort sur 1 hôte. <button class="btn btn--quiet btn--sm js-rights-open" style="padding:0;height:auto;text-decoration:underline;text-underline-offset:3px">Tout voir</button></p>
+        <div class="rights__body" id="rights-spec" hidden>
+          <div class="rg"><svg class="ic" viewBox="0 0 24 24"><use href="#i-branch"/></svg>
+            <div><div class="rg__k">Repos</div><div class="rg__v"><span class="perm perm--none">aucun repo monté</span></div></div></div>
+          <div class="rg"><svg class="ic" viewBox="0 0 24 24"><use href="#i-folder"/></svg>
+            <div><div class="rg__k">Dossiers en écriture</div><div class="rg__v">
+              <span class="perm">/agents/spec</span><span class="perm">/specs</span></div></div></div>
+          <div class="rg"><svg class="ic" viewBox="0 0 24 24"><use href="#i-plug"/></svg>
+            <div><div class="rg__k">MCP</div><div class="rg__v">
+              <span class="perm">linear <b style="background:var(--recess-2);color:var(--ink-2)">r</b></span></div></div></div>
+          <div class="rg"><svg class="ic" viewBox="0 0 24 24"><use href="#i-globe"/></svg>
+            <div><div class="rg__k">Réseau</div><div class="rg__v">
+              <span class="perm perm--net">limité · 1 hôte</span><span class="perm">docs.stripe.com</span></div></div></div>
+        </div>
+        <div class="rights__cost"><span>coût cumulé · 2 sessions</span><b class="money">$1.74</b></div>
+      </div>
+    </article>
+
+    <!-- ---------- POSTE 3 : review-coordinator — libre ---------- -->
+    <article class="bench" id="bench-review">
+      <div class="bench__plate">
+        <div class="plate__name"><h3>review-coordinator</h3></div>
+        <p class="plate__role">Coordonne les reviews, consolide must-fix / should-fix</p>
+        <div class="plate__state"><span class="state state--idle"><span class="bullet"></span>poste libre</span></div>
+        <dl class="plate__facts">
+          <div><dt>modèle</dt><dd class="mono">défaut projet</dd></div>
+          <div><dt>sessions ouvertes</dt><dd>0</dd></div>
+          <div><dt>dernière activité</dt><dd>jamais</dd></div>
+          <div><dt>coût cumulé</dt><dd class="money">$0.00</dd></div>
+        </dl>
+      </div>
+
+      <div class="bench__body">
+        <div class="free">
+          <h4>Personne à ce poste depuis l'ouverture du projet</h4>
+          <p>L'agent existe, son container n'a jamais été lancé. Il est le seul à pouvoir consolider les must-fix — le travail en revue s'accumule sans lui.</p>
+          <div class="free__form">
+            <div class="field"><svg class="ic ic-14" viewBox="0 0 24 24" style="color:var(--ink-3)"><use href="#i-plus"/></svg>
+              <input type="text" id="confier-input" placeholder="Décrire la tâche à lui confier…" aria-label="Tâche à confier à review-coordinator"></div>
+            <button class="btn btn--primary js-confier">Lui confier</button>
+          </div>
+          <div class="free__alt">
+            <button class="btn" aria-disabled="true">Reprendre l'étape 4 du goal</button>
+            <span class="btn__why">bloquée : « Migrer vers Checkout hébergé » est encore en revue</span>
+          </div>
+          <div class="free__ok" id="confier-ok" hidden><svg class="ic ic-14" viewBox="0 0 24 24"><use href="#i-check"/></svg><span></span></div>
+        </div>
+      </div>
+
+      <div class="bench__rights">
+        <button class="rights__head js-rights" aria-expanded="false" aria-controls="rights-review">
+          <svg class="ic ic-14" viewBox="0 0 24 24"><use href="#i-shield"/></svg>Droits accordés
+          <svg class="ic ic-14 chev" viewBox="0 0 24 24"><use href="#i-chev"/></svg></button>
+        <p class="rights__sum">Le poste le plus fermé de l'atelier : lecture seule partout, réseau coupé. Il lit du code, il n'en écrit pas.</p>
+        <div class="rights__body" id="rights-review" hidden>
+          <div class="rg"><svg class="ic" viewBox="0 0 24 24"><use href="#i-branch"/></svg>
+            <div><div class="rg__k">Repos</div><div class="rg__v">
+              <span class="perm perm--r"><b>r</b>front</span><span class="perm perm--r"><b>r</b>api</span></div></div></div>
+          <div class="rg"><svg class="ic" viewBox="0 0 24 24"><use href="#i-folder"/></svg>
+            <div><div class="rg__k">Dossiers en écriture</div><div class="rg__v">
+              <span class="perm">/reviews</span></div></div></div>
+          <div class="rg"><svg class="ic" viewBox="0 0 24 24"><use href="#i-plug"/></svg>
+            <div><div class="rg__k">MCP</div><div class="rg__v">
+              <span class="perm">linear <b style="background:var(--recess-2);color:var(--ink-2)">r</b></span></div></div></div>
+          <div class="rg"><svg class="ic" viewBox="0 0 24 24"><use href="#i-globe-off"/></svg>
+            <div><div class="rg__k">Réseau</div><div class="rg__v">
+              <span class="perm perm--cut">coupé · aucune sortie</span></div></div></div>
+        </div>
+        <div class="rights__cost"><span>coût cumulé · 0 session</span><b class="money">$0.00</b></div>
+      </div>
+    </article>
+
+    <!-- ---------- POSTE 4 : writer — dormant, l'isolement est l'info ---------- -->
+    <article class="bench" id="bench-writer">
+      <div class="bench__plate">
+        <div class="plate__name"><h3>writer</h3></div>
+        <p class="plate__role">Rédacteur isolé — réseau limité</p>
+        <div class="plate__state"><span class="state state--done"><span class="bullet"></span>container détruit</span></div>
+        <dl class="plate__facts">
+          <div><dt>modèle</dt><dd class="mono">haiku-4-5</dd></div>
+          <div><dt>sessions ouvertes</dt><dd>0</dd></div>
+          <div><dt>dernière activité</dt><dd>il y a 6 h</dd></div>
+          <div><dt>coût cumulé</dt><dd class="money">$0.04</dd></div>
+        </dl>
+      </div>
+
+      <div class="bench__body">
+        <div class="subhead">Dernière livraison</div>
+        <ul class="deliv">
+          <li><svg class="ic" viewBox="0 0 24 24"><use href="#i-branch"/></svg>
+            <div><div class="t">Mettre à jour les dépendances de sécurité</div>
+              <div class="m"><span class="mono">front · 3 fichiers · 7e02b4c</span><span>il y a 6 h</span><span class="money">$0.04</span></div>
+              <div class="m" style="margin-top:6px;color:var(--ink-2);font-size:.8125rem;max-width:64ch">« Mise à jour des dépendances avec correctifs de sécurité, aucun breaking change. »</div>
+            </div></li>
+        </ul>
+
+        <div class="subhead">Prochaine tâche <span class="cnt">1</span></div>
+        <ul class="qlist">
+          <li><span class="rank">1</span><span class="t">Nettoyer les warnings de build</span>
+            <span class="r"><span class="cx">low</span><span class="meta">priorité basse · en file</span>
+            <button class="btn btn--sm btn--primary">Lancer une session</button></span></li>
+        </ul>
+      </div>
+
+      <div class="bench__rights">
+        <button class="rights__head js-rights" aria-expanded="true" aria-controls="rights-writer">
+          <svg class="ic ic-14" viewBox="0 0 24 24"><use href="#i-shield"/></svg>Droits accordés
+          <svg class="ic ic-14 chev" viewBox="0 0 24 24"><use href="#i-chev"/></svg></button>
+        <div class="rights__body" id="rights-writer">
+          <div class="rg"><svg class="ic" viewBox="0 0 24 24"><use href="#i-globe"/></svg>
+            <div><div class="rg__k">Réseau — c'est la contrainte du poste</div><div class="rg__v">
+              <span class="perm perm--net">limité · 1 hôte</span><span class="perm">registry.npmjs.org</span></div>
+              <p class="rights__sum" style="padding-top:6px">Toute autre sortie est refusée par le container et journalisée en <span class="mono">fs_denied</span> / <span class="mono">net_denied</span>.</p></div></div>
+          <div class="rg"><svg class="ic" viewBox="0 0 24 24"><use href="#i-branch"/></svg>
+            <div><div class="rg__k">Repos</div><div class="rg__v">
+              <span class="perm perm--rw"><b>rw</b>front</span><span class="perm perm--none">api : non monté</span></div></div></div>
+          <div class="rg"><svg class="ic" viewBox="0 0 24 24"><use href="#i-folder"/></svg>
+            <div><div class="rg__k">Dossiers en écriture</div><div class="rg__v">
+              <span class="perm">/artifacts/writer</span></div></div></div>
+          <div class="rg"><svg class="ic" viewBox="0 0 24 24"><use href="#i-plug"/></svg>
+            <div><div class="rg__k">MCP</div><div class="rg__v"><span class="perm perm--none">aucun serveur</span></div></div></div>
+        </div>
+        <div class="rights__cost"><span>coût cumulé · 1 session</span><b class="money">$0.04</b></div>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<!-- ==================== ÉCRAN 2 — POSTE OUVERT ==================== -->
+<section class="screen" id="screen-poste" role="tabpanel" aria-labelledby="tab-poste">
+  <div class="screenhead">
+    <div>
+      <h2>Poste de <span class="mono" style="font-size:1.25rem">senior-dev</span></h2>
+      <p>On entre dans le poste, pas dans une tâche : les sessions du même agent sont côte à côte, avec le même container, les mêmes droits et le même journal d'événements.</p>
+    </div>
+    <div class="screenhead__aside">
+      <button class="btn btn--quiet" data-goto="atelier"><svg class="ic ic-14" viewBox="0 0 24 24" style="transform:rotate(180deg)"><use href="#i-arrow"/></svg>Retour à l'atelier</button>
+    </div>
+  </div>
+
+  <div class="sheet">
+    <div class="sess__switch" role="tablist" aria-label="Sessions de senior-dev">
+      <button class="sw" role="tab" aria-selected="true" data-sess="checkout">
+        <span class="dot dot--wait"></span>Refonte du tunnel de paiement Stripe Checkout<span class="money">$2.87</span></button>
+      <button class="sw" role="tab" aria-selected="false" tabindex="-1" data-sess="invoices">
+        <span class="dot dot--fail"></span>Générer les factures PDF en masse<span class="money">$0.35</span></button>
+    </div>
+
+    <!-- ============ session 1 : checkout ============ -->
+    <div class="sess-view" data-view="checkout">
+      <div class="sess__head">
+        <span class="state state--wait"><span class="bullet"></span>en revue · gate ouvert</span>
+        <span class="sess__title">Refonte du tunnel de paiement Stripe Checkout</span>
+        <div class="sess__facts">
+          <span><svg class="ic ic-14" viewBox="0 0 24 24" style="display:inline-block;vertical-align:-2px;margin-right:5px"><use href="#i-branch"/></svg><b class="mono" style="font-weight:500">legion/checkout</b></span>
+          <span class="vr"></span>
+          <span>coût <b class="money">$2.87</b></span>
+          <span class="vr"></span>
+          <span>durée <b class="dur">38 min</b></span>
+          <span class="vr"></span>
+          <button class="btn btn--danger btn--sm"><svg class="ic ic-14" viewBox="0 0 24 24"><use href="#i-stop"/></svg>Stop</button>
+        </div>
+      </div>
+
+      <div class="gate">
+        <svg class="ic ic-18" viewBox="0 0 24 24"><use href="#i-gate"/></svg>
+        <div>
+          <div class="gate__t">Gate d'approbation — 7 fichiers, commit <span class="mono">5f0be31</span></div>
+          <div class="gate__s">La tâche est passée en <span class="mono">review</span> ; rien ne sera poussé sur <span class="mono">main</span> avant votre décision.</div>
+        </div>
+        <div class="gate__act">
+          <button class="btn btn--sm">Demander des changements</button>
+          <button class="btn btn--primary btn--sm">Approuver</button>
+          <button class="btn btn--sm" aria-disabled="true">Merger</button>
+        </div>
+      </div>
+
+      <div class="sess__grid">
+        <div class="sess__left">
+          <div class="tl" id="tl-checkout">
+            <div class="ev"><div class="ev__t">09:12:03</div><div class="ev__k"><span class="ev__kk">init</span></div>
+              <div class="ev__c"><span class="payload">model claude-sonnet-4-5 · apiKeySource none</span></div></div>
+
+            <div class="ev"><div class="ev__t">09:12:04</div><div class="ev__k"><span class="ev__kk">capabilities</span></div>
+              <div class="ev__c">Skills <span class="payload">pdf-export</span> · MCP <span class="payload">linear</span></div></div>
+
+            <div class="ev"><div class="ev__t">09:12:04</div><div class="ev__k"><span class="ev__kk">status</span></div>
+              <div class="ev__c">running · réseau <span class="payload">limited</span> · <span class="payload">claude-sonnet-4-5</span></div></div>
+
+            <div class="ev"><div class="ev__t">09:12:09</div><div class="ev__k"><span class="ev__kk">repo_ready</span></div>
+              <div class="ev__c">front monté sur <span class="payload">./repos/front</span> · branche <span class="payload">legion/checkout</span></div></div>
+
+            <div class="ev"><div class="ev__t">09:13:41</div><div class="ev__k"><span class="ev__kk">tool</span></div>
+              <div class="ev__c"><button class="tool js-tool" aria-expanded="false" aria-controls="tb1">
+                  <svg class="ic ic-14 chev" viewBox="0 0 24 24"><use href="#i-chevr"/></svg>
+                  <span class="tool__n">Read</span><span class="tool__p">/repos/front/src/checkout/PaymentForm.tsx</span>
+                  <span class="tool__d">3 821 ms</span></button>
+                <div class="tool__body" id="tb1" hidden>input  /repos/front/src/checkout/PaymentForm.tsx
+output 214 lignes · 6,1 Ko
+
+  41 | <span class="hl">const</span> intent = await stripe.paymentIntents.create({
+  42 |   amount: cart.total,
+  43 |   currency: 'eur',
+  44 | })
+  45 | return { clientSecret: intent.client_secret }</div></div></div>
+
+            <div class="ev ev--sec"><div class="ev__t">09:14:02</div><div class="ev__k"><span class="ev__kk">fs_denied</span></div>
+              <div class="ev__c">
+                <div class="sec__l1"><svg class="ic ic-14" viewBox="0 0 24 24"><use href="#i-lock"/></svg>Écriture refusée par le container</div>
+                <div class="sec__l2">write /repos/front/package.json — hors des dossiers accordés</div>
+                <div class="sec__l3">Le poste n'a l'écriture que sur <span class="mono">/repos/front/src/checkout</span>. L'agent a poursuivi sans la dépendance. Rien à corriger côté code : c'est le périmètre qui a tenu.</div>
+                <div class="att__act" style="margin-left:0;margin-top:10px">
+                  <button class="btn btn--sm">Accorder <span class="mono" style="font-size:.75rem">/repos/front/package.json</span></button>
+                  <button class="btn btn--sm btn--quiet">Laisser refusé</button>
+                </div>
+              </div></div>
+
+            <div class="ev"><div class="ev__t">09:14:27</div><div class="ev__k"><span class="ev__kk">text</span></div>
+              <div class="ev__c" style="max-width:70ch">Je remplace la création de PaymentIntent par une session Checkout hébergée. La confirmation de commande passe entièrement par le webhook, ce qui supprime le chemin qui doublonnait les commandes.</div></div>
+
+            <div class="ev"><div class="ev__t">09:16:55</div><div class="ev__k"><span class="ev__kk">tool</span></div>
+              <div class="ev__c"><button class="tool js-tool" aria-expanded="false" aria-controls="tb2">
+                  <svg class="ic ic-14 chev" viewBox="0 0 24 24"><use href="#i-chevr"/></svg>
+                  <span class="tool__n">Edit</span><span class="tool__p">/repos/front/src/checkout/CheckoutSession.ts</span>
+                  <span class="tool__d">1 204 ms</span></button>
+                <div class="tool__body" id="tb2" hidden>replace 12 lignes par 17 lignes
++ stripe.checkout.sessions.create({ mode: 'payment', … })
++ idempotency_key: cart.id
+- stripe.paymentIntents.create({ amount, currency })</div></div></div>
+
+            <div class="ev"><div class="ev__t">09:31:12</div><div class="ev__k"><span class="ev__kk">throttle</span></div>
+              <div class="ev__c">Quota 5 h à <b class="num">72 %</b> — <span class="payload">allowed_warning</span>, reprise à 13:29</div></div>
+
+            <div class="ev"><div class="ev__t">09:49:38</div><div class="ev__k"><span class="ev__kk">repo_push</span></div>
+              <div class="ev__c">front · <b class="num">7</b> fichiers · commit <span class="payload">5f0be31</span></div></div>
+
+            <div class="ev"><div class="ev__t">09:49:40</div><div class="ev__k"><span class="ev__kk">task_status</span></div>
+              <div class="ev__c">review — en attente du gate d'approbation</div></div>
+
+            <div class="ev"><div class="ev__t">09:50:02</div><div class="ev__k"><span class="ev__kk">result</span></div>
+              <div class="ev__c">success · <b class="money">$2.87</b></div></div>
+          </div>
+
+          <div class="steer">
+            <div class="field"><svg class="ic ic-14" viewBox="0 0 24 24" style="color:var(--ink-3)"><use href="#i-send"/></svg>
+              <input type="text" id="steer-input" placeholder="Orienter sans interrompre…" aria-label="Message de steering"></div>
+            <button class="btn js-steer">Envoyer</button>
+            <span class="btn__why">le message est injecté au prochain tour</span>
+          </div>
+        </div>
+
+        <div class="sess__right">
+          <div class="pane__tabs" role="tablist" aria-label="Espace de travail du container">
+            <button class="pt" role="tab" aria-selected="true" data-pane="term"><svg class="ic ic-14" viewBox="0 0 24 24"><use href="#i-terminal"/></svg>Terminal</button>
+            <button class="pt" role="tab" aria-selected="false" tabindex="-1" data-pane="diff"><svg class="ic ic-14" viewBox="0 0 24 24"><use href="#i-diff"/></svg>Diff<span class="mono" style="font-size:.6875rem;color:var(--ink-3)">7</span></button>
+            <button class="pt" role="tab" aria-selected="false" tabindex="-1" data-pane="art"><svg class="ic ic-14" viewBox="0 0 24 24"><use href="#i-doc"/></svg>Artifacts<span class="mono" style="font-size:.6875rem;color:var(--ink-3)">3</span></button>
+          </div>
+
+          <div class="pane" data-panel="term">
+            <div class="term"><span class="p">legion@sess-5f0be31:/repos/front$</span> pnpm test src/checkout
+> front@2.4.1 test /repos/front
+<span class="ok">PASS</span>  src/checkout/CheckoutSession.test.ts   7 tests · 812 ms
+<span class="ok">PASS</span>  src/checkout/PaymentForm.test.tsx     11 tests · 1,4 s
+Tests: 18 passed, 18 total
+
+<span class="p">legion@sess-5f0be31:/repos/front$</span> git status --short
+ M src/checkout/CheckoutSession.ts
+ M src/checkout/PaymentForm.tsx
+ M src/checkout/useCheckout.ts
+ M src/api/orders.ts
+ M src/routes/commande.tsx
+ A src/checkout/__tests__/session.test.ts
+ M .env.example
+
+<span class="p">legion@sess-5f0be31:/repos/front$</span> npm i stripe@14
+<span class="warn">EACCES: write /repos/front/package.json — hors des dossiers accordés</span>
+
+<span class="p">legion@sess-5f0be31:/repos/front$</span> <span class="cursor"></span></div>
+          </div>
+
+          <div class="pane" data-panel="diff" hidden></div>
+
+          <div class="pane" data-panel="art" hidden>
+            <ul class="arts">
+              <li><svg class="ic" viewBox="0 0 24 24"><use href="#i-diff"/></svg>
+                <div><div class="n">checkout-session.diff</div><div class="d">Diff unifié des 7 fichiers de la branche</div></div><div class="s">4,2 Ko</div></li>
+              <li><svg class="ic" viewBox="0 0 24 24"><use href="#i-doc"/></svg>
+                <div><div class="n">rapport-migration-checkout.md</div><div class="d">Décisions, risques, plan de retour arrière</div></div><div class="s">11 Ko</div></li>
+              <li><svg class="ic" viewBox="0 0 24 24"><use href="#i-terminal"/></svg>
+                <div><div class="n">tests-checkout.log</div><div class="d">Sortie complète de la suite — 18 tests</div></div><div class="s">2,8 Ko</div></li>
+            </ul>
+            <p class="btn__why" style="margin-top:14px;display:block;line-height:1.5">Chaque session doit produire au moins un artifact : sans lui, le gate ne peut pas être approuvé.</p>
+          </div>
+
+          <div class="container-band">
+            <div class="h"><svg class="ic ic-14" viewBox="0 0 24 24"><use href="#i-shield"/></svg>Container de la session — périmètre appliqué</div>
+            <dl>
+              <dt>image</dt><dd>legion/node20-slim · 512 Mo · éphémère</dd>
+              <dt>montages</dt><dd>front <span style="color:var(--verm-deep)">rw</span> · api <span style="color:var(--ink-3)">r</span></dd>
+              <dt>écriture</dt><dd>/repos/front/src/checkout · /artifacts/senior-dev</dd>
+              <dt>réseau</dt><dd>api.stripe.com · registry.npmjs.org</dd>
+              <dt>refus</dt><dd><span class="deny">1 fs_denied</span> — write /repos/front/package.json</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ session 2 : factures — échec ============ -->
+    <div class="sess-view" data-view="invoices" hidden>
+      <div class="sess__head">
+        <span class="state state--fail"><span class="bullet"></span>échouée</span>
+        <span class="sess__title">Générer les factures PDF en masse</span>
+        <div class="sess__facts">
+          <span><svg class="ic ic-14" viewBox="0 0 24 24" style="display:inline-block;vertical-align:-2px;margin-right:5px"><use href="#i-branch"/></svg><b class="mono" style="font-weight:500">legion/invoices</b></span>
+          <span class="vr"></span>
+          <span>coût <b class="money">$0.35</b></span>
+          <span class="vr"></span>
+          <span>durée <b class="dur">10 min</b></span>
+          <span class="vr"></span>
+          <button class="btn btn--sm" aria-disabled="true"><svg class="ic ic-14" viewBox="0 0 24 24"><use href="#i-stop"/></svg>Stop</button>
+        </div>
+      </div>
+
+      <div class="sess__grid">
+        <div class="sess__left">
+          <div class="tl">
+            <div class="ev"><div class="ev__t">07:02:11</div><div class="ev__k"><span class="ev__kk">init</span></div>
+              <div class="ev__c"><span class="payload">model claude-sonnet-4-5 · apiKeySource none</span></div></div>
+            <div class="ev"><div class="ev__t">07:02:12</div><div class="ev__k"><span class="ev__kk">status</span></div>
+              <div class="ev__c">running · réseau <span class="payload">limited</span></div></div>
+            <div class="ev"><div class="ev__t">07:02:30</div><div class="ev__k"><span class="ev__kk">tool</span></div>
+              <div class="ev__c"><button class="tool js-tool" aria-expanded="false" aria-controls="tb3">
+                  <svg class="ic ic-14 chev" viewBox="0 0 24 24"><use href="#i-chevr"/></svg>
+                  <span class="tool__n">Read</span><span class="tool__p">/repos/api/src/invoices/generate.ts</span>
+                  <span class="tool__d">1 284 ms</span></button>
+                <div class="tool__body" id="tb3" hidden>output 96 lignes · 3,4 Ko
+  22 | <span class="hl">for</span> (const order of orders) {
+  23 |   buffers.push(await renderInvoice(order))
+  24 | }</div></div></div>
+            <div class="ev"><div class="ev__t">07:03:05</div><div class="ev__k"><span class="ev__kk">text</span></div>
+              <div class="ev__c" style="max-width:70ch">Génération séquentielle des factures, tous les buffers sont conservés en mémoire avant l'archive ZIP.</div></div>
+            <div class="ev ev--err"><div class="ev__t">07:12:44</div><div class="ev__k"><span class="ev__kk">run_error</span></div>
+              <div class="ev__c">Timeout after 600s — heap out of memory at 512 invoices</div></div>
+            <div class="ev"><div class="ev__t">07:12:45</div><div class="ev__k"><span class="ev__kk">result</span></div>
+              <div class="ev__c">error · <b class="money">$0.35</b> · container détruit</div></div>
+          </div>
+          <div class="steer" style="justify-content:space-between">
+            <span class="btn__why">Journal conservé 7 jours. Une session échouée ne peut pas être orientée — elle se relance.</span>
+            <button class="btn btn--sm">Exporter le journal</button>
+          </div>
+        </div>
+
+        <div class="sess__right">
+          <div class="failbox">
+            <h4>La session s'est arrêtée à la 512<sup>e</sup> facture</h4>
+            <p class="msg">Timeout after 600s — heap out of memory at 512 invoices</p>
+            <p>Le container est plafonné à 512 Mo et l'agent gardait tous les PDF en mémoire. Aucun fichier n'a été écrit, aucune branche poussée : l'état du repo est intact.</p>
+            <p><b>Recommandation :</b> relancer par lots de 128 avec écriture disque intermédiaire, ou relever la mémoire du poste à 1 Go dans ses capacités.</p>
+            <div class="act">
+              <button class="btn btn--primary"><svg class="ic ic-14" viewBox="0 0 24 24"><use href="#i-restart"/></svg>Relancer par lots de 128</button>
+              <button class="btn">Ouvrir les capacités du poste</button>
+            </div>
+          </div>
+
+          <div class="container-band">
+            <div class="h"><svg class="ic ic-14" viewBox="0 0 24 24"><use href="#i-shield"/></svg>Container détruit — trace conservée</div>
+            <dl>
+              <dt>image</dt><dd>legion/node20-slim · 512 Mo · éphémère</dd>
+              <dt>montages</dt><dd>api <span style="color:var(--verm-deep)">rw</span></dd>
+              <dt>écriture</dt><dd>aucun fichier écrit avant l'arrêt</dd>
+              <dt>artifacts</dt><dd class="deny">aucun — le gate reste infranchissable</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== ÉCRAN 3 — COULOIRS ==================== -->
+<section class="screen" id="screen-couloirs" role="tabpanel" aria-labelledby="tab-couloirs">
+  <div class="screenhead">
+    <div>
+      <h2>Couloirs</h2>
+      <p>Les 12 tâches du projet, une ligne par agent. L'axe horizontal donne l'avancement ; la charge réelle de chaque poste se lit à la hauteur de son couloir. Les gates sont dessinés sur le parcours, à l'endroit exact où la tâche s'arrête.</p>
+    </div>
+    <div class="screenhead__aside">
+      <span><b>12</b> tâches</span><span class="vr"></span>
+      <span><b>8</b> sur <span class="mono">senior-dev</span></span><span class="vr"></span>
+      <span><b>0</b> sur <span class="mono">review-coordinator</span></span>
+    </div>
+  </div>
+
+  <div class="sheet goalgrid">
+    <div class="goal__main">
+      <div class="axis">
+        <div class="axis__id">agent</div>
+        <div class="axis__st"><svg class="ic ic-14" viewBox="0 0 24 24"><use href="#i-circle"/></svg>à faire<span class="n">4</span></div>
+        <div class="axis__st"><svg class="ic ic-14" viewBox="0 0 24 24"><use href="#i-play"/></svg>en cours<span class="n">2</span></div>
+        <div class="axis__st"><svg class="ic ic-14" viewBox="0 0 24 24"><use href="#i-eye"/></svg>en revue<span class="n">3</span></div>
+        <div class="axis__st"><svg class="ic ic-14" viewBox="0 0 24 24"><use href="#i-check"/></svg>fait<span class="n">3</span></div>
+      </div>
+
+      <!-- couloir senior-dev -->
+      <div class="lane" id="lane-senior-dev">
+        <div class="lane__track"><i style="left:0"></i><i style="left:25%"></i><i style="left:50%"></i><i style="left:75%"></i><i style="right:0"></i></div>
+        <div class="lane__id">
+          <h3>senior-dev</h3>
+          <p class="r">Implémente et corrige</p>
+          <div class="f"><span>charge <b>8 tâches</b></span><span>en session <b>2</b></span><span>coût <b class="money">$4.99</b></span></div>
+          <button class="lane__toggle js-lane" aria-expanded="true" aria-controls="lane-senior-dev">
+            <svg class="ic ic-14 chev" viewBox="0 0 24 24"><use href="#i-chev"/></svg>replier</button>
+        </div>
+        <div class="cell"><span class="collapsed-note">3 tâches</span>
+          <button class="task" data-t="tva"><span class="task__t">Corriger le calcul de TVA sur les commandes UE</span>
+            <span class="task__m"><span class="cx">high</span><span class="meta">priorité haute</span></span></button>
+          <button class="task" data-t="fidelite"><span class="task__t">Implémenter · Programme de fidélité</span>
+            <span class="task__m"><span class="cx">med</span><span class="meta">étape 2</span></span></button>
+          <button class="task" data-t="vitest"><span class="task__t">Migrer les tests front vers Vitest</span>
+            <span class="task__m"><span class="cx">med</span></span></button>
+        </div>
+        <div class="cell"><span class="collapsed-note">2 tâches</span>
+          <button class="task task--gate" data-t="exportpdf"><span class="gatemark"><svg viewBox="0 0 24 24" class="ic" style="width:11px;height:11px"><use href="#i-gate"/></svg></span>
+            <span class="task__t">Export PDF des rapports mensuels</span>
+            <span class="task__m"><span class="state state--wait"><span class="bullet"></span>en pause</span><span class="meta">question ouverte</span></span></button>
+          <button class="task task--run" data-t="recherche"><span class="task__t">Ajouter la recherche par référence de commande</span>
+            <span class="task__m"><span class="state state--run"><span class="bullet"></span>running</span><span class="meta money">$0.11</span></span></button>
+        </div>
+        <div class="cell"><span class="collapsed-note">2 tâches</span>
+          <button class="task task--gate" data-t="checkout"><span class="gatemark"><svg viewBox="0 0 24 24" class="ic" style="width:11px;height:11px"><use href="#i-gate"/></svg></span>
+            <span class="task__t">Refonte du tunnel de paiement Stripe Checkout</span>
+            <span class="task__m"><span class="state state--wait"><span class="bullet"></span>gate à approuver</span></span></button>
+          <button class="task task--fail" data-t="factures"><span class="task__t">Générer les factures PDF en masse</span>
+            <span class="task__m"><span class="state state--fail"><span class="bullet"></span>échouée</span></span></button>
+        </div>
+        <div class="cell cell--done"><span class="collapsed-note">1 tâche</span>
+          <button class="task task--done" data-t="webhook"><span class="task__t">Corriger le webhook Stripe qui doublonnait les commandes</span>
+            <span class="task__m"><span class="meta mono">a41c9d2</span><span class="meta money">$1.24</span></span></button>
+        </div>
+      </div>
+
+      <!-- couloir spec -->
+      <div class="lane" id="lane-spec">
+        <div class="lane__track"><i style="left:0"></i><i style="left:25%"></i><i style="left:50%"></i><i style="left:75%"></i><i style="right:0"></i></div>
+        <div class="lane__id">
+          <h3>spec</h3>
+          <p class="r">Écrit des specs approuvables</p>
+          <div class="f"><span>charge <b>2 tâches</b></span><span>en session <b>1</b></span><span>coût <b class="money">$1.74</b></span></div>
+          <button class="lane__toggle js-lane" aria-expanded="true" aria-controls="lane-spec">
+            <svg class="ic ic-14 chev" viewBox="0 0 24 24"><use href="#i-chev"/></svg>replier</button>
+        </div>
+        <div class="cell"><span class="meta" style="font-size:.75rem">—</span></div>
+        <div class="cell"><span class="meta" style="font-size:.75rem">—</span></div>
+        <div class="cell"><span class="collapsed-note">1 tâche</span>
+          <button class="task task--run" data-t="notifs"><span class="task__t">Spec : notifications de livraison</span>
+            <span class="task__m"><span class="state state--run"><span class="bullet"></span>committing</span><span class="meta money">$0.96</span></span></button></div>
+        <div class="cell cell--done"><span class="collapsed-note">1 tâche</span>
+          <button class="task task--done has-mark" data-t="specfid"><span class="gatemark gatemark--open"><svg viewBox="0 0 24 24" class="ic" style="width:11px;height:11px"><use href="#i-gate"/></svg></span>
+            <span class="task__t">Spécifier · Programme de fidélité</span>
+            <span class="task__m"><span class="meta">gate franchi</span><span class="meta money">$0.78</span></span></button></div>
+      </div>
+
+      <!-- couloir review-coordinator : vide -->
+      <div class="lane lane--free" id="lane-review">
+        <div class="lane__track"><i style="left:0"></i><i style="left:25%"></i><i style="left:50%"></i><i style="left:75%"></i><i style="right:0"></i></div>
+        <div class="lane__id">
+          <h3>review-coordinator</h3>
+          <p class="r">Coordonne les reviews, consolide must-fix / should-fix</p>
+          <div class="f"><span>charge <b>aucune</b></span><span>coût <b class="money">$0.00</b></span></div>
+        </div>
+        <div class="cell" style="grid-column:2 / span 4">
+          <div class="freelane">
+            <p><b>Couloir vide.</b> Trois tâches sont en revue chez d'autres postes et personne ne les consolide. C'est le déséquilibre que cette vue rend visible — un kanban par statut l'aurait dilué dans une colonne « review » bien remplie.</p>
+            <div class="free__form" style="margin-top:12px">
+              <div class="field"><svg class="ic ic-14" viewBox="0 0 24 24" style="color:var(--ink-3)"><use href="#i-plus"/></svg>
+                <input type="text" placeholder="Décrire la tâche à lui confier…" aria-label="Tâche à confier depuis les couloirs"></div>
+              <button class="btn btn--primary">Lui confier</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- couloir writer -->
+      <div class="lane" id="lane-writer">
+        <div class="lane__track"><i style="left:0"></i><i style="left:25%"></i><i style="left:50%"></i><i style="left:75%"></i><i style="right:0"></i></div>
+        <div class="lane__id">
+          <h3>writer</h3>
+          <p class="r">Rédacteur isolé — réseau limité</p>
+          <div class="f"><span>charge <b>2 tâches</b></span><span>en session <b>0</b></span><span>coût <b class="money">$0.04</b></span></div>
+          <button class="lane__toggle js-lane" aria-expanded="true" aria-controls="lane-writer">
+            <svg class="ic ic-14 chev" viewBox="0 0 24 24"><use href="#i-chev"/></svg>replier</button>
+        </div>
+        <div class="cell"><span class="collapsed-note">1 tâche</span>
+          <button class="task" data-t="warnings"><span class="task__t">Nettoyer les warnings de build</span>
+            <span class="task__m"><span class="cx">low</span><span class="meta">priorité basse</span></span></button></div>
+        <div class="cell"><span class="meta" style="font-size:.75rem">—</span></div>
+        <div class="cell"><span class="meta" style="font-size:.75rem">—</span></div>
+        <div class="cell cell--done"><span class="collapsed-note">1 tâche</span>
+          <button class="task task--done" data-t="deps"><span class="task__t">Mettre à jour les dépendances de sécurité</span>
+            <span class="task__m"><span class="meta mono">haiku-4-5</span><span class="meta money">$0.04</span></span></button></div>
+      </div>
+
+      <div class="legend">
+        <span><span class="sq"></span>gate fermé — la tâche ne franchit pas cette étape sans vous</span>
+        <span><span class="sq2"></span>gate déjà franchi</span>
+        <span>les traits verticaux du parcours marquent les passages de statut</span>
+      </div>
+    </div>
+
+    <div class="inspector" id="task-inspector">
+      <h3>Ce que les couloirs montrent</h3>
+      <div class="k">déséquilibre</div>
+      <div class="v"><span class="mono">senior-dev</span> porte 8 tâches sur 12 et les deux seules sessions vivantes. <span class="mono">review-coordinator</span> n'a rien.</div>
+      <div class="k">arrêts sur le parcours</div>
+      <div class="v">2 gates fermés, 1 question sans réponse, 1 session échouée — tous chez le même poste.</div>
+      <div class="k">ce qu'on ne voit plus</div>
+      <div class="v">Le total par statut. « 3 en revue » ne se lit qu'en additionnant les couloirs — c'est le prix de cette vue.</div>
+      <div class="k" style="margin-top:22px">sélection</div>
+      <p class="empty" style="margin-top:5px">Cliquez une tâche pour voir sa session, son coût et ce qui la bloque.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== ÉCRAN 4 — GOAL EN GRAPHE ==================== -->
+<section class="screen" id="screen-goal" role="tabpanel" aria-labelledby="tab-goal">
+  <div class="screenhead">
+    <div>
+      <h2>Goal en graphe</h2>
+      <p>Un goal n'est pas une liste d'étapes : c'est un graphe de dépendances entre tâches et postes. On y lit ce qui tourne en parallèle, qui tient le chemin critique, et à quel nœud chaque critère de la DoD se valide.</p>
+    </div>
+    <div class="screenhead__aside">
+      <span>4 étapes · <b>2</b> terminées</span><span class="vr"></span>
+      <span>3 postes engagés</span>
+    </div>
+  </div>
+
+  <div class="sheet goalgrid">
+    <div class="goal__main">
+      <div class="goal__head">
+        <div class="goal__headrow">
+          <h2>Fiabiliser le tunnel de paiement</h2>
+          <span class="state state--run"><span class="bullet"></span>active</span>
+        </div>
+        <p>Plus aucune commande fantôme ni double débit sur le tunnel de paiement.</p>
+      </div>
+
+      <div class="graphwrap">
+        <svg class="graph" id="graph" viewBox="0 0 990 400" role="img"
+             aria-label="Graphe de dépendances du goal : Auditer le flux précède Rendre le webhook idempotent et Migrer vers Checkout hébergé, qui précèdent tous deux la Review consolidée.">
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M0.5,1 L8.5,5 L0.5,9" fill="none" stroke="#AEA18A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
+            <marker id="arrowCrit" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M0.5,1 L8.5,5 L0.5,9" fill="none" stroke="#B03F1B" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></marker>
+          </defs>
+
+          <!-- séparateurs de vagues -->
+          <path d="M325,28 V392" stroke="#DCD3C3" stroke-width="1" stroke-dasharray="3 5"/>
+          <path d="M665,28 V392" stroke="#DCD3C3" stroke-width="1" stroke-dasharray="3 5"/>
+          <text class="gcol" x="30" y="16">d'abord</text>
+          <text class="gcol" x="370" y="16">en parallèle · 2 postes</text>
+          <text class="gcol" x="710" y="16">convergence</text>
+
+          <!-- arêtes -->
+          <path class="gedge" data-edge="n1-n2" d="M280,196 C325,196 330,82 364,82"/>
+          <path class="gedge gedge--crit" data-edge="n1-n3" d="M280,196 C325,196 330,298 364,298"/>
+          <path class="gedge" data-edge="n2-n4" d="M620,82 C665,82 670,186 704,186"/>
+          <path class="gedge gedge--crit" data-edge="n3-n4" d="M620,298 C665,298 670,206 704,206"/>
+
+          <!-- DoD rattachées -->
+          <g class="gdod gdod--ok" data-dod="d1" data-node="n2">
+            <path class="link" d="M380,128 V151 M380,151 H392"/>
+            <rect class="pill" x="392" y="140" width="210" height="22"/>
+            <circle cx="406" cy="151" r="5.6" fill="none" stroke="#1B6350" stroke-width="1.4"/>
+            <path d="M403.4,151.2 l1.9,1.9 l3.4,-3.9" fill="none" stroke="#1B6350" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <text class="lbl" x="418" y="155">Webhook Stripe idempotent</text>
+          </g>
+          <g class="gdod gdod--ok" data-dod="d2" data-node="n2">
+            <path class="link" d="M380,151 V179 M380,179 H392"/>
+            <rect class="pill" x="392" y="168" width="214" height="22"/>
+            <circle cx="406" cy="179" r="5.6" fill="none" stroke="#1B6350" stroke-width="1.4"/>
+            <path d="M403.4,179.2 l1.9,1.9 l3.4,-3.9" fill="none" stroke="#1B6350" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <text class="lbl" x="418" y="183">Confirmation après le webhook</text>
+          </g>
+          <g class="gdod" data-dod="d3" data-node="n3">
+            <path class="link" d="M380,344 V367 M380,367 H392"/>
+            <rect class="pill" x="392" y="356" width="216" height="22"/>
+            <circle cx="406" cy="367" r="5.6" fill="none" stroke="#AEA18A" stroke-width="1.4"/>
+            <text class="lbl" x="418" y="371">Tunnel via Checkout hébergé</text>
+          </g>
+          <g class="gdod" data-dod="d4" data-node="n4">
+            <path class="link" d="M720,242 V265 M720,265 H732"/>
+            <rect class="pill" x="732" y="254" width="204" height="22"/>
+            <circle cx="746" cy="265" r="5.6" fill="none" stroke="#AEA18A" stroke-width="1.4"/>
+            <text class="lbl" x="758" y="269">Aucune régression de tests</text>
+          </g>
+
+          <!-- nœuds -->
+          <g class="gnode gnode--done" data-node="n1" tabindex="0" role="button"
+             aria-label="Étape 1, Auditer le flux de paiement existant, agent spec, terminée">
+            <rect class="halo" x="26" y="146" width="258" height="100" fill="none"/>
+            <rect class="box" x="30" y="150" width="250" height="92"/>
+            <text class="ttl" x="48" y="180">Auditer le flux</text>
+            <text class="ttl" x="48" y="199">de paiement existant</text>
+            <text class="ag" x="48" y="224">spec · $0.78</text>
+            <rect class="stbg" x="196" y="210" width="66" height="20"/>
+            <text class="st" x="229" y="224" text-anchor="middle">terminée</text>
+          </g>
+
+          <g class="gnode gnode--done" data-node="n2" tabindex="0" role="button"
+             aria-label="Étape 2, Rendre le webhook idempotent, agent senior-dev, terminée">
+            <rect class="halo" x="366" y="32" width="258" height="100" fill="none"/>
+            <rect class="box" x="370" y="36" width="250" height="92"/>
+            <text class="ttl" x="388" y="66">Rendre le webhook</text>
+            <text class="ttl" x="388" y="85">idempotent</text>
+            <text class="ag" x="388" y="110">senior-dev · $1.24</text>
+            <rect class="stbg" x="536" y="96" width="66" height="20"/>
+            <text class="st" x="569" y="110" text-anchor="middle">terminée</text>
+          </g>
+
+          <g class="gnode gnode--run gnode--gate" data-node="n3" tabindex="0" role="button"
+             aria-label="Étape 3, Migrer vers Checkout hébergé, agent senior-dev, en revue, gate d'approbation ouvert">
+            <rect class="halo" x="366" y="248" width="258" height="100" fill="none"/>
+            <rect class="box" x="370" y="252" width="250" height="92"/>
+            <text class="ttl" x="388" y="282">Migrer vers</text>
+            <text class="ttl" x="388" y="301">Checkout hébergé</text>
+            <text class="ag" x="388" y="326">senior-dev · $2.87</text>
+            <rect class="stbg" x="536" y="312" width="66" height="20"/>
+            <text class="st" x="569" y="326" text-anchor="middle">en revue</text>
+            <g transform="translate(586,258) scale(0.62)">
+              <use href="#i-gate" stroke="#8A5A00" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></g>
+          </g>
+
+          <g class="gnode gnode--wait" data-node="n4" tabindex="0" role="button"
+             aria-label="Étape 4, Review consolidée, agent review-coordinator, en attente des deux étapes précédentes">
+            <rect class="halo" x="706" y="146" width="258" height="100" fill="none"/>
+            <rect class="box" x="710" y="150" width="250" height="92"/>
+            <text class="ttl" x="728" y="189">Review consolidée</text>
+            <text class="ag" x="728" y="224">review-coordinator</text>
+            <rect class="stbg" x="868" y="210" width="74" height="20"/>
+            <text class="st" x="905" y="224" text-anchor="middle">en attente</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="legend">
+        <span><svg width="26" height="8" aria-hidden="true"><path d="M1,4 H25" stroke="#B03F1B" stroke-width="2.2"/></svg>chemin critique — <span class="mono">senior-dev</span> le tient seul</span>
+        <span><svg width="26" height="8" aria-hidden="true"><path d="M1,4 H25" stroke="#AEA18A" stroke-width="1.4"/></svg>dépendance satisfaite</span>
+        <span>survolez un nœud pour isoler ses dépendances</span>
+      </div>
+
+      <div style="padding:18px 22px 6px">
+        <div class="subhead" style="margin-top:0">Tâches rattachées <span class="cnt">2</span></div>
+        <ul class="qlist">
+          <li><span class="state state--wait" style="flex:none"><span class="bullet"></span>en revue</span>
+            <span class="t">Refonte du tunnel de paiement Stripe Checkout</span>
+            <span class="r"><span class="meta mono">senior-dev</span><span class="meta money">$2.87</span>
+              <button class="btn btn--sm" data-goto="poste">Ouvrir</button></span></li>
+          <li><span class="state state--done" style="flex:none"><span class="bullet"></span>fait</span>
+            <span class="t">Corriger le webhook Stripe qui doublonnait les commandes</span>
+            <span class="r"><span class="meta mono">senior-dev</span><span class="meta money">$1.24</span>
+              <button class="btn btn--sm">Voir le diff</button></span></li>
+        </ul>
+      </div>
+
+      <div style="padding:6px 0 4px">
+        <div class="subhead" style="margin:0 22px 6px">Journal de l'orchestrateur</div>
+        <div class="tl" style="padding-bottom:6px">
+          <div class="ev"><div class="ev__t">03:29:01</div><div class="ev__k"><span class="ev__kk">dod</span></div>
+            <div class="ev__c"><span class="payload">{"id":"d2","done":true}</span></div></div>
+          <div class="ev"><div class="ev__t">02:29:01</div><div class="ev__k"><span class="ev__kk">task_done</span></div>
+            <div class="ev__c"><span class="payload">{"task":"Webhook idempotent","costUsd":1.24}</span></div></div>
+          <div class="ev"><div class="ev__t">10:29:01</div><div class="ev__k"><span class="ev__kk">decision</span></div>
+            <div class="ev__c"><span class="payload">{"agentName":"senior-dev","why":"Le webhook est la cause des doublons"}</span></div></div>
+          <div class="ev"><div class="ev__t">09:29:01</div><div class="ev__k"><span class="ev__kk">dod</span></div>
+            <div class="ev__c"><span class="payload">{"id":"d1","done":true}</span></div></div>
+          <div class="ev"><div class="ev__t">08:29:01</div><div class="ev__k"><span class="ev__kk">task_done</span></div>
+            <div class="ev__c"><span class="payload">{"task":"Audit du tunnel de paiement","costUsd":0.78}</span></div></div>
+          <div class="ev"><div class="ev__t">06:29:01</div><div class="ev__k"><span class="ev__kk">decision</span></div>
+            <div class="ev__c"><span class="payload">{"agentName":"spec","why":"Cartographier le flux avant modification"}</span></div></div>
+          <div class="ev"><div class="ev__t">05:29:01</div><div class="ev__k"><span class="ev__kk">status</span></div>
+            <div class="ev__c">active — prévision approuvée avec la DoD, l'orchestrateur peut dévier s'il l'explique ici</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="inspect-node" id="node-inspector">
+        <h4>Migrer vers Checkout hébergé</h4>
+        <dl class="g">
+          <dt>poste</dt><dd class="mono">senior-dev</dd>
+          <dt>dépend de</dt><dd>Auditer le flux de paiement existant</dd>
+          <dt>débloque</dt><dd>Review consolidée</dd>
+          <dt>valide</dt><dd>Tunnel via Checkout hébergé</dd>
+          <dt>état</dt><dd>en revue · gate ouvert depuis 4 h</dd>
+        </dl>
+      </div>
+
+      <div class="rails">
+        <div class="rail">
+          <div class="rail__top"><span class="rail__k">Budget consommé</span><span class="rail__v">$6.42 / $25.00</span></div>
+          <div class="meter"><i style="width:26%"></i></div>
+          <div class="rail__n">L'orchestrateur s'arrête net au plafond, sans négociation.</div>
+        </div>
+        <div class="rail">
+          <div class="rail__top"><span class="rail__k">Itérations sans progrès</span><span class="rail__v">0 / 3</span></div>
+          <div class="meter"><i style="width:2%"></i></div>
+          <div class="rail__n">Trois tours sans avancer sur la DoD passent le goal en <span class="mono">stopped-stuck</span>.</div>
+        </div>
+        <div class="rail">
+          <div class="rail__top"><span class="rail__k">Durée</span><span class="rail__v">2 145 min</span></div>
+          <div class="rail__n">4 itérations depuis la demande initiale.</div>
+        </div>
+
+        <div class="subhead" style="margin-top:22px">Definition of Done <span class="cnt">2/4</span></div>
+        <ul class="dod" id="dod-list">
+          <li data-dod="d1"><svg class="ic ok" viewBox="0 0 24 24"><use href="#i-check"/></svg>
+            <span class="txt" style="color:var(--ink-2)">Le webhook Stripe est idempotent (test d'intégration)
+            <span class="src">validé au nœud « Rendre le webhook idempotent »</span></span></li>
+          <li data-dod="d2"><svg class="ic ok" viewBox="0 0 24 24"><use href="#i-check"/></svg>
+            <span class="txt" style="color:var(--ink-2)">Une commande n'est confirmée qu'après le webhook
+            <span class="src">validé au nœud « Rendre le webhook idempotent »</span></span></li>
+          <li data-dod="d3"><svg class="ic todo" viewBox="0 0 24 24"><use href="#i-circle"/></svg>
+            <span class="txt">Le tunnel passe par Stripe Checkout hébergé
+            <span class="src">se validera au nœud « Migrer vers Checkout hébergé »</span></span></li>
+          <li data-dod="d4"><svg class="ic todo" viewBox="0 0 24 24"><use href="#i-circle"/></svg>
+            <span class="txt">Aucune régression sur la suite de tests
+            <span class="src">se validera au nœud « Review consolidée »</span></span></li>
+        </ul>
+
+        <div class="killzone">
+          <button class="btn btn--danger js-kill" style="width:100%;justify-content:center">
+            <svg class="ic ic-14" viewBox="0 0 24 24"><use href="#i-stop"/></svg>Arrêter le goal</button>
+          <p>Détruit les containers en cours, conserve les branches poussées et les artifacts. Le goal passe en <span class="mono">stopped</span> ; il peut être repris.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<script>
+(function(){
+'use strict';
+var $=function(s,r){return (r||document).querySelector(s)};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- état en mémoire, jamais de storage ---------- */
+var state={screen:'atelier',session:'checkout',pane:'term',diffLoaded:false,node:'n3',task:null,killArmed:false};
+
+/* ---------- navigation par onglets ---------- */
+var tabs=$$('.tab');
+function show(name){
+  state.screen=name;
+  tabs.forEach(function(t){
+    var on=t.dataset.screen===name;
+    t.setAttribute('aria-selected',on?'true':'false');
+    t.tabIndex=on?0:-1;
+  });
+  $$('.screen').forEach(function(s){s.classList.toggle('is-on',s.id==='screen-'+name)});
+  window.scrollTo({top:0,behavior:reduce?'auto':'smooth'});
+  if(name==='goal') playGraph();
+}
+tabs.forEach(function(t){t.addEventListener('click',function(){show(t.dataset.screen)})});
+$('.tabs__in').addEventListener('keydown',function(e){
+  var i=tabs.indexOf(document.activeElement); if(i<0) return;
+  var n=null;
+  if(e.key==='ArrowRight') n=(i+1)%tabs.length;
+  if(e.key==='ArrowLeft') n=(i-1+tabs.length)%tabs.length;
+  if(e.key==='Home') n=0; if(e.key==='End') n=tabs.length-1;
+  if(n===null) return; e.preventDefault(); tabs[n].focus(); show(tabs[n].dataset.screen);
+});
+$$('[data-goto]').forEach(function(b){b.addEventListener('click',function(){show(b.dataset.goto)})});
+
+/* ---------- droits : dérouler / replier ---------- */
+function toggleRights(btn){
+  var body=document.getElementById(btn.getAttribute('aria-controls'));
+  var open=btn.getAttribute('aria-expanded')==='true';
+  btn.setAttribute('aria-expanded',open?'false':'true');
+  body.hidden=open;
+  var sum=btn.parentNode.querySelector('.rights__sum');
+  if(sum && sum.parentNode===btn.parentNode) sum.style.display=open?'':'none';
+}
+$$('.js-rights').forEach(function(b){b.addEventListener('click',function(){toggleRights(b)})});
+$$('.js-rights-open').forEach(function(b){b.addEventListener('click',function(e){
+  e.stopPropagation(); toggleRights(b.closest('.bench__rights').querySelector('.js-rights'));
+})});
+$$('.rights__head[aria-expanded="false"]').forEach(function(b){
+  var s=b.parentNode.querySelector('.rights__sum'); if(s) s.style.display='';
+});
+
+/* ---------- répondre à une question, depuis le poste ---------- */
+$$('.js-answer').forEach(function(b){
+  b.addEventListener('click',function(){
+    var box=b.closest('.att'); var act=box.querySelector('.att__act');
+    act.innerHTML='<span class="sent"><span class="spin"></span>envoi de la réponse…</span>';
+    setTimeout(function(){
+      box.classList.add('is-sent');
+      act.innerHTML='<span class="sent"><svg class="ic ic-14" viewBox="0 0 24 24"><use href="#i-check"/></svg>'+
+        'Répondu : « '+b.dataset.a+' » — la session reprend</span>';
+      var st=box.querySelector('.state');
+      if(st){st.className='state state--run';st.innerHTML='<span class="bullet"></span>reprise en cours';}
+    },900);
+  });
+});
+
+/* ---------- confier une tâche au poste libre ---------- */
+var confierBtn=$('.js-confier');
+if(confierBtn) confierBtn.addEventListener('click',function(){
+  var inp=$('#confier-input'); var v=inp.value.trim()||'Consolider les must-fix des 3 tâches en revue';
+  var ok=$('#confier-ok');
+  confierBtn.disabled=true; confierBtn.innerHTML='<span class="spin"></span>création du container…';
+  setTimeout(function(){
+    confierBtn.disabled=false;
+    confierBtn.innerHTML='Lui confier';
+    inp.value='';
+    ok.hidden=false;
+    ok.querySelector('span').textContent='Tâche confiée à review-coordinator : « '+v+' » — container en cours de démarrage.';
+    var chip=$('#bench-review .state');
+    chip.className='state state--run'; chip.innerHTML='<span class="bullet"></span>démarrage';
+  },1100);
+});
+
+/* ---------- poste ouvert : sessions ---------- */
+$$('.sw').forEach(function(s){
+  s.addEventListener('click',function(){
+    state.session=s.dataset.sess;
+    $$('.sw').forEach(function(x){var on=x===s;x.setAttribute('aria-selected',on?'true':'false');x.tabIndex=on?0:-1});
+    $$('.sess-view').forEach(function(v){v.hidden=v.dataset.view!==state.session});
+  });
+});
+
+/* ---------- appels d'outils repliables ---------- */
+$$('.js-tool').forEach(function(t){
+  t.addEventListener('click',function(){
+    var body=document.getElementById(t.getAttribute('aria-controls'));
+    var open=t.getAttribute('aria-expanded')==='true';
+    t.setAttribute('aria-expanded',open?'false':'true'); body.hidden=open;
+  });
+});
+
+/* ---------- Terminal / Diff / Artifacts ---------- */
+var DIFF='<div class="difffile"><svg class="ic ic-14" viewBox="0 0 24 24" style="color:var(--ink-3)"><use href="#i-diff"/></svg>'+
+'src/checkout/CheckoutSession.ts<span style="margin-left:auto" class="plus">+17</span><span class="minus">-12</span></div>'+
+'<div class="diff">'+
+'<div class="h">@@ -18,12 +18,17 @@ export async function createCheckoutSession(cart: Cart)</div>'+
+'<div class="c">   const cart = await loadCart(cartId)</div>'+
+'<div class="d">-  const intent = await stripe.paymentIntents.create({</div>'+
+'<div class="d">-    amount: cart.total,</div>'+
+'<div class="d">-    currency: \'eur\',</div>'+
+'<div class="d">-  })</div>'+
+'<div class="d">-  return { clientSecret: intent.client_secret }</div>'+
+'<div class="a">+  const session = await stripe.checkout.sessions.create({</div>'+
+'<div class="a">+    mode: \'payment\',</div>'+
+'<div class="a">+    line_items: cart.lines.map(toLineItem),</div>'+
+'<div class="a">+    success_url: `${BASE_URL}/commande/confirmee`,</div>'+
+'<div class="a">+    cancel_url: `${BASE_URL}/panier`,</div>'+
+'<div class="a">+  }, { idempotencyKey: cart.id })</div>'+
+'<div class="a">+  return { url: session.url }</div>'+
+'<div class="c">   }</div>'+
+'</div>'+
+'<p class="btn__why" style="margin-top:14px;display:block;line-height:1.5">6 autres fichiers modifiés — la revue complète se fait au gate.</p>';
+
+$$('.pt').forEach(function(p){
+  p.addEventListener('click',function(){
+    var pane=p.dataset.pane; state.pane=pane;
+    $$('.pt').forEach(function(x){var on=x===p;x.setAttribute('aria-selected',on?'true':'false');x.tabIndex=on?0:-1});
+    $$('[data-panel]').forEach(function(x){x.hidden=x.dataset.panel!==pane});
+    if(pane==='diff' && !state.diffLoaded){
+      var target=$('[data-panel="diff"]');
+      target.innerHTML='<div class="skel__t"><span class="spin"></span>lecture du diff dans le container…</div>'+
+        '<div class="skel"><i></i><i></i><i></i><i></i><i></i></div>';
+      setTimeout(function(){ target.innerHTML=DIFF; state.diffLoaded=true; },620);
+    }
+  });
+});
+
+/* ---------- steering sans interrompre ---------- */
+var steerBtn=$('.js-steer');
+if(steerBtn) steerBtn.addEventListener('click',function(){
+  var inp=$('#steer-input'); var v=inp.value.trim();
+  if(!v) v='Garde la clé d\'idempotence sur cart.id, ne touche pas au webhook.';
+  var tl=$('#tl-checkout');
+  var el=document.createElement('div');
+  el.className='ev ev--steer';
+  var now=new Date();
+  var hh=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
+  el.innerHTML='<div class="ev__t">'+hh+'</div><div class="ev__k"><span class="ev__kk">steering</span></div>'+
+    '<div class="ev__c" style="max-width:70ch">'+v.replace(/[<>]/g,'')+
+    '<div class="btn__why" style="margin-top:5px">injecté au prochain tour · la session n\'a pas été interrompue</div></div>';
+  tl.appendChild(el); inp.value='';
+  el.scrollIntoView({block:'nearest',behavior:reduce?'auto':'smooth'});
+});
+var steerInput=$('#steer-input');
+if(steerInput) steerInput.addEventListener('keydown',function(e){if(e.key==='Enter')steerBtn.click()});
+
+/* ---------- couloirs : replier un couloir ---------- */
+$$('.js-lane').forEach(function(b){
+  b.addEventListener('click',function(){
+    var lane=document.getElementById(b.getAttribute('aria-controls'));
+    var open=b.getAttribute('aria-expanded')==='true';
+    b.setAttribute('aria-expanded',open?'false':'true');
+    lane.classList.toggle('is-collapsed',open);
+    b.lastChild.textContent=open?'déplier':'replier';
+  });
+});
+
+/* ---------- couloirs : inspecteur de tâche ---------- */
+var T={
+  tva:{t:'Corriger le calcul de TVA sur les commandes UE',a:'senior-dev',s:'à faire',c:'high',p:'haute',n:'Aucune session lancée. En tête de file du poste.',act:'Lancer une session'},
+  fidelite:{t:'Implémenter · Programme de fidélité',a:'senior-dev',s:'à faire',c:'med',p:'normale',n:'Étape 2 du goal « Programme de fidélité », encore en draft. La spec est approuvée.',act:'Lancer une session'},
+  vitest:{t:'Migrer les tests front vers Vitest',a:'senior-dev',s:'à faire',c:'med',p:'normale',n:'En file derrière deux tâches de priorité haute.',act:'Remonter dans la file'},
+  exportpdf:{t:'Export PDF des rapports mensuels',a:'senior-dev',s:'en cours',c:'high',p:'haute',n:'Session en pause depuis 26 min : l\'agent attend une réponse sur la pagination du PDF.',act:'Répondre à la question',gate:'gate d\'approbation prévu avant la revue'},
+  recherche:{t:'Ajouter la recherche par référence de commande',a:'senior-dev',s:'en cours',c:'med',p:'normale',n:'Session running depuis 14 min · $0.11 · lit /repos/api/src/orders/search.ts.',act:'Ouvrir la session'},
+  checkout:{t:'Refonte du tunnel de paiement Stripe Checkout',a:'senior-dev',s:'en revue',c:'high',p:'haute',n:'7 fichiers poussés sur legion/checkout, commit 5f0be31 · $2.87. La tâche est arrêtée au gate.',act:'Relire puis approuver',gate:'gate fermé — c\'est vous qui l\'ouvrez'},
+  factures:{t:'Générer les factures PDF en masse',a:'senior-dev',s:'en revue',c:'med',p:'normale',n:'Session échouée : Timeout after 600s — heap out of memory at 512 invoices. Rien n\'a été écrit.',act:'Relancer par lots de 128'},
+  webhook:{t:'Corriger le webhook Stripe qui doublonnait les commandes',a:'senior-dev',s:'fait',c:'high',p:'haute',n:'Livrée il y a 2 j · commit 5f0be31 · $1.24. Valide 2 critères de la DoD du goal.',act:'Voir le diff'},
+  notifs:{t:'Spec : notifications de livraison',a:'spec',s:'en revue',c:'med',p:'normale',n:'Session committing · $0.96. Une question est ouverte sur le canal SMS.',act:'Répondre à la question'},
+  specfid:{t:'Spécifier · Programme de fidélité',a:'spec',s:'fait',c:'med',p:'normale',n:'Spec approuvée au gate · $0.78. L\'implémentation attend dans la file de senior-dev.',act:'Ouvrir la spec',gate:'gate franchi il y a 3 j'},
+  warnings:{t:'Nettoyer les warnings de build',a:'writer',s:'à faire',c:'low',p:'basse',n:'Le poste est éteint : aucun container n\'est en vie pour cette tâche.',act:'Lancer une session'},
+  deps:{t:'Mettre à jour les dépendances de sécurité',a:'writer',s:'fait',c:'low',p:'basse',n:'« Mise à jour des dépendances avec correctifs de sécurité, aucun breaking change. » · $0.04',act:'Voir le diff'}
+};
+var insp=$('#task-inspector');
+$$('.task').forEach(function(b){
+  b.addEventListener('click',function(){
+    $$('.task').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});
+    var d=T[b.dataset.t]; state.task=b.dataset.t;
+    insp.innerHTML='<h3>'+d.t+'</h3>'+
+      '<div class="k">poste</div><div class="v mono">'+d.a+'</div>'+
+      '<div class="k">avancement</div><div class="row"><span class="state state--idle"><span class="bullet"></span>'+d.s+'</span>'+
+      '<span class="cx">'+d.c+'</span><span class="meta">priorité '+d.p+'</span></div>'+
+      (d.gate?'<div class="k">gate</div><div class="v">'+d.gate+'</div>':'')+
+      '<div class="k">où en est-on</div><div class="v">'+d.n+'</div>'+
+      '<div class="row" style="margin-top:18px"><button class="btn btn--primary btn--sm">'+d.act+'</button>'+
+      '<button class="btn btn--sm">Réassigner à un autre poste</button></div>';
+  });
+});
+
+/* ---------- graphe : dépendances au survol ---------- */
+var G={
+  n1:{t:'Auditer le flux de paiement existant',a:'spec',dep:[],unl:['n2','n3'],dod:[],st:'terminée · $0.78'},
+  n2:{t:'Rendre le webhook idempotent',a:'senior-dev',dep:['n1'],unl:['n4'],dod:['d1','d2'],st:'terminée · $1.24'},
+  n3:{t:'Migrer vers Checkout hébergé',a:'senior-dev',dep:['n1'],unl:['n4'],dod:['d3'],st:'en revue · gate ouvert depuis 4 h'},
+  n4:{t:'Review consolidée',a:'review-coordinator',dep:['n2','n3'],unl:[],dod:['d4'],st:'en attente des deux étapes amont'}
+};
+var LBL={n1:'Auditer le flux de paiement existant',n2:'Rendre le webhook idempotent',n3:'Migrer vers Checkout hébergé',n4:'Review consolidée'};
+var DODL={d1:'Webhook Stripe idempotent',d2:'Confirmation après le webhook',d3:'Tunnel via Checkout hébergé',d4:'Aucune régression de tests'};
+var graph=$('#graph'), nodeInsp=$('#node-inspector');
+
+function lightNode(id){
+  graph.classList.add('is-focused');
+  var rel={}; rel[id]=1;
+  G[id].dep.forEach(function(x){rel[x]=1}); G[id].unl.forEach(function(x){rel[x]=1});
+  $$('.gnode',graph).forEach(function(n){n.classList.toggle('on',!!rel[n.dataset.node])});
+  $$('.gedge',graph).forEach(function(e){
+    var p=e.dataset.edge.split('-');
+    e.classList.toggle('on',p[0]===id||p[1]===id);
+  });
+  $$('.gdod',graph).forEach(function(d){d.classList.toggle('on',d.dataset.node===id)});
+  $$('#dod-list li').forEach(function(li){li.classList.toggle('is-lit',G[id].dod.indexOf(li.dataset.dod)>-1)});
+  var d=G[id];
+  nodeInsp.innerHTML='<h4>'+d.t+'</h4><dl class="g">'+
+    '<dt>poste</dt><dd class="mono">'+d.a+'</dd>'+
+    '<dt>dépend de</dt><dd>'+(d.dep.length?d.dep.map(function(x){return LBL[x]}).join(', '):'rien — point de départ')+'</dd>'+
+    '<dt>débloque</dt><dd>'+(d.unl.length?d.unl.map(function(x){return LBL[x]}).join(', '):'rien — nœud terminal')+'</dd>'+
+    '<dt>valide</dt><dd>'+(d.dod.length?d.dod.map(function(x){return DODL[x]}).join(', '):'aucun critère de la DoD')+'</dd>'+
+    '<dt>état</dt><dd>'+d.st+'</dd></dl>';
+}
+function unlight(){
+  graph.classList.remove('is-focused');
+  $$('.on',graph).forEach(function(n){n.classList.remove('on')});
+  $$('#dod-list li').forEach(function(li){li.classList.remove('is-lit')});
+}
+$$('.gnode',graph).forEach(function(n){
+  n.addEventListener('mouseenter',function(){lightNode(n.dataset.node)});
+  n.addEventListener('mouseleave',unlight);
+  n.addEventListener('focus',function(){lightNode(n.dataset.node)});
+  n.addEventListener('blur',unlight);
+  n.addEventListener('click',function(){lightNode(n.dataset.node)});
+  n.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();lightNode(n.dataset.node)}});
+});
+$$('#dod-list li').forEach(function(li){
+  li.addEventListener('mouseenter',function(){
+    var t=li.dataset.dod;
+    var owner=$('.gdod[data-dod="'+t+'"]',graph);
+    if(owner) lightNode(owner.dataset.node);
+  });
+  li.addEventListener('mouseleave',unlight);
+});
+
+/* ---------- kill switch ---------- */
+var kill=$('.js-kill');
+kill.addEventListener('click',function(){
+  if(!state.killArmed){
+    state.killArmed=true;
+    kill.classList.add('btn--primary');
+    kill.style.background='var(--danger)';kill.style.borderColor='var(--danger)';kill.style.color='#FFF6F4';
+    kill.innerHTML='<svg class="ic ic-14" viewBox="0 0 24 24"><use href="#i-alert"/></svg>Confirmer — 2 containers seront détruits';
+    setTimeout(function(){
+      if(state.killArmed && !kill.disabled){
+        state.killArmed=false;kill.className='btn btn--danger js-kill';kill.style.cssText='width:100%;justify-content:center';
+        kill.innerHTML='<svg class="ic ic-14" viewBox="0 0 24 24"><use href="#i-stop"/></svg>Arrêter le goal';
+      }
+    },4000);
+    return;
+  }
+  kill.disabled=true; kill.style.cssText='width:100%;justify-content:center';
+  kill.className='btn js-kill';
+  kill.innerHTML='<svg class="ic ic-14" viewBox="0 0 24 24"><use href="#i-check"/></svg>Goal arrêté · branches conservées';
+  var chip=$('#screen-goal .goal__headrow .state');
+  chip.className='state state--idle'; chip.innerHTML='<span class="bullet"></span>stopped';
+});
+
+/* ---------- le seul mouvement authored : le réveil du graphe ---------- */
+function playGraph(){
+  if(graph.dataset.played) return; graph.dataset.played='1';
+  if(reduce) return;
+  var edges=$$('.gedge',graph), nodes=$$('.gnode',graph), dods=$$('.gdod',graph);
+  var E='cubic-bezier(.16,1,.3,1)';
+  edges.forEach(function(e){var L=e.getTotalLength();e.style.strokeDasharray=L;e.style.strokeDashoffset=L});
+  nodes.concat(dods).forEach(function(n){n.style.opacity='0';n.style.transform='translateY(8px)'});
+  requestAnimationFrame(function(){
+    nodes.forEach(function(n,i){
+      var d=60+i*90;
+      n.style.transition='opacity .52s '+E+' '+d+'ms, transform .52s '+E+' '+d+'ms';
+      n.style.opacity='1';n.style.transform='translateY(0)';
+    });
+    edges.forEach(function(e,i){
+      var d=200+i*100;
+      e.style.transition='stroke-dashoffset .9s '+E+' '+d+'ms';
+      e.style.strokeDashoffset='0';
+    });
+    dods.forEach(function(n,i){
+      var d=560+i*70;
+      n.style.transition='opacity .5s '+E+' '+d+'ms, transform .5s '+E+' '+d+'ms';
+      n.style.opacity='1';n.style.transform='translateY(0)';
+    });
+  });
+  setTimeout(function(){
+    edges.concat(nodes).concat(dods).forEach(function(n){n.style.cssText=''});
+  },1900);
+}
+})();
+</script>
+</body>
+</html>

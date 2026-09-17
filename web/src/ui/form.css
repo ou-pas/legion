@@ -1,0 +1,113 @@
+/* The label is a board label (narrow capitals), not a title: the field should draw the eye. */
+.ui-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  min-width: 0;
+  font-size: var(--fs-sm);
+}
+
+.ui-field-label {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--sp-4);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-semi);
+  text-transform: uppercase;
+  letter-spacing: var(--tr-caps);
+  color: var(--ink-3);
+}
+
+.ui-field-req {
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--tr-normal);
+  text-transform: none;
+  color: var(--accent-deep);
+}
+
+.ui-field > :where(input, textarea, select) {
+  width: 100%;
+}
+
+.ui-field-hint {
+  font-size: var(--fs-xs);
+  line-height: var(--lh-snug);
+  color: var(--ink-3);
+}
+
+.ui-field-error {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-snug);
+  color: var(--bad);
+}
+
+/* An invalid field gets the semantic line even when the page passed a bare <input> instead of
+   Input. */
+.ui-field[data-invalid="true"] :where(input, textarea, select) {
+  border-color: var(--bad);
+}
+
+.ui-field[data-invalid="true"] :where(input, textarea, select):focus {
+  box-shadow: 0 0 0 var(--sp-2) var(--bad-wash);
+}
+
+.ui-fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+  min-width: 0;
+  padding: var(--sp-6) var(--sp-8) var(--sp-8);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-3);
+}
+
+.ui-fieldset-legend {
+  padding: 0 var(--sp-3);
+  font-family: var(--sans);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-semi);
+  text-transform: uppercase;
+  letter-spacing: var(--tr-caps);
+  color: var(--ink-2);
+}
+
+.ui-fieldset-hint {
+  max-width: var(--measure);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-snug);
+  color: var(--ink-3);
+}
+
+.ui-form-row {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: var(--sp-6);
+  align-items: start;
+}
+
+@media (max-width: 700px) {
+  .ui-form-row {
+    grid-auto-flow: row;
+  }
+}
+
+.ui-form-msg {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-snug);
+}
+
+.ui-form-msg[data-tone="bad"] {
+  color: var(--bad);
+}
+
+.ui-form-msg[data-tone="ok"] {
+  color: var(--ok);
+}

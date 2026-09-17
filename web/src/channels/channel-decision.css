@@ -1,0 +1,13 @@
+/* Touch floor below 640px (14/09, decision buttons under a finger), same rule as the task action bar
+   (`tasks/task-actions-bar.css`), scoped to `.channel-decision` rather than `.ui-banner` in general:
+   the product's other banners were not measured. Above the breakpoint, controls stay at 32px. */
+@media (max-width: 640px) {
+  .channel-decision .ui-btn[data-size="md"] {
+    height: var(--h-touch);
+  }
+
+  .channel-decision .ui-btn svg {
+    width: var(--icon-touch);
+    height: var(--icon-touch);
+  }
+}

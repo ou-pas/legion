@@ -1,0 +1,72 @@
+/* Pre-review: the diff is rendered by react-diff-view, REPAINTED with our tokens. The library routes
+   each colour through a `--diff-*` custom property, so none of its rules is overridden: its
+   variables are remapped. */
+@import "react-diff-view/style/index.css";
+
+.dm-diff {
+  --diff-background-color: transparent;
+  --diff-text-color: var(--ink);
+  --diff-font-family: var(--mono);
+
+  /* Add / remove: the system's TWO semantic washes, never a green/red of our own. */
+  --diff-code-insert-background-color: var(--ok-wash);
+  --diff-gutter-insert-background-color: var(--ok-wash);
+  --diff-code-delete-background-color: var(--bad-wash);
+  --diff-gutter-delete-background-color: var(--bad-wash);
+  /* Intra-line (word) diff: same family, one step stronger. */
+  --diff-code-insert-edit-background-color: var(--ok-line);
+  --diff-code-delete-edit-background-color: var(--bad-line);
+
+  /* Current selection (the range being commented): accent ink. */
+  --diff-code-selected-background-color: var(--accent-wash);
+  --diff-gutter-selected-background-color: var(--accent-wash);
+  --diff-selection-background-color: var(--accent-wash);
+  --diff-omit-gutter-line-color: var(--rule-3);
+
+  font-size: var(--fs-xs);
+}
+
+/* The gutter is the gesture: it must look clickable. */
+.dm-diff .diff-gutter {
+  color: var(--ink-3);
+  border-right: 1px solid var(--border-separator);
+}
+
+.dm-diff .diff-line:hover .diff-gutter {
+  color: var(--accent);
+}
+
+/* A line COVERED by an already commented range (not its anchor): tinted to show the comment's
+   extent without repeating it under each line. */
+.dm-diff .dm-diff-covered .diff-gutter {
+  box-shadow: inset 2px 0 0 0 var(--accent-line);
+}
+
+/* The widget: comments + editor under their anchor line. App font (human text, not code) and an
+   accent rule tying it to its line. */
+.dm-diff-widget {
+  padding: var(--sp-5) var(--sp-6);
+  font-family: var(--sans);
+  background: var(--recess);
+  border-left: 2px solid var(--accent-line);
+}
+
+.dm-diff-note {
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--accent-wash);
+  border-radius: var(--r-2);
+}
+
+/* A multi-line comment reads as written: otherwise the line breaks typed would be swallowed on
+   display. */
+.dm-diff-note-body {
+  white-space: pre-wrap;
+}
+
+.dm-diff-note[data-sent] {
+  background: var(--gate-wash);
+}
+
+.dm-diff-editor {
+  padding-top: var(--sp-2);
+}

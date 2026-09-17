@@ -1,0 +1,43 @@
+/* Same surface family as native fields (base.css), so "below" the sheet: no shadow, otherwise it
+   would be a nested card. */
+.ui-inset {
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-2);
+  padding: var(--sp-5) var(--sp-6);
+  font-size: var(--fs-sm);
+  min-width: 0;
+}
+
+.ui-inset[data-tone="recess"] {
+  background: var(--recess);
+}
+
+.ui-inset[data-tone="accent"] {
+  background: var(--accent-wash);
+  border-color: var(--accent-line);
+}
+
+.ui-inset-label {
+  margin-bottom: var(--sp-4);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-semi);
+  text-transform: uppercase;
+  letter-spacing: var(--tr-caps);
+  color: var(--ink-3);
+}
+
+.ui-inset[data-tone="accent"] .ui-inset-label {
+  color: var(--accent-deep);
+}
+
+/* See `stretch` in inset.tsx. The body is every child that is not the label; `min-height: 0`
+   keeps flex content from inheriting `auto` and refusing to fit the space it is given. */
+.ui-inset--stretch {
+  display: flex;
+  flex-direction: column;
+}
+
+.ui-inset--stretch > *:not(.ui-inset-label) {
+  flex: 1;
+  min-height: 0;
+}

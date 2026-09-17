@@ -1,0 +1,547 @@
+<title>Double navigation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<style>
+:root {
+  --paper: #f4f0e8; --sheet: #fcfaf6; --sheet-hi: #ffffff; --recess: #ede7da; --recess-2: #e5ddcc;
+  --ink: #1e1a15; --ink-2: #584f42; --ink-3: #6b6255;
+  --rule: #dcd3c3; --rule-2: #c6bba6; --rule-3: #aea18a;
+  --accent: #b03f1b; --accent-deep: #8e3213; --accent-wash: #f6e4da; --accent-line: #e3c0b2;
+  --ok: #3e6b2e; --ok-wash: #e1ebdf; --ok-line: #c2d6bf;
+  --attn: #8a6a12; --attn-wash: #f4ecd8; --attn-line: #ded0a8;
+  --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --w-iconrail: 56px; --w-rail: 214px;
+  --r: 4px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #2e3440; --sheet: #3b4252; --sheet-hi: #434c5e; --recess: #2a2f3a; --recess-2: #252a33;
+    --ink: #eceff4; --ink-2: #cbd3df; --ink-3: #a3adbd;
+    --rule: #48505f; --rule-2: #5a6474; --rule-3: #6f7b8d;
+    --accent: #8fc7d6; --accent-deep: #a9d5e0; --accent-wash: #384550; --accent-line: #54707e;
+    --ok: #a9c492; --ok-wash: #3c4446; --ok-line: #606f5f;
+    --attn: #e0cf9a; --attn-wash: #43443c; --attn-line: #6d6a4f;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #2e3440; --sheet: #3b4252; --sheet-hi: #434c5e; --recess: #2a2f3a; --recess-2: #252a33;
+  --ink: #eceff4; --ink-2: #cbd3df; --ink-3: #a3adbd;
+  --rule: #48505f; --rule-2: #5a6474; --rule-3: #6f7b8d;
+  --accent: #8fc7d6; --accent-deep: #a9d5e0; --accent-wash: #384550; --accent-line: #54707e;
+  --ok: #a9c492; --ok-wash: #3c4446; --ok-line: #606f5f;
+  --attn: #e0cf9a; --attn-wash: #43443c; --attn-line: #6d6a4f;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+::selection { background: var(--accent-wash); color: var(--ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+svg { display: block; }
+
+/* ─────────── page ─────────── */
+.page { max-width: 1360px; margin: 0 auto; padding: 40px 24px 72px; display: flex; flex-direction: column; gap: 28px; }
+h1 { font-family: var(--f-display); font-weight: 600; font-size: clamp(1.8rem, 4vw, 2.5rem); line-height: 1.1; letter-spacing: -.014em; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--f-display); font-weight: 600; font-size: 1.25rem; margin: 0; }
+p { margin: 0; max-width: 68ch; }
+.intro { color: var(--ink-2); font-size: 1.02rem; }
+.hr { height: 3px; width: 70px; background: var(--ink); }
+
+/* ─────────── switch de variante ─────────── */
+.variants { display: flex; gap: 0; border: 1px solid var(--rule-2); border-radius: var(--r); overflow: hidden; align-self: flex-start; background: var(--sheet); }
+.variants button { appearance: none; border: 0; background: transparent; font: inherit; font-weight: 500; color: var(--ink-2); padding: .5em 1.1em; cursor: pointer; border-right: 1px solid var(--rule); }
+.variants button:last-child { border-right: 0; }
+.variants button[aria-pressed="true"] { background: var(--accent-wash); color: var(--accent-deep); }
+
+/* ─────────── la maquette ─────────── */
+.frame { border: 1px solid var(--rule-2); border-radius: 6px; overflow: hidden; background: var(--sheet); box-shadow: 0 1px 2px rgba(30,26,21,.05), 0 8px 24px -12px rgba(30,26,21,.18); }
+:root[data-theme="dark"] .frame, :root:not([data-theme="light"]) .frame { box-shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 28px -14px rgba(0,0,0,.5); }
+.app { display: grid; grid-template-rows: 46px 1fr; height: 620px; }
+
+/* topbar */
+.topbar { display: flex; align-items: center; gap: 12px; padding: 0 12px 0 14px; background: var(--sheet); border-bottom: 1px solid var(--rule); }
+.brand { display: flex; align-items: center; gap: 8px; font-family: var(--f-display); font-weight: 600; font-size: .95rem; letter-spacing: -.01em; }
+.brand .mark { width: 20px; height: 20px; border-radius: 3px; background: var(--ink); color: var(--paper); display: grid; place-items: center; font-family: var(--f-mono); font-size: 11px; font-weight: 500; }
+.tb-spacer { flex: 1; }
+
+/* sélecteur de projet (variante A) */
+.picker { display: flex; align-items: center; gap: 8px; padding: 4px 8px 4px 6px; border: 1px solid var(--rule-2); border-radius: var(--r); background: var(--sheet-hi); cursor: pointer; font: inherit; color: var(--ink); }
+.picker:hover { border-color: var(--rule-3); }
+.picker .av { width: 20px; height: 20px; border-radius: 3px; display: grid; place-items: center; font-family: var(--f-mono); font-size: 10px; font-weight: 500; color: #fff; }
+.picker b { font-weight: 600; font-size: .88rem; }
+.picker .cnt { font-family: var(--f-mono); font-size: .7rem; color: var(--ink-3); }
+
+/* état système + actions globales */
+.status { display: flex; align-items: center; gap: 14px; font-family: var(--f-mono); font-size: .72rem; color: var(--ink-3); }
+.status .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ok); display: inline-block; margin-right: 5px; vertical-align: 1px; }
+.status .q i { font-style: normal; color: var(--ink-2); border-bottom: 1px dotted var(--rule-3); }
+/* le rail se replie : l'identité du projet vit dans le rail d'icônes, donc la règle du 26/08 tient */
+.body[data-variant="b"][data-rail="off"] { grid-template-columns: var(--w-iconrail) 1fr; }
+.body[data-rail="off"] .rail { display: none; }
+.collapse { margin-top: auto; display: flex; align-items: center; gap: 8px; padding: 6px 8px; border: 0; background: transparent; font: inherit; font-size: .8rem; color: var(--ink-3); border-radius: var(--r); cursor: pointer; }
+.collapse:hover { background: var(--sheet); color: var(--ink-2); }
+.collapse kbd { margin-left: auto; font-family: var(--f-mono); font-size: .66rem; border: 1px solid var(--rule-2); border-radius: 3px; padding: 0 4px; background: var(--sheet); }
+.reopen { position: absolute; left: calc(var(--w-iconrail) + 8px); top: 54px; z-index: 4; display: flex; align-items: center; gap: 7px; padding: 5px 10px 5px 8px; border: 1px solid var(--rule-2); border-radius: var(--r); background: var(--sheet-hi); font: inherit; font-size: .8rem; color: var(--ink-2); cursor: pointer; box-shadow: 0 1px 2px rgba(30,26,21,.06); }
+.reopen:hover { color: var(--ink); border-color: var(--rule-3); }
+.iconbtn { position: relative; width: 30px; height: 30px; display: grid; place-items: center; border: 1px solid transparent; border-radius: var(--r); background: transparent; color: var(--ink-2); cursor: pointer; }
+.iconbtn:hover { background: var(--recess); color: var(--ink); }
+.iconbtn[data-on="true"] { background: var(--accent-wash); color: var(--accent-deep); border-color: var(--accent-line); }
+.waiting { display: flex; align-items: center; gap: 6px; font: inherit; font-size: .8rem; color: var(--accent-deep); background: var(--accent-wash); border: 1px solid var(--accent-line); border-radius: 12px; padding: 3px 10px 3px 8px; cursor: pointer; }
+.waiting b { font-family: var(--f-mono); font-weight: 500; }
+.waiting:hover { border-color: var(--accent); }
+.waiting .pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex: none; }
+@media (prefers-reduced-motion: no-preference) { .waiting .pulse { animation: pulse 2.4s cubic-bezier(.22,1,.36,1) infinite; } }
+@keyframes pulse { 0%, 70%, 100% { opacity: 1; } 85% { opacity: .35; } }
+.badge { position: absolute; top: 2px; right: 2px; min-width: 15px; height: 15px; padding: 0 3px; border-radius: 8px; background: var(--accent); color: var(--paper); font-family: var(--f-mono); font-size: 9px; font-weight: 500; display: grid; place-items: center; border: 1.5px solid var(--sheet); }
+:root[data-theme="dark"] .badge, :root:not([data-theme="light"]) .badge { color: #23272f; }
+
+/* corps */
+.body { display: grid; min-height: 0; }
+.body[data-variant="a"] { grid-template-columns: var(--w-rail) 1fr; }
+.body[data-variant="b"] { grid-template-columns: var(--w-iconrail) var(--w-rail) 1fr; }
+.body[data-variant="vide"] { grid-template-columns: 1fr; }
+
+/* rail d'icônes (variante B) */
+.iconrail { background: var(--recess-2); border-right: 1px solid var(--rule-2); display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 0; }
+.prj { position: relative; width: 34px; height: 34px; border-radius: 7px; display: grid; place-items: center; font-family: var(--f-mono); font-size: 12px; font-weight: 500; color: #fff; cursor: pointer; border: 2px solid transparent; }
+.prj[aria-current="true"] { border-color: var(--ink); border-radius: 10px; }
+.prj .b2 { position: absolute; top: -3px; right: -4px; min-width: 15px; height: 15px; padding: 0 3px; border-radius: 8px; background: var(--accent); color: var(--paper); font-size: 9px; display: grid; place-items: center; border: 2px solid var(--recess-2); }
+:root[data-theme="dark"] .prj .b2, :root:not([data-theme="light"]) .prj .b2 { color: #23272f; }
+.prj-add { width: 34px; height: 34px; border-radius: 7px; border: 1px dashed var(--rule-3); color: var(--ink-3); display: grid; place-items: center; background: transparent; cursor: pointer; }
+.irsep { width: 22px; height: 1px; background: var(--rule-2); margin: 3px 0; }
+
+/* rail de projet */
+.rail { background: var(--recess); border-right: 1px solid var(--rule); padding: 12px 8px; display: flex; flex-direction: column; gap: 2px; min-height: 0; overflow: auto; }
+.rail-head { padding: 2px 8px 10px; display: flex; align-items: center; gap: 8px; }
+.rail-head .av { width: 22px; height: 22px; border-radius: 4px; display: grid; place-items: center; font-family: var(--f-mono); font-size: 10px; color: #fff; flex: none; }
+.rail-head b { font-family: var(--f-display); font-weight: 600; font-size: .95rem; letter-spacing: -.01em; }
+.navlink { display: flex; align-items: center; gap: 9px; padding: 6px 8px; border-radius: var(--r); color: var(--ink-2); cursor: pointer; font-size: .875rem; }
+.navlink:hover { background: var(--sheet); color: var(--ink); }
+.navlink[aria-current="true"] { background: var(--sheet-hi); color: var(--ink); font-weight: 600; box-shadow: inset 0 0 0 1px var(--rule-2); }
+.navlink .n { margin-left: auto; font-family: var(--f-mono); font-size: .68rem; color: var(--ink-3); }
+.navlink[aria-current="true"] .n { color: var(--ink-2); }
+.rail-sep { margin: 10px 8px 4px; font-family: var(--f-mono); font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+
+/* contenu : un board */
+.main { padding: 16px 18px; overflow: auto; min-height: 0; background: var(--paper); }
+.main-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 14px; }
+.main-head h3 { font-family: var(--f-display); font-weight: 600; font-size: 1.15rem; margin: 0; }
+.main-head .sub { font-family: var(--f-mono); font-size: .72rem; color: var(--ink-3); }
+.cols { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; }
+.col h4 { margin: 0 0 8px; font-family: var(--f-mono); font-size: .66rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); display: flex; justify-content: space-between; }
+.card { background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--r); padding: 9px 10px; margin-bottom: 7px; display: flex; flex-direction: column; gap: 6px; }
+.card .t { font-size: .84rem; line-height: 1.35; }
+.card .m { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.chip { font-family: var(--f-mono); font-size: .64rem; padding: .15em .45em; border-radius: 3px; border: 1px solid var(--rule-2); color: var(--ink-3); background: var(--recess); }
+.chip[data-k="run"] { color: var(--ok); background: var(--ok-wash); border-color: var(--ok-line); }
+.chip[data-k="gate"] { color: var(--accent-deep); background: var(--accent-wash); border-color: var(--accent-line); }
+.chip[data-k="blk"] { color: var(--attn); background: var(--attn-wash); border-color: var(--attn-line); }
+
+/* panneau d'inbox */
+.pop { position: absolute; top: 40px; right: 10px; width: 330px; background: var(--sheet-hi); border: 1px solid var(--rule-2); border-radius: 6px; box-shadow: 0 2px 4px rgba(30,26,21,.06), 0 16px 40px -16px rgba(30,26,21,.3); overflow: hidden; z-index: 5; }
+:root[data-theme="dark"] .pop, :root:not([data-theme="light"]) .pop { box-shadow: 0 2px 4px rgba(0,0,0,.35), 0 18px 44px -18px rgba(0,0,0,.6); }
+.pop header { padding: 9px 12px; border-bottom: 1px solid var(--rule); display: flex; align-items: baseline; justify-content: space-between; }
+.pop header b { font-size: .84rem; }
+.pop header span { font-family: var(--f-mono); font-size: .68rem; color: var(--ink-3); }
+.grp { font-family: var(--f-mono); font-size: .64rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); padding: 8px 12px 4px; display: flex; align-items: center; gap: 6px; }
+.grp .av { width: 13px; height: 13px; border-radius: 2px; }
+.item { padding: 7px 12px; border-top: 1px solid var(--rule); display: flex; gap: 9px; cursor: pointer; }
+.item:hover { background: var(--recess); }
+.item .ic { color: var(--ink-3); flex: none; margin-top: 2px; }
+.item .tx { font-size: .81rem; line-height: 1.35; }
+.item .tx em { font-style: normal; color: var(--ink-3); font-family: var(--f-mono); font-size: .68rem; display: block; margin-top: 2px; }
+.frame-rel { position: relative; }
+
+/* ─────────── sans projet ─────────── */
+.blank { display: grid; grid-template-columns: 1fr; background: var(--paper); overflow: auto; min-height: 0; }
+.sheet { max-width: 620px; margin: 0 auto; padding: 44px 32px 40px; display: flex; flex-direction: column; gap: 26px; }
+.sheet h3 { font-family: var(--f-display); font-weight: 600; font-size: 1.75rem; line-height: 1.15; letter-spacing: -.014em; margin: 0; text-wrap: balance; }
+.sheet .lede { color: var(--ink-2); font-size: .95rem; max-width: 54ch; }
+
+.preflight { border: 1px solid var(--rule-2); border-radius: var(--r); background: var(--sheet); overflow: hidden; }
+.pf-head { padding: 8px 13px; border-bottom: 1px solid var(--rule); font-family: var(--f-mono); font-size: .66rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); display: flex; justify-content: space-between; }
+.pf { display: grid; grid-template-columns: 18px 1fr auto; gap: 10px; align-items: start; padding: 10px 13px; border-top: 1px solid var(--rule); }
+.pf:first-of-type { border-top: 0; }
+.pf .st { margin-top: 1px; }
+.pf .st[data-s="ok"] { color: var(--ok); }
+.pf .st[data-s="no"] { color: var(--accent); }
+.pf .w b { font-weight: 600; font-size: .87rem; }
+.pf .w p { font-size: .83rem; color: var(--ink-2); margin-top: 2px; max-width: 46ch; }
+.pf .w code { font-family: var(--f-mono); font-size: .78rem; background: var(--recess); padding: .1em .35em; border-radius: 3px; color: var(--ink); }
+.pf .v { font-family: var(--f-mono); font-size: .72rem; color: var(--ink-3); white-space: nowrap; padding-top: 2px; }
+
+.field { display: flex; flex-direction: column; gap: 7px; }
+.field label { font-size: .87rem; font-weight: 600; }
+.field .hint { font-size: .82rem; color: var(--ink-2); }
+.inputrow { display: flex; gap: 8px; }
+.inputrow input { flex: 1; font-family: var(--f-mono); font-size: .84rem; color: var(--ink); background: var(--recess); border: 1px solid var(--rule-2); border-radius: var(--r); padding: .6em .7em; }
+.inputrow input::placeholder { color: var(--ink-3); }
+.inputrow input:focus-visible { background: var(--sheet-hi); border-color: var(--accent); outline: none; box-shadow: 0 0 0 2px var(--accent-wash); }
+.btn { font: inherit; font-weight: 600; font-size: .87rem; background: var(--ink); color: var(--paper); border: 1px solid var(--ink); border-radius: var(--r); padding: .55em 1.05em; cursor: pointer; white-space: nowrap; }
+.btn:disabled { background: var(--recess-2); color: var(--ink-3); border-color: var(--rule-2); cursor: not-allowed; }
+.btn-quiet { background: transparent; color: var(--ink); border-color: var(--rule-3); }
+.btn-quiet:hover { background: var(--recess); }
+.derived { font-family: var(--f-mono); font-size: .76rem; color: var(--ink-3); }
+.derived b { color: var(--ink-2); font-weight: 500; }
+
+.aside-door { border-top: 1px solid var(--rule); padding-top: 18px; display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
+.aside-door p { font-size: .85rem; color: var(--ink-2); max-width: 40ch; }
+.aside-door b { display: block; font-size: .88rem; color: var(--ink); margin-bottom: 3px; }
+
+/* notes */
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%,17rem),1fr)); gap: 14px; }
+.note { border-top: 2px solid var(--ink); padding-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.note b { font-size: .9rem; }
+.note p { font-size: .87rem; color: var(--ink-2); }
+.note[data-k="warn"] { border-top-color: var(--accent); }
+.legend { font-family: var(--f-mono); font-size: .72rem; color: var(--ink-3); }
+@media (max-width: 900px) { .app { height: auto; } .cols { grid-template-columns: 1fr 1fr; } .body[data-variant="b"] { grid-template-columns: var(--w-iconrail) 1fr; } .body[data-variant="b"] .rail { display: none; } }
+</style>
+
+<div class="page">
+  <header style="display:flex;flex-direction:column;gap:10px">
+    <h1>Le projet devient le contexte,<br>pas une section</h1>
+    <div class="hr"></div>
+    <p class="intro">Aujourd'hui le rail porte deux axes à la fois : ce qui appartient à un projet et ce qui appartient à la machine. Les deux maquettes ci-dessous rangent le global ailleurs et laissent le rail au seul projet ouvert. Elles ne diffèrent que par la façon d'en changer.</p>
+  </header>
+
+  <div class="variants" role="group" aria-label="Variante">
+    <button type="button" data-v="a" aria-pressed="false">A · sélecteur dans la barre</button>
+    <button type="button" data-v="b" aria-pressed="true">B · rail d'icônes — retenue</button>
+    <button type="button" data-v="vide" aria-pressed="false">Sans projet</button>
+  </div>
+
+  <div class="frame frame-rel">
+    <div class="app">
+      <div class="topbar">
+        <div class="brand"><span class="mark">A</span> Legion</div>
+
+        <button type="button" class="picker" id="picker">
+          <span class="av" style="background:#b03f1b">AG</span>
+          <b>Legion</b>
+          <span class="cnt">2 projets</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+
+        <div class="tb-spacer"></div>
+
+        <div class="status">
+          <span title="Toutes sessions, tous projets — c'est la capacité de la machine"><span class="dot"></span>2 sessions</span>
+          <span class="q" title="Fenêtre de 5 h de l'identifiant que ce projet utilise">quota 5 h · 41 % <i>jeton du plan</i></span>
+          <span title="Runners déclarés et sains">docker ok</span>
+        </div>
+
+        <button type="button" class="waiting" id="bell" data-on="true" aria-label="3 sessions arrêtées attendent une réponse">
+          <span class="pulse"></span>
+          <b>3</b> en attente
+        </button>
+        <button type="button" class="iconbtn" id="palettebtn" aria-label="Chercher — tâches, agents, pages du wiki">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        </button>
+        <button type="button" class="iconbtn" aria-label="Le wiki">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/></svg>
+        </button>
+        <button type="button" class="iconbtn" aria-label="Système — runners, modèles, journaux, quota">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+
+      <div class="body" data-variant="a" id="body">
+        <nav class="iconrail" id="iconrail" aria-label="Projets">
+          <div class="prj" aria-current="true" style="background:#b03f1b" title="Legion">AG</div>
+          <div class="prj" style="background:#3e6b2e" title="Kopee.me">KO<span class="b2">2</span></div>
+          <button type="button" class="prj-add" aria-label="Nouveau projet">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+        </nav>
+
+        <nav class="rail" aria-label="Navigation du projet">
+          <div class="rail-head"><span class="av" style="background:#b03f1b">AG</span><b>Legion</b></div>
+
+          <div class="navlink" aria-current="true">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="18" x="3" y="3" rx="1"/><rect width="7" height="11" x="14" y="3" rx="1"/></svg>
+            Board <span class="n">12</span>
+          </div>
+          <div class="navlink">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 9h8M8 13h5"/><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Canaux <span class="n">2</span>
+          </div>
+          <div class="navlink">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>
+            Goals <span class="n">1</span>
+          </div>
+          <div class="navlink">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            Planifiées
+          </div>
+
+          <div class="rail-sep">Revue</div>
+          <div class="navlink">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7M6 9v12"/></svg>
+            Pull requests <span class="n">3</span>
+          </div>
+          <div class="navlink">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+            Issues <span class="n">7</span>
+          </div>
+
+          <div class="rail-sep">Configurer</div>
+          <div class="navlink">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg>
+            Agents <span class="n">6</span>
+          </div>
+          <div class="navlink">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8-5.8 1.9 5.8 1.9L12 18.4l1.9-5.8 5.8-1.9-5.8-1.9z"/></svg>
+            Capacités
+          </div>
+          <div class="navlink">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12.2 2h-.4a2 2 0 0 0-2 2v.2a2 2 0 0 1-1 1.7l-.4.3a2 2 0 0 1-2 0l-.2-.1a2 2 0 0 0-2.7.7l-.2.4a2 2 0 0 0 .7 2.7l.2.1a2 2 0 0 1 1 1.7v.5a2 2 0 0 1-1 1.8l-.2.1a2 2 0 0 0-.7 2.7l.2.4a2 2 0 0 0 2.7.7l.2-.1a2 2 0 0 1 2 0l.4.3a2 2 0 0 1 1 1.7V20a2 2 0 0 0 2 2h.4a2 2 0 0 0 2-2v-.2a2 2 0 0 1 1-1.7l.4-.3a2 2 0 0 1 2 0l.2.1a2 2 0 0 0 2.7-.7l.2-.4a2 2 0 0 0-.7-2.7l-.2-.1a2 2 0 0 1-1-1.7v-.5a2 2 0 0 1 1-1.8l.2-.1a2 2 0 0 0 .7-2.7l-.2-.4a2 2 0 0 0-2.7-.7l-.2.1a2 2 0 0 1-2 0l-.4-.3a2 2 0 0 1-1-1.7V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            Réglages
+          </div>
+
+          <button type="button" class="collapse" id="collapse">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="m16 15-3-3 3-3"/></svg>
+            Replier <kbd>⌘B</kbd>
+          </button>
+        </nav>
+
+        <div class="blank" id="blank" hidden>
+          <div class="sheet">
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <h3>Rien à piloter pour l'instant</h3>
+              <p class="lede">Un projet, c'est un dépôt et les agents qui ont le droit d'y toucher. Il arrive avec un agent par défaut et un environnement ouvert : la première tâche part sans autre réglage.</p>
+            </div>
+
+            <div class="preflight">
+              <div class="pf-head"><span>Le terrain</span><span>2 sur 3</span></div>
+
+              <div class="pf">
+                <span class="st" data-s="ok"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+                <span class="w"><b>Un identifiant Claude</b><p>Jeton d'abonnement, lu dans l'environnement du control plane.</p></span>
+                <span class="v">sk-ant-oat-a… · oauth</span>
+              </div>
+
+              <div class="pf">
+                <span class="st" data-s="ok"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+                <span class="w"><b>Docker répond</b><p>Deux runners déclarés, tous deux sains.</p></span>
+                <span class="v">local · home-server</span>
+              </div>
+
+              <div class="pf">
+                <span class="st" data-s="no"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5h.01"/></svg></span>
+                <span class="w"><b>L'image de session manque</b><p>Sans elle une session démarre et meurt sans rien dire. <code>make image-session</code> la construit, deux minutes.</p></span>
+                <span class="v">legion-session</span>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="repo">Le dépôt sur lequel les agents travailleront</label>
+              <div class="inputrow">
+                <input id="repo" type="text" value="git@github.com:ou-pas/legion.git" spellcheck="false">
+                <button type="button" class="btn" disabled>Créer</button>
+              </div>
+              <span class="derived">projet <b>legion</b> · forge <b>github</b> · un agent <b>senior-dev</b> et un environnement ouvert</span>
+              <span class="hint">Le bouton attend l'image de session : créer le projet marcherait, mais la première tâche partirait dans le vide.</span>
+            </div>
+
+            <div class="aside-door">
+              <div><b>Voir avant de brancher son dépôt</b><p>Un projet de démonstration, avec ses tâches, ses sessions jouées et ses questions en attente. Rien ne tourne, rien ne coûte, et il se supprime d'un geste.</p></div>
+              <button type="button" class="btn btn-quiet">Ouvrir la démo</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="main" id="mainboard">
+          <div class="main-head">
+            <h3>Board</h3>
+            <span class="sub">12 tâches · 2 sessions en cours · legion + kopee-front</span>
+          </div>
+          <div class="cols">
+            <div class="col">
+              <h4>Plus tard <span>3</span></h4>
+              <div class="card"><span class="t">Palier 2 : le certificateur en lecture seule</span><span class="m"><span class="chip">senior-dev</span></span></div>
+              <div class="card"><span class="t">L'unité « question » : une demande de lecture</span><span class="m"><span class="chip">spec</span></span></div>
+            </div>
+            <div class="col">
+              <h4>À faire <span>4</span></h4>
+              <div class="card"><span class="t">Tranche 02 · les lecteurs passent sur la table</span><span class="m"><span class="chip" data-k="blk">bloquée par 1</span></span></div>
+              <div class="card"><span class="t">Tranche 03 · retirer la colonne</span><span class="m"><span class="chip" data-k="blk">bloquée par 2</span></span></div>
+              <div class="card"><span class="t">Documenter la chaîne feature</span><span class="m"><span class="chip">librarian</span></span></div>
+            </div>
+            <div class="col">
+              <h4>En cours <span>2</span></h4>
+              <div class="card"><span class="t">Découpe · spec « double navigation »</span><span class="m"><span class="chip" data-k="run">slicer · 4 min</span></span></div>
+              <div class="card"><span class="t">Tranche 01 · la table de jointure</span><span class="m"><span class="chip" data-k="run">senior-dev · 11 min</span><span class="chip">3 critères</span></span></div>
+            </div>
+            <div class="col">
+              <h4>En revue <span>3</span></h4>
+              <div class="card"><span class="t">Approbation du lot · 7 tranches proposées</span><span class="m"><span class="chip" data-k="gate">gate</span></span></div>
+              <div class="card"><span class="t">Sonde · 4 bords ouverts</span><span class="m"><span class="chip" data-k="gate">gate</span><span class="chip">inbox</span></span></div>
+              <div class="card"><span class="t">Bundle découpé par route</span><span class="m"><span class="chip">PR #61</span></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button type="button" class="reopen" id="reopen" hidden>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="m14 9 3 3-3 3"/></svg>
+      Legion
+    </button>
+
+    <div class="pop" id="pop" hidden>
+      <header><b>Ce qui est arrêté</b><span>3 sessions · tous projets</span></header>
+      <div class="grp"><span class="av" style="background:#b03f1b"></span>Legion</div>
+      <div class="item"><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 17h.01M12 7v6"/><circle cx="12" cy="12" r="9"/></svg></span><span class="tx">La sonde demande quatre bords : forme d'un identifiant, blancs comptés dans « vide »…<em>Sonde · 8 min</em></span></div>
+      <div class="item"><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg></span><span class="tx">Un lot de 7 tranches attend ton approbation<em>Découpe · gate · 2 min</em></span></div>
+      <div class="grp"><span class="av" style="background:#3e6b2e"></span>Kopee.me</div>
+      <div class="item"><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0"/></svg></span><span class="tx">La session est morte au clone : la clé SSH n'ouvre pas <span style="font-family:var(--f-mono);font-size:.9em">ansible</span><em>Implémenter le webhook · 22 min</em></span></div>
+
+      <div class="grp" style="border-top:1px solid var(--rule-2);margin-top:2px;padding-top:9px">Pour information · rien n'attend</div>
+      <div class="item" style="opacity:.72"><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 7 17l-5-5"/><path d="m22 10-7.5 7.5L13 16"/></svg></span><span class="tx">Tranche 03 terminée, la colonne a été retirée du schéma<em>Legion · il y a 12 min</em></span></div>
+      <div class="item" style="opacity:.72"><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 7 17l-5-5"/><path d="m22 10-7.5 7.5L13 16"/></svg></span><span class="tx">Le standup du matin est prêt<em>Tous projets · 08:02</em></span></div>
+    </div>
+  </div>
+
+  <p class="legend">Contenu réel du dépôt. La cloche est ouverte dans les deux variantes : c'est le point qui ne change pas.</p>
+
+  <section style="display:flex;flex-direction:column;gap:14px">
+    <h2>Ce que ça règle, et ce que ça casserait</h2>
+    <div class="notes">
+      <div class="note">
+        <b>Le rail cesse de porter deux axes</b>
+        <p>Aujourd'hui « Inbox » et « Board » sont voisins alors que l'un traverse les projets et l'autre non. Ranger le global derrière l'engrenage laisse au rail une seule question : que fait-on dans ce projet.</p>
+      </div>
+      <div class="note">
+        <b>Le repli du rail redevient possible</b>
+        <p>Il a été refusé le 26/08 pour une raison précise : replié, il perdait le nom du projet ouvert. Dans la variante B ce nom vit dans le rail d'icônes, donc la règle posée alors est respectée et le repli redevient une option.</p>
+      </div>
+      <div class="note" data-k="warn">
+        <b>L'inbox ne peut pas être scopée</b>
+        <p>« N'être interrompu que quand une décision te revient » ne marche que si un seul endroit le dit. Scopée par projet, tu dois visiter chaque projet pour apprendre qu'on t'attend : tu passes d'être appelé à sonder. Elle reste en haut à droite, groupée par projet, et le clic emmène dans la tâche, donc dans le bon projet.</p>
+      </div>
+      <div class="note" data-k="warn">
+        <b>La pastille compte ce qui est arrêté, pas ce qui est non lu</b>
+        <p>Le code porte déjà deux choses distinctes : un message d'inbox <span style="font-family:var(--f-mono);font-size:.9em">blocking</span>, où une session dort, conteneur détruit, tâche à l'arrêt ; et une notice, que personne n'attend. Les mêler dans un compteur ferait un nombre qui ne descend jamais et qu'on cesse de regarder. Le chiffre en haut est une dette qui doit tomber à zéro ; les notices vivent sous la barre du panneau, sans le gonfler.</p>
+      </div>
+      <div class="note" data-k="warn">
+        <b>Le dashboard global : d'accord, sauf trois chiffres</b>
+        <p>Une vue « toutes les tâches de tous les projets » sert peu quand on travaille dans un projet à la fois. Mais trois choses restent vraies partout : les sessions qui tournent, la fenêtre de quota, la santé de Docker. Elles montent dans la barre, pas dans une page.</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:14px">
+    <h2>A ou B</h2>
+    <div class="notes">
+      <div class="note">
+        <b>A coûte 0 px et se lit tout de suite</b>
+        <p>Un sélecteur dans la barre ne prend aucune largeur permanente. Avec deux projets, c'est un geste qu'on fait deux fois par jour : lui donner 56 px en permanence est cher.</p>
+      </div>
+      <div class="note">
+        <b>B ne sert pas à changer, il sert à savoir</b>
+        <p>La valeur d'un rail d'icônes n'est pas la vitesse de bascule, c'est la pastille : « Kopee attend deux réponses » se voit sans ouvrir la cloche. Ça devient vrai le jour où deux projets tournent en parallèle, pas avant.</p>
+      </div>
+      <div class="note">
+        <b>La recommandation</b>
+        <p>A maintenant, B quand un troisième projet arrive. Les deux partagent la même IA : le rail ne connaît que le projet, l'engrenage porte l'infra, les journaux, les modèles et le wiki, la cloche porte l'inbox. Passer de A à B ne déplace qu'un composant.</p>
+      </div>
+      <div class="note">
+        <b>L'écran sans projet est un préflight, pas une invite</b>
+        <p>Il ne demande pas de créer un projet, il dit d'abord si le terrain tient : un identifiant, Docker, l'image de session. C'est une matinée de sessions parties nulle part qui a payé cette liste, et c'est le seul écran où elle arrive avant la faute plutôt qu'après.</p>
+      </div>
+      <div class="note">
+        <b>Un champ, pas un formulaire</b>
+        <p>L'URL du dépôt suffit : le nom du projet, la forge et l'identifiant à présenter s'en déduisent, et un projet neuf arrive déjà avec un agent et un environnement ouvert. La porte de côté est la démo, pour voir avant de brancher son propre code.</p>
+      </div>
+      <div class="note" data-k="warn">
+        <b>Le wiki n'est pas un réglage</b>
+        <p>L'engrenage est le bon rangement pour l'infra, les runners, les modèles, les journaux et le quota : on y va pour changer ou diagnostiquer quelque chose, rarement, délibérément. Le wiki n'est rien de tout ça. On l'ouvre au milieu d'autre chose, pour savoir. L'y enfermer, c'est le mettre à deux clics derrière une icône d'outil, et c'est là que la documentation meurt.</p>
+      </div>
+      <div class="note">
+        <b>La palette d'abord, l'icône ensuite</b>
+        <p>Ce qu'on veut d'un wiki n'est presque jamais « parcourir l'arborescence », c'est « qu'est-ce qu'une gate d'approbation ». La palette existe déjà et cherche les tâches et les agents ; y verser les pages en fait la vraie porte, atteignable de partout sans chrome. L'icône livre à côté reste pour la lecture suivie, et elle est dans la barre, pas dans l'engrenage.</p>
+      </div>
+      <div class="note">
+        <b>Le wiki est global, et c'est une décision qui se périmera</b>
+        <p>Aujourd'hui il documente Legion, servi depuis le clone du control plane, le même quel que soit le projet ouvert. Le jour où Kopee.me voudra sa propre documentation, la question se reposera : deux corpus à deux étages, celui du produit dans la barre, celui du projet dans son rail.</p>
+      </div>
+      <div class="note">
+        <b>Le quota suit le projet, et ce n'est pas un choix de maquette</b>
+        <p>Le code le fait déjà : <span style="font-family:var(--f-mono);font-size:.9em">planUsage({ projectId })</span> passe par l'identifiant du projet, et un projet qui porte son propre jeton masque celui du control plane pour que le compte mesuré ne dépende pas de l'ordre de lecture du SDK. Donc la fenêtre affichée est celle de l'identifiant que <em>ce</em> projet va réellement consommer, et elle change quand on change de projet. Les deux autres chiffres, eux, ne bougent jamais : les sessions et Docker parlent de la machine. La barre dit la machine et l'identifiant ; le contenu dit le projet.</p>
+      </div>
+      <div class="note">
+        <b>Deux réglages, deux portées, deux endroits</b>
+        <p>Dans le rail, « Réglages » est celui du projet : dépôts, forge, identité git, routage de modèle, agents des chaînes, suppression. Dans la barre, l'engrenage est le système : runners, modèles par défaut, journaux, quota. Ils ne se croisent jamais parce que l'un vit sous le nom du projet et l'autre au-dessus de tout.</p>
+      </div>
+      <div class="note">
+        <b>Reste ouvert</b>
+        <p>Où va une tâche qui n'appartient à aucun projet. Aujourd'hui la question ne se pose pas, mais elle se posera le jour d'un « note à moi-même » que rien ne réclame.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  var body = document.getElementById("body");
+  var picker = document.getElementById("picker");
+  var iconrail = document.getElementById("iconrail");
+  var railEl = document.querySelector(".rail");
+  var blank = document.getElementById("blank");
+  var mainboard = document.getElementById("mainboard");
+  var status = document.querySelector(".status");
+  var pop = document.getElementById("pop");
+  var bell = document.getElementById("bell");
+  function set(v) {
+    var vide = v === "vide";
+    body.setAttribute("data-variant", vide ? "vide" : v);
+    picker.hidden = v !== "a";
+    iconrail.hidden = v !== "b";
+    railEl.hidden = vide;
+    blank.hidden = !vide;
+    if (typeof reopen !== "undefined" && reopen) reopen.hidden = vide || v !== "b" || body.getAttribute("data-rail") !== "off";
+    mainboard.hidden = vide;
+    bell.hidden = vide;          // rien ne peut attendre une décision sans projet
+    status.hidden = vide;        // l'état du terrain est dans la page, pas en double dans la barre
+    if (vide) { pop.hidden = true; }
+    Array.prototype.forEach.call(document.querySelectorAll(".variants button"), function (b) {
+      b.setAttribute("aria-pressed", String(b.getAttribute("data-v") === v));
+    });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll(".variants button"), function (b) {
+    b.addEventListener("click", function () { set(b.getAttribute("data-v")); });
+  });
+  var bell = document.getElementById("bell"), pop = document.getElementById("pop");
+  bell.addEventListener("click", function () {
+    pop.hidden = !pop.hidden;
+    bell.setAttribute("data-on", String(!pop.hidden));
+  });
+  // Le repli : le rail de projet disparaît, le rail d'icônes reste — donc on sait toujours
+  // où l'on est, ce qui est exactement la condition posée le 26/08 pour autoriser le repli.
+  var collapse = document.getElementById("collapse");
+  var reopen = document.getElementById("reopen");
+  function rail(on) {
+    body.setAttribute("data-rail", on ? "on" : "off");
+    reopen.hidden = on || body.getAttribute("data-variant") !== "b";
+  }
+  collapse.addEventListener("click", function () { rail(false); });
+  reopen.addEventListener("click", function () { rail(true); });
+  document.addEventListener("keydown", function (e) {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "b") {
+      e.preventDefault();
+      rail(body.getAttribute("data-rail") === "off");
+    }
+  });
+
+  set("b");
+  rail(true);
+  pop.hidden = false;
+})();
+</script>

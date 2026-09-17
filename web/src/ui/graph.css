@@ -1,0 +1,96 @@
+/* The SVG keeps its ratio and scrolls horizontally when the plan is wider than the column: a plan
+   is scrolled, not squeezed. */
+.ui-graph {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  min-width: 0;
+  padding: var(--sp-2) 0;
+}
+
+.ui-graph-svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.ui-graph-node {
+  cursor: default;
+  transition: opacity var(--dur-1) var(--ease);
+}
+
+.ui-graph-box {
+  fill: var(--sheet);
+  stroke: var(--border-separator);
+  stroke-width: 1;
+
+  /* SVG geometry in CSS: the radius comes from the token, never a hardcoded attribute. */
+  rx: var(--r-2);
+  transition:
+    fill var(--dur-1) var(--ease),
+    stroke var(--dur-1) var(--ease);
+}
+
+.ui-graph-label {
+  fill: var(--ink);
+  font-family: var(--sans);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+}
+
+.ui-graph-agent {
+  fill: var(--ink-3);
+  font-family: var(--mono);
+  font-size: var(--fs-2xs);
+}
+
+.ui-graph-node[data-state="doing"] .ui-graph-box {
+  fill: var(--run-wash);
+  stroke: var(--run-line);
+}
+
+.ui-graph-node[data-state="review"] .ui-graph-box {
+  fill: var(--gate-wash);
+  stroke: var(--gate-line);
+}
+
+.ui-graph-node[data-state="done"] .ui-graph-box {
+  fill: var(--ok-wash);
+  stroke: var(--ok-line);
+}
+
+.ui-graph-node[data-state="blocked"] .ui-graph-box {
+  fill: var(--bad-wash);
+  stroke: var(--bad-line);
+}
+
+/* Hover: whatever is not in the chain fades. */
+.ui-graph-node:hover .ui-graph-box,
+.ui-graph-node:focus-visible .ui-graph-box {
+  stroke: var(--accent);
+}
+
+.ui-graph-node[data-dim="true"],
+.ui-graph-edge[data-dim="true"] {
+  opacity: 0.28;
+}
+
+.ui-graph-edge {
+  fill: none;
+  stroke: var(--border-separator);
+  stroke-width: 1.5;
+  transition: opacity var(--dur-1) var(--ease);
+}
+
+/* Critical path: thicker and in the interactive tint; thickness alone works in black and white. */
+.ui-graph-edge[data-critical] {
+  stroke: var(--accent);
+  stroke-width: 2.5;
+}
+
+.ui-graph-arrow {
+  fill: var(--rule-3);
+}
+
+.ui-graph-arrow[data-critical] {
+  fill: var(--accent);
+}

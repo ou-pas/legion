@@ -1,0 +1,56 @@
+/* Same geometry as controls (h-control-sm), value in mono like any measure. Focus lives on the value
+   (spinbutton), not the buttons. */
+.ui-stepper {
+  display: inline-flex;
+  align-items: stretch;
+  height: var(--h-control-sm);
+  border: 1px solid var(--border-control);
+  border-radius: var(--r-2);
+  background: var(--sheet);
+  overflow: hidden;
+}
+
+.ui-stepper-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(var(--h-control-sm) + var(--sp-2));
+  border: 0;
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.ui-stepper-btn:hover:not(:disabled) {
+  background: var(--recess);
+  color: var(--ink);
+}
+.ui-stepper-btn:disabled {
+  color: var(--ink-3);
+  opacity: 0.45;
+  cursor: default;
+}
+
+.ui-stepper-value {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: var(--sp-2);
+  min-width: 3.4em;
+  padding: 0 var(--sp-3);
+  align-self: center;
+  font-family: var(--mono);
+  font-size: var(--fs-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  border-radius: var(--r-2);
+}
+.ui-stepper-value:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.ui-stepper-unit {
+  font-family: var(--sans);
+  font-size: var(--fs-2xs);
+  color: var(--ink-3);
+}

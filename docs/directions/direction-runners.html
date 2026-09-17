@@ -1,0 +1,491 @@
+<meta charset="utf-8">
+<title>Le parc sans le bruit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<style>
+/* Tokens de l'Atelier, repris des pages de direction voisines — une maquette qui invente sa
+   palette ne prouve rien sur l'application qu'elle décrit. */
+:root {
+  --paper: #f4f0e8; --sheet: #fcfaf6; --sheet-hi: #ffffff; --recess: #ede7da; --recess-2: #e5ddcc;
+  --ink: #1e1a15; --ink-2: #584f42; --ink-3: #6b6255;
+  --rule: #dcd3c3; --rule-2: #c6bba6; --rule-3: #aea18a;
+  --accent: #b03f1b; --accent-deep: #8e3213; --accent-wash: #f6e4da; --accent-line: #e3c0b2;
+  --run: #1b6350; --run-wash: #deeae4; --run-line: #bfd5cc;
+  --wait: #8a5a00; --wait-wash: #f6e9ce; --wait-line: #e2cd9c;
+  --ok: #3e6b2e; --ok-wash: #e1ebdf; --ok-line: #c2d6bf;
+  --bad: #a02617; --bad-wash: #f7dfda; --bad-line: #e7c3bb;
+  --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --r: 4px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #2e3440; --sheet: #3b4252; --sheet-hi: #434c5e; --recess: #2a2f3a; --recess-2: #252a33;
+    --ink: #eceff4; --ink-2: #cbd3df; --ink-3: #a3adbd;
+    --rule: #48505f; --rule-2: #5a6474; --rule-3: #6f7b8d;
+    --accent: #8fc7d6; --accent-deep: #a9d5e0; --accent-wash: #384550; --accent-line: #54707e;
+    --run: #8fbcbb; --run-wash: #333f44; --run-line: #4e6a6a;
+    --wait: #ebcb8b; --wait-wash: #423d31; --wait-line: #6d6146;
+    --ok: #a3be8c; --ok-wash: #363f34; --ok-line: #5a6b4e;
+    --bad: #e88b7d; --bad-wash: #43333a; --bad-line: #74484a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #2e3440; --sheet: #3b4252; --sheet-hi: #434c5e; --recess: #2a2f3a; --recess-2: #252a33;
+  --ink: #eceff4; --ink-2: #cbd3df; --ink-3: #a3adbd;
+  --rule: #48505f; --rule-2: #5a6474; --rule-3: #6f7b8d;
+  --accent: #8fc7d6; --accent-deep: #a9d5e0; --accent-wash: #384550; --accent-line: #54707e;
+  --run: #8fbcbb; --run-wash: #333f44; --run-line: #4e6a6a;
+  --wait: #ebcb8b; --wait-wash: #423d31; --wait-line: #6d6146;
+  --ok: #a3be8c; --ok-wash: #363f34; --ok-line: #5a6b4e;
+  --bad: #e88b7d; --bad-wash: #43333a; --bad-line: #74484a;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+::selection { background: var(--accent-wash); color: var(--ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+svg { display: block; }
+
+.page { max-width: 1180px; margin: 0 auto; padding: 40px 20px 64px; display: flex; flex-direction: column; gap: 22px; }
+h1 { font-family: var(--f-display); font-weight: 600; font-size: clamp(1.7rem, 4vw, 2.3rem); line-height: 1.12; letter-spacing: -.014em; margin: 0; text-wrap: balance; }
+.lede { color: var(--ink-2); max-width: 68ch; margin: 0; }
+.hr { height: 3px; width: 64px; background: var(--ink); }
+code { font-family: var(--f-mono); font-size: .84em; background: var(--recess); padding: .1em .35em; border-radius: 3px; }
+
+.facts { display: flex; flex-wrap: wrap; gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: var(--r); overflow: hidden; }
+.fact { background: var(--sheet); padding: 11px 15px; flex: 1 1 190px; display: flex; flex-direction: column; gap: 1px; }
+.fact b { font-family: var(--f-mono); font-size: 1.3rem; font-weight: 500; line-height: 1.1; letter-spacing: -.02em; }
+.fact span { font-size: .78rem; color: var(--ink-3); }
+.fact.hot b { color: var(--accent); }
+
+.controls { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+.variants { display: flex; border: 1px solid var(--rule-2); border-radius: var(--r); overflow: hidden; background: var(--sheet); }
+.variants button { border: 0; background: transparent; font: inherit; font-weight: 500; color: var(--ink-2); padding: .5em 1.05em; cursor: pointer; border-right: 1px solid var(--rule); }
+.variants button:last-child { border-right: 0; }
+.variants button[aria-pressed="true"] { background: var(--accent-wash); color: var(--accent-deep); }
+
+/* ── le cadre ── */
+.frame { border: 1px solid var(--rule-2); border-radius: 6px; overflow: hidden; background: var(--paper); }
+.screen { padding: 20px 22px 32px; min-height: 540px; display: flex; flex-direction: column; gap: 14px; }
+.ph { display: flex; align-items: baseline; gap: 10px; }
+.ph h2 { font-family: var(--f-display); font-weight: 600; font-size: 1.3rem; margin: 0; letter-spacing: -.01em; }
+.ph p { margin: 0; color: var(--ink-2); font-size: .86rem; }
+
+/* pastille */
+.pill { width: 8px; height: 8px; border-radius: 50%; flex: none; display: inline-block; }
+.pill.ok { background: var(--run); }
+.pill.warn { background: var(--wait); animation: pulse 2.2s ease-in-out infinite; }
+.pill.bad { background: var(--bad); animation: pulse 2.2s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity: .65; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .pill { animation: none !important; } }
+
+/* jauges */
+.meter { display: inline-flex; align-items: center; gap: 7px; font-family: var(--f-mono); font-size: .72rem; color: var(--ink-2); }
+.meter .bar { width: 52px; height: 4px; border-radius: 2px; background: var(--recess-2); overflow: hidden; }
+.meter .bar i { display: block; height: 100%; background: var(--run); }
+.meter.warn .bar i { background: var(--wait); }
+.meter.hot .bar i { background: var(--bad); }
+.meter .lbl { color: var(--ink-3); font-size: .66rem; letter-spacing: .06em; text-transform: uppercase; }
+
+/* stepper −/+ */
+.step { display: inline-flex; align-items: center; border: 1px solid var(--rule-2); border-radius: var(--r); background: var(--sheet); overflow: hidden; }
+.step button { border: 0; background: transparent; font: inherit; color: var(--ink-2); width: 26px; height: 26px; cursor: pointer; font-weight: 600; }
+.step button:hover { background: var(--recess); color: var(--ink); }
+.step .val { font-family: var(--f-mono); font-size: .8rem; min-width: 52px; text-align: center; padding: 0 4px; }
+.step .unit { font-size: .66rem; color: var(--ink-3); padding-right: 8px; }
+
+/* curseur */
+.slider { display: flex; flex-direction: column; gap: 4px; min-width: 190px; }
+.slider .track { position: relative; height: 4px; border-radius: 2px; background: var(--recess-2); }
+.slider .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 2px; background: var(--accent); }
+.slider .knob { position: absolute; top: 50%; width: 14px; height: 14px; border-radius: 50%; background: var(--sheet-hi); border: 2px solid var(--accent); transform: translate(-50%, -50%); cursor: grab; }
+.slider .scale { display: flex; justify-content: space-between; font-family: var(--f-mono); font-size: .62rem; color: var(--ink-3); }
+
+/* ═══ A — la fiche dense ═══ */
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 14px; }
+.rcard { background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--r); overflow: hidden; }
+.rcard .rhead { display: flex; align-items: center; gap: 9px; padding: 10px 14px; border-bottom: 1px solid var(--rule); }
+.rcard .rhead b { font-family: var(--f-display); font-size: 1.02rem; }
+.rcard .rhead .host { font-family: var(--f-mono); font-size: .68rem; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rcard .rhead .age { margin-left: auto; font-size: .7rem; color: var(--ink-3); white-space: nowrap; }
+.vitals { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--rule); border-bottom: 1px solid var(--rule); }
+.vital { background: var(--sheet); padding: 9px 12px; display: flex; flex-direction: column; gap: 3px; }
+.vital .k { font-size: .62rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); font-family: var(--f-mono); }
+.vital .v { font-family: var(--f-mono); font-size: .95rem; }
+.vital .v small { font-size: .68rem; color: var(--ink-3); }
+.spark { height: 18px; margin-top: 2px; }
+.spark polyline { fill: none; stroke: var(--run); stroke-width: 1.5; }
+.vital.warn .v { color: var(--wait); } .vital.warn .spark polyline { stroke: var(--wait); }
+.rfoot { display: flex; align-items: center; gap: 14px; padding: 8px 14px; font-size: .78rem; color: var(--ink-2); flex-wrap: wrap; }
+.rfoot .chip { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--rule-2); border-radius: 999px; padding: .12em .6em; font-size: .72rem; background: var(--sheet); cursor: pointer; }
+.rfoot .chip:hover { border-color: var(--rule-3); }
+.rfoot .disclose { margin-left: auto; color: var(--accent-deep); cursor: pointer; font-size: .76rem; background: none; border: 0; font-family: inherit; }
+.rsettings { border-top: 1px dashed var(--rule); padding: 10px 14px; display: flex; gap: 18px; flex-wrap: wrap; align-items: center; }
+.rsettings .f { display: flex; flex-direction: column; gap: 3px; }
+.rsettings .f .k { font-size: .64rem; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-3); font-family: var(--f-mono); }
+.warnband { display: flex; gap: 8px; padding: 8px 14px; background: var(--bad-wash); border-top: 1px solid var(--bad-line); font-size: .78rem; color: var(--ink-2); }
+.warnband b { color: var(--bad); }
+
+/* ═══ B — le tableau de parc ═══ */
+.fleet { background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--r); overflow: hidden; }
+.fleet table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+.fleet th { text-align: left; font-family: var(--f-mono); font-size: .62rem; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; padding: 8px 12px; border-bottom: 1px solid var(--rule-2); background: var(--recess); }
+.fleet td { padding: 9px 12px; border-bottom: 1px solid var(--rule); vertical-align: middle; }
+.fleet tr:last-child td { border-bottom: 0; }
+.fleet tr.sel { background: var(--accent-wash); }
+.fleet tbody tr { cursor: pointer; }
+.fleet tbody tr:hover { background: var(--recess); }
+.fleet .name { font-weight: 600; display: flex; align-items: center; gap: 7px; }
+.fleet .mono { font-family: var(--f-mono); font-size: .74rem; }
+.drawer { margin-top: 12px; background: var(--sheet); border: 1px solid var(--rule-2); border-radius: var(--r); padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; }
+.drawer .dh { display: flex; align-items: center; gap: 9px; }
+.drawer .dh b { font-family: var(--f-display); font-size: 1rem; }
+.drawer .dh .host { font-family: var(--f-mono); font-size: .7rem; color: var(--ink-3); }
+.drawer .sect { font-family: var(--f-mono); font-size: .62rem; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-3); border-top: 1px solid var(--rule); padding-top: 9px; }
+
+/* ═══ C — bande vitale + inventaire unifié ═══ */
+.band { display: flex; gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: var(--r); overflow: hidden; flex-wrap: wrap; }
+.bcell { background: var(--sheet); padding: 10px 14px; flex: 1 1 210px; display: flex; flex-direction: column; gap: 6px; }
+.bcell .bh { display: flex; align-items: center; gap: 7px; font-weight: 600; font-size: .9rem; font-family: var(--f-display); }
+.bcell .bh .age { margin-left: auto; font-size: .66rem; color: var(--ink-3); font-weight: 400; font-family: var(--f-body); }
+.bcell .meters { display: flex; gap: 12px; flex-wrap: wrap; }
+.inv { background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--r); overflow: hidden; }
+.inv .itabs { display: flex; gap: 2px; padding: 6px 10px 0; border-bottom: 1px solid var(--rule); background: var(--recess); }
+.inv .itabs button { border: 1px solid transparent; border-bottom: 0; background: transparent; font: inherit; font-size: .78rem; color: var(--ink-2); padding: .35em .8em; cursor: pointer; border-radius: var(--r) var(--r) 0 0; }
+.inv .itabs button[aria-pressed="true"] { background: var(--sheet); border-color: var(--rule); color: var(--ink); font-weight: 600; }
+.inv .itabs .n { font-family: var(--f-mono); font-size: .66rem; color: var(--ink-3); margin-left: 4px; }
+.inv .irow { display: flex; align-items: center; gap: 10px; padding: 6px 14px; border-top: 1px solid var(--rule); font-family: var(--f-mono); font-size: .74rem; }
+.inv .irow:first-of-type { border-top: 0; }
+.inv .irow .type { font-size: .62rem; color: var(--ink-3); width: 64px; letter-spacing: .05em; text-transform: uppercase; }
+.inv .irow .who { margin-left: auto; font-family: var(--f-body); font-size: .74rem; color: var(--ink-3); }
+
+/* verdicts */
+#try { margin: 0; font-size: .87rem; color: var(--ink-2); background: var(--recess); border-left: 3px solid var(--accent); border-radius: 0 var(--r) var(--r) 0; padding: 10px 14px; }
+#verdict { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.vc { border: 1px solid var(--rule); border-radius: var(--r); padding: 13px 15px; background: var(--sheet); display: flex; flex-direction: column; gap: 5px; }
+.vc .lbl { font-size: .74rem; font-family: var(--f-mono); letter-spacing: .07em; text-transform: uppercase; }
+.vc p { margin: 0; font-size: .85rem; color: var(--ink-2); }
+.vc.win { border-left: 3px solid var(--ok); } .vc.win .lbl { color: var(--ok); }
+.vc.cost { border-left: 3px solid var(--bad); } .vc.cost .lbl { color: var(--bad); }
+.vc.note { border-left: 3px solid var(--wait); } .vc.note .lbl { color: var(--wait); }
+
+.sect2 { display: flex; flex-direction: column; gap: 10px; padding-top: 8px; }
+.sect2 h3 { font-family: var(--f-display); font-weight: 600; font-size: 1.12rem; margin: 0; }
+.sect2 p { margin: 0; color: var(--ink-2); max-width: 72ch; font-size: .89rem; }
+</style>
+
+<div class="page">
+  <h1>Le parc sans le bruit</h1>
+  <div class="hr"></div>
+  <p class="lede">
+    La page Runners empile aujourd'hui, pour chaque machine, une liste clé-valeur, trois champs de
+    réglage avec leurs légendes, trois sections de mesures et l'inventaire complet des volumes — un
+    écran par runner. Trois façons de rendre la même information lisible d'un balayage, avec les
+    vrais chiffres de tes deux Macs.
+  </p>
+
+  <div class="facts">
+    <div class="fact hot"><b>~40</b><span>lignes visibles par runner aujourd'hui</span></div>
+    <div class="fact"><b>11</b><span>volumes listés en pleine largeur sur le mini</span></div>
+    <div class="fact"><b>3</b><span>sections de mesures, même structure répétée</span></div>
+    <div class="fact"><b>2</b><span>runners — et le jour à 4, l'écran double</span></div>
+  </div>
+
+  <div class="controls">
+    <div class="variants" role="group" aria-label="Variantes">
+      <button data-v="A" aria-pressed="true">A — La fiche dense</button>
+      <button data-v="B" aria-pressed="false">B — Le tableau de parc</button>
+      <button data-v="C" aria-pressed="false">C — Bande vitale + inventaire</button>
+    </div>
+  </div>
+
+  <div class="frame"><div class="screen" id="screen"></div></div>
+
+  <p id="try"></p>
+  <div id="verdict"></div>
+
+  <section class="sect2">
+    <h3>Les réglages : stepper ou curseur, plus jamais un champ nu</h3>
+    <p>
+      Les trois valeurs (sessions, RAM, CPU) sont des quantités bornées à petits pas — exactement
+      ce que le champ numérique nu rend pénible. Les maquettes montrent les deux traitements :
+      le <b>stepper −/+</b> (A et B : compact, un clic par cran, la valeur reste tapable) et le
+      <b>curseur à échelle</b> (C : la position dit d'un coup d'œil où l'on est entre plancher et
+      plafond — 512 Mo à 8 Go — et les crans s'aimantent aux valeurs rondes). Dans les trois cas,
+      la sauvegarde suit le motif « spinner pendant, état après » déjà en chantier.
+    </p>
+  </section>
+
+  <section class="sect2">
+    <h3>Ce qui est commun aux trois variantes</h3>
+    <p>
+      L'inventaire (volumes, réseaux, conteneurs) cesse d'être un mur : il se compte dans des chips
+      (« 8 volumes · 2 conteneurs ») et ne se déplie qu'à la demande — un volume de workspace n'est
+      une information que le jour où on le cherche. Les mesures gardent leur âge. L'avertissement
+      RAM reste un bandeau, jamais un état qu'on replie : une réservation impossible se voit sans
+      geste. Et la carte dit QUI occupe les places (la session, cliquable), pas seulement combien.
+    </p>
+  </section>
+</div>
+
+<script>
+// Les données : les vrais chiffres des captures du 02/09.
+const RUNNERS = [
+  { name: "mini-atelier", host: "ssh://operateur@100.64.0.11", age: "6 s", ok: true,
+    slots: { used: 0, total: 1, by: [] }, ram: 4096, cpu: 2, orphans: 3,
+    vm: { cpu: 0, mem: 0, spark: [1,1,2,1,8,2,1,1,1,1] },
+    mac: { cpu: 47, mem: 73, spark: [40,42,55,47,44,60,52,47,45,47] },
+    disk: null, diskNote: "image legion-proxy absente — make image",
+    inv: { volumes: 8, networks: 1, containers: 0 }, warn: null,
+    items: [
+      { t: "volume", n: "legion-claude-2lEWfweSky6N", who: "session 2lEWfwe…" },
+      { t: "volume", n: "legion-workspace-2lEWfweSky6N", who: "session 2lEWfwe…" },
+      { t: "volume", n: "legion-pkg-cache", who: "partagé" },
+      { t: "réseau", n: "legion-browser-net-ox8OwMtd80tX", who: "navigateur" },
+    ] },
+  { name: "portable-atelier", host: "ssh://operateur@100.64.0.12", age: "6 s", ok: true,
+    slots: { used: 1, total: 2, by: [{ session: "xCWoJ8Su", task: "La barre finit sa mue" }] },
+    ram: 4096, cpu: 4, orphans: 2,
+    vm: { cpu: 0, mem: 3, spark: [1,2,1,3,9,3,2,1,2,3] },
+    mac: { cpu: 78, mem: 77, spark: [60,72,80,74,66,78,82,71,75,78] },
+    disk: { pct: 69, total: "58 Go" }, diskNote: null,
+    inv: { volumes: 5, networks: 2, containers: 2 },
+    warn: "8 Go réservés pour 8,0 Go disponibles côté Docker — les sessions seront tuées faute de RAM.",
+    items: [
+      { t: "conteneur", n: "legion-browser-iRvQoryWgMYq", who: "Up 5 h · navigateur" },
+      { t: "conteneur", n: "legion-browser-s6PeSEW3Dl", who: "Exited (255) · navigateur" },
+      { t: "volume", n: "legion-claude-Dr0zypHX4o3O", who: "session Dr0zypH…" },
+      { t: "volume", n: "legion-pkg-cache", who: "partagé" },
+    ] },
+];
+
+let variant = "A";
+let openSettings = null;   // A : la fiche dont les réglages sont dépliés
+let openInv = null;        // A : la fiche dont l'inventaire est déplié
+let selected = 1;          // B : la rangée ouverte dans le tiroir
+let invTab = "volumes";    // C
+
+const el = (t, c, x) => { const n = document.createElement(t); if (c) n.className = c; if (x != null) n.innerHTML = x; return n; };
+
+function sparkline(points, w = 84, h = 18) {
+  const max = Math.max(...points, 1);
+  const pts = points.map((p, i) => `${(i / (points.length - 1)) * w},${h - (p / max) * (h - 2) - 1}`).join(" ");
+  return `<svg class="spark" width="${w}" height="${h}" aria-hidden="true"><polyline points="${pts}"/></svg>`;
+}
+function meter(lbl, pct, warnAt = 70, hotAt = 90) {
+  const cls = pct >= hotAt ? "hot" : pct >= warnAt ? "warn" : "";
+  return `<span class="meter ${cls}"><span class="lbl">${lbl}</span><span class="bar"><i style="width:${pct}%"></i></span>${pct} %</span>`;
+}
+function stepper(val, unit) {
+  return `<span class="step"><button aria-label="moins">−</button><span class="val">${val}</span>${unit ? `<span class="unit">${unit}</span>` : ""}<button aria-label="plus">+</button></span>`;
+}
+function slider(val, min, max, unit) {
+  const pct = ((val - min) / (max - min)) * 100;
+  return `<span class="slider"><span class="track"><span class="fill" style="width:${pct}%"></span><span class="knob" style="left:${pct}%"></span></span><span class="scale"><span>${min}</span><b>${val} ${unit}</b><span>${max}</span></span></span>`;
+}
+
+/* ═══ A — la fiche dense : tout runner tient dans ~9 lignes, réglages et inventaire à la demande ═══ */
+function renderA(root) {
+  const grid = el("div", "grid2");
+  RUNNERS.forEach((r, i) => {
+    const c = el("div", "rcard");
+    const head = el("div", "rhead");
+    head.append(el("span", `pill ${r.ok ? "ok" : "bad"}`));
+    head.append(el("b", null, r.name));
+    head.append(el("span", "host", r.host));
+    head.append(el("span", "age", `il y a ${r.age}`));
+    c.append(head);
+
+    const v = el("div", "vitals");
+    // QUI occupe, pas seulement combien : la session est un lien (vers sa tâche), le compte
+    // seul obligeait à ouvrir le board pour savoir qui travaille ici.
+    const occ = r.slots.by.length
+      ? r.slots.by.map((o) => `<a href="#" style="color:var(--accent-deep);font-size:.66rem;text-decoration:none">▸ ${o.task}</a>`).join("")
+      : `<span style="font-size:.66rem;color:var(--ink-3)">personne</span>`;
+    v.append(el("div", "vital", `<span class="k">Places</span><span class="v">${r.slots.used}<small>/${r.slots.total}</small></span>${occ}`));
+    v.append(el("div", "vital", `<span class="k">VM sessions</span><span class="v">${r.vm.mem} %<small> mém</small></span>${sparkline(r.vm.spark)}`));
+    const macWarn = r.mac.cpu >= 70 ? " warn" : "";
+    v.append(el("div", `vital${macWarn}`, `<span class="k">La machine</span><span class="v">${r.mac.cpu} %<small> cpu · ${r.mac.mem} % mém</small></span>${sparkline(r.mac.spark)}`));
+    v.append(el("div", "vital" + (r.disk && r.disk.pct >= 65 ? " warn" : ""),
+      r.disk ? `<span class="k">Disque VM</span><span class="v">${r.disk.pct} %<small> de ${r.disk.total}</small></span>` :
+               `<span class="k">Disque VM</span><span class="v">—</span><span style="font-size:.64rem;color:var(--wait)">${r.diskNote}</span>`));
+    c.append(v);
+
+    if (r.warn) c.append(el("div", "warnband", `<b>⚠</b><span><b>Réservation impossible :</b> ${r.warn}</span>`));
+
+    const foot = el("div", "rfoot");
+    // LES CHIPS SONT DES PORTES : cliquer déplie l'inventaire de CETTE machine dans la fiche.
+    // Les orphelins ont leur chip À PART, teintée dès qu'il y en a — un reste à nettoyer n'est
+    // pas un objet comme les autres, et son geste vit dans le dépliage.
+    const invBtn = el("button", "chip", `▦ ${r.inv.volumes + r.inv.containers + r.inv.networks} objets`);
+    invBtn.addEventListener("click", () => { openInv = openInv === i ? null : i; render(); });
+    foot.append(invBtn);
+    if (r.orphans > 0) {
+      const ob = el("button", "chip", `⌫ ${r.orphans} orphelin(s)`);
+      ob.style.borderColor = "var(--wait-line)"; ob.style.color = "var(--wait)";
+      ob.addEventListener("click", () => { openInv = openInv === i ? null : i; render(); });
+      foot.append(ob);
+    }
+    const btn = el("button", "disclose", openSettings === i ? "Fermer les réglages" : "Régler ›");
+    btn.addEventListener("click", () => { openSettings = openSettings === i ? null : i; render(); });
+    foot.append(btn);
+    c.append(foot);
+
+    if (openSettings === i) {
+      const s = el("div", "rsettings");
+      s.append(el("div", "f", `<span class="k">Sessions</span>${stepper(r.slots.total, "")}`));
+      // Le CURSEUR pour la RAM (choix de l'opérateur) : la position entre plancher et plafond informe.
+      // Le stepper reste pour sessions et CPU — à petits pas, la précision compte plus.
+      s.append(el("div", "f", `<span class="k">RAM / session</span>${slider(r.ram, 512, 8192, "Mo")}`));
+      s.append(el("div", "f", `<span class="k">CPU / session</span>${stepper(r.cpu, "cœur")}`));
+      c.append(s);
+    }
+    if (openInv === i) {
+      const box = el("div", null);
+      box.style.borderTop = "1px dashed var(--rule)";
+      r.items.forEach((it) => box.append(el("div", "irow", `<span class="type">${it.t}</span><code style="background:transparent;padding:0">${it.n}</code><span class="who">${it.who}</span>`)));
+      if (r.orphans > 0) {
+        const orow = el("div", "irow");
+        orow.innerHTML = `<span class="type" style="color:var(--wait)">orphelins</span><span style="font-family:var(--f-body);font-size:.76rem;color:var(--ink-2)">${r.orphans} objet(s) de sessions terminées</span><button class="chip" style="margin-left:auto">Nettoyer</button>`;
+        box.append(orow);
+      }
+      c.append(box);
+    }
+    grid.append(c);
+  });
+  root.append(grid);
+}
+
+/* ═══ B — le tableau de parc : une rangée par machine, le détail dans un tiroir ═══ */
+function renderB(root) {
+  const f = el("div", "fleet");
+  const rows = RUNNERS.map((r, i) => `
+    <tr class="${selected === i ? "sel" : ""}" data-i="${i}">
+      <td><span class="name"><span class="pill ${r.ok ? "ok" : "bad"}"></span>${r.name}</span></td>
+      <td class="mono">${r.slots.used}/${r.slots.total}</td>
+      <td>${meter("cpu", r.mac.cpu)}</td>
+      <td>${meter("mém", r.mac.mem)}</td>
+      <td>${r.disk ? meter("disq", r.disk.pct, 65, 85) : `<span style="font-size:.7rem;color:var(--wait)">à mesurer</span>`}</td>
+      <td class="mono" style="color:var(--ink-3)">${r.age}</td>
+    </tr>`).join("");
+  f.innerHTML = `<table>
+    <thead><tr><th>Machine</th><th>Places</th><th>CPU machine</th><th>Mémoire</th><th>Disque VM</th><th>Vu il y a</th></tr></thead>
+    <tbody>${rows}</tbody></table>`;
+  f.querySelectorAll("tbody tr").forEach((tr) => tr.addEventListener("click", () => { selected = Number(tr.dataset.i); render(); }));
+  root.append(f);
+
+  const r = RUNNERS[selected];
+  const d = el("div", "drawer");
+  const dh = el("div", "dh");
+  dh.append(el("span", `pill ${r.ok ? "ok" : "bad"}`), el("b", null, r.name), el("span", "host", r.host));
+  d.append(dh);
+  if (r.warn) d.append(el("div", "warnband", `<b>⚠</b><span>${r.warn}</span>`));
+  d.append(el("div", "sect", "Réglages"));
+  const s = el("div", "rsettings");
+  s.style.borderTop = "0"; s.style.padding = "0";
+  s.append(el("div", "f", `<span class="k">Sessions</span>${stepper(r.slots.total, "")}`));
+  s.append(el("div", "f", `<span class="k">RAM / session</span>${stepper(r.ram, "Mo")}`));
+  s.append(el("div", "f", `<span class="k">CPU / session</span>${stepper(r.cpu, "cœur")}`));
+  d.append(s);
+  d.append(el("div", "sect", `Inventaire — ${r.inv.volumes} volumes · ${r.inv.containers} conteneur(s) · ${r.inv.networks} réseau(x)`));
+  const inv = el("div", null);
+  r.items.slice(0, 3).forEach((it) => inv.append(el("div", "irow", `<span class="type">${it.t}</span><code style="background:transparent;padding:0">${it.n}</code><span class="who">${it.who}</span>`)));
+  d.append(inv);
+  root.append(d);
+}
+
+/* ═══ C — la bande vitale : les machines en cellules côte à côte, l'inventaire UNIFIÉ dessous ═══ */
+function renderC(root) {
+  const band = el("div", "band");
+  RUNNERS.forEach((r) => {
+    const b = el("div", "bcell");
+    const bh = el("div", "bh");
+    bh.append(el("span", `pill ${r.ok ? "ok" : "bad"}`), el("span", null, r.name), el("span", "age", r.age));
+    b.append(bh);
+    const m1 = el("div", "meters");
+    m1.innerHTML = `${meter("cpu", r.mac.cpu)} ${meter("mém", r.mac.mem)} ${r.disk ? meter("disq", r.disk.pct, 65, 85) : ""}`;
+    b.append(m1);
+    b.append(el("div", null, `<span style="font-family:var(--f-mono);font-size:.72rem;color:var(--ink-2)">${r.slots.used}/${r.slots.total} places</span>`));
+    b.append(el("div", "f", slider(r.ram, 512, 8192, "Mo")));
+    if (r.warn) b.append(el("div", null, `<span style="font-size:.72rem;color:var(--bad)">⚠ réservation impossible</span>`));
+    band.append(b);
+  });
+  root.append(band);
+
+  const inv = el("div", "inv");
+  const tabs = el("div", "itabs");
+  const counts = { volumes: 13, conteneurs: 2, réseaux: 3 };
+  for (const t of ["volumes", "conteneurs", "réseaux"]) {
+    const btn = el("button", null, `${t}<span class="n">${counts[t]}</span>`);
+    btn.setAttribute("aria-pressed", String(invTab === t));
+    btn.addEventListener("click", () => { invTab = t; render(); });
+    tabs.append(btn);
+  }
+  inv.append(tabs);
+  const all = RUNNERS.flatMap((r) => r.items.map((it) => ({ ...it, runner: r.name })));
+  const kind = invTab === "volumes" ? "volume" : invTab === "conteneurs" ? "conteneur" : "réseau";
+  all.filter((it) => it.t === kind).forEach((it) => {
+    inv.append(el("div", "irow", `<span class="type">${it.runner}</span><code style="background:transparent;padding:0">${it.n}</code><span class="who">${it.who}</span>`));
+  });
+  root.append(inv);
+}
+
+const VERDICTS = {
+  A: [
+    ["Ce qu'on gagne", "win", "Un runner = neuf lignes au lieu de quarante. Les quatre vitaux se comparent d'un regard entre machines (la grille aligne les colonnes), les réglages et l'inventaire n'existent que sur demande. C'est la variante la plus proche du code actuel — les composants existent, ils changent de disposition."],
+    ["Ce qu'on paie", "cost", "Deux niveaux de profondeur : régler ou inspecter demande un clic. Et la grille à 2 colonnes plafonne vers 6 runners — au-delà, on scrolle des fiches."],
+    ["Le détail qui compte", "note", "L'avertissement RAM reste un bandeau permanent dans la fiche — un état qu'on ne peut pas replier, parce qu'une réservation impossible doit se voir sans geste."],
+  ],
+  B: [
+    ["Ce qu'on gagne", "win", "Le parc entier en UNE table : à quatre, huit, douze machines la page ne grandit que d'une rangée. Les jauges en colonnes se balaient verticalement — c'est la lecture « quelle machine souffre » la plus rapide des trois. Le tiroir garde tout le détail au clic."],
+    ["Ce qu'on paie", "cost", "À deux runners, une table est un peu solennelle. Et le tiroir est un contexte de plus : comparer les réglages de deux machines demande deux clics."],
+    ["Le pari", "note", "C'est la variante qui parie sur la croissance du parc. Si le home-server et un jour un VPS deviennent runners, elle est déjà prête."],
+  ],
+  C: [
+    ["Ce qu'on gagne", "win", "Les machines en cellules côte à côte (la bande), et UN inventaire unifié pour tout le parc, filtré par type — les 13 volumes de deux machines dans une seule liste avec leur colonne « où ». Le curseur RAM montre la position entre plancher et plafond, ce qu'aucun champ ne dit."],
+    ["Ce qu'on paie", "cost", "L'inventaire unifié éloigne l'objet de sa machine (une colonne le rattache, mais c'est une lecture de plus). Et la bande se comprime mal sous 900 px — les cellules passent l'une sous l'autre et l'effet comparatif se perd."],
+    ["Le curseur", "note", "Montré ici sur la RAM : crans aimantés aux valeurs rondes, plancher et plafond visibles. Le stepper reste meilleur pour les sessions (1 à 4, la précision compte plus que la position)."],
+  ],
+};
+
+function render() {
+  const root = document.getElementById("screen");
+  root.textContent = "";
+  const ph = el("div", "ph");
+  ph.append(el("h2", null, "Runners"));
+  ph.append(el("p", null, "Le parc de machines : santé, capacité, mesures — le reste à la demande."));
+  root.append(ph);
+  if (variant === "A") renderA(root);
+  if (variant === "B") renderB(root);
+  if (variant === "C") renderC(root);
+
+  const v = document.getElementById("verdict");
+  v.textContent = "";
+  for (const [lbl, tone, body] of VERDICTS[variant]) {
+    const c = el("div", `vc ${tone}`);
+    c.append(el("div", "lbl", lbl), el("p", null, body));
+    v.append(c);
+  }
+  document.getElementById("try").innerHTML = variant === "A"
+    ? "<b>Essayez :</b> « Régler › » (curseur RAM + steppers), la chip « objets » qui déplie l'inventaire de la machine, la chip orange des orphelins avec son « Nettoyer », et la place occupée qui NOMME sa tâche (portable-atelier)."
+    : variant === "B"
+      ? "<b>Essayez :</b> cliquez l'autre rangée — le tiroir suit. Imaginez la table avec six machines : elle ne change pas de forme."
+      : "<b>Essayez :</b> les onglets de l'inventaire unifié — 13 volumes de deux machines, une seule liste, la colonne de gauche dit où vit chacun.";
+}
+
+for (const b of document.querySelectorAll("[data-v]")) {
+  b.addEventListener("click", () => {
+    variant = b.dataset.v;
+    for (const o of document.querySelectorAll("[data-v]")) o.setAttribute("aria-pressed", String(o === b));
+    render();
+  });
+}
+render();
+</script>

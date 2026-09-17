@@ -1,0 +1,341 @@
+<title>La page du concierge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<style>
+/* Tokens de l'Atelier, ceux du projet. */
+:root {
+  --paper: #f4f0e8; --sheet: #fcfaf6; --recess: #ede7da; --recess-2: #e5ddcc;
+  --ink: #1e1a15; --ink-2: #584f42; --ink-3: #6b6255;
+  --rule: #dcd3c3; --rule-2: #c6bba6; --rule-3: #aea18a;
+  --accent: #b03f1b; --accent-deep: #8e3213; --accent-wash: #f6e4da;
+  --ok: #3f6b4a; --warn: #8a6a1f; --bad: #a2321f;
+  --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --measure: 68ch; --w-iconrail: 56px; --w-rail: 214px; --r: 4px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #2e3440; --sheet: #3b4252; --recess: #2a2f3a; --recess-2: #252a33;
+    --ink: #eceff4; --ink-2: #cbd3df; --ink-3: #a3adbd;
+    --rule: #48505f; --rule-2: #5a6474; --rule-3: #6f7b8d;
+    --accent: #8fc7d6; --accent-deep: #a9d5e0; --accent-wash: #384550;
+    --ok: #a3be8c; --warn: #ebcb8b; --bad: #e88b7d;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #2e3440; --sheet: #3b4252; --recess: #2a2f3a; --recess-2: #252a33;
+  --ink: #eceff4; --ink-2: #cbd3df; --ink-3: #a3adbd;
+  --rule: #48505f; --rule-2: #5a6474; --rule-3: #6f7b8d;
+  --accent: #8fc7d6; --accent-deep: #a9d5e0; --accent-wash: #384550;
+  --ok: #a3be8c; --warn: #ebcb8b; --bad: #e88b7d;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 14px; line-height: 1.58; -webkit-font-smoothing: antialiased; }
+::selection { background: var(--accent-wash); color: var(--ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.page { max-width: 1180px; margin: 0 auto; padding: 40px 20px 64px; display: flex; flex-direction: column; gap: 20px; }
+h1 { font-family: var(--f-display); font-weight: 600; font-size: clamp(1.7rem, 4vw, 2.3rem); line-height: 1.12; letter-spacing: -.015em; margin: 0; text-wrap: balance; }
+.lede { color: var(--ink-2); max-width: var(--measure); margin: 0; }
+.hr { height: 3px; width: 64px; background: var(--ink); }
+
+.variants { display: flex; border: 1px solid var(--rule-2); border-radius: var(--r); overflow: hidden; align-self: flex-start; background: var(--sheet); }
+.variants button { border: 0; background: transparent; font: inherit; font-weight: 500; color: var(--ink-2); padding: .5em 1.05em; cursor: pointer; border-right: 1px solid var(--rule); }
+.variants button:last-child { border-right: 0; }
+.variants button[aria-pressed="true"] { background: var(--accent-wash); color: var(--accent-deep); }
+
+/* ── la maquette ── */
+.frame { border: 1px solid var(--rule-2); border-radius: 6px; overflow: hidden; background: var(--sheet); }
+.app { display: grid; grid-template-rows: 44px 1fr; height: 680px; }
+.topbar { display: flex; align-items: center; gap: 10px; padding: 0 12px; background: var(--sheet); border-bottom: 1px solid var(--rule); font-size: .85rem; }
+.topbar .brand { font-family: var(--f-display); font-weight: 600; }
+.topbar .sp { flex: 1; }
+.topbar .chip { font-family: var(--f-mono); font-size: .68rem; color: var(--ink-3); }
+.topbar .ic { width: 27px; height: 27px; border-radius: var(--r); display: grid; place-items: center; color: var(--ink-3); font-size: .82rem; }
+.topbar .ic.on { background: var(--accent-wash); color: var(--accent-deep); box-shadow: inset 0 0 0 1px var(--accent-deep); }
+
+.body { display: grid; grid-template-columns: var(--w-iconrail) var(--w-rail) 1fr; min-height: 0; }
+.iconrail { background: var(--recess-2); border-right: 1px solid var(--rule-2); display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 9px 0; }
+.prj { width: 34px; height: 34px; border-radius: 7px; display: grid; place-items: center; font-family: var(--f-mono); font-size: 12px; color: #fff; background: #6b5ca5; }
+.prj.b { background: #3f7d63; }
+.rail { background: var(--recess); border-right: 1px solid var(--rule); padding: 11px 8px; display: flex; flex-direction: column; gap: 2px; }
+.railhead { display: flex; align-items: center; gap: 9px; padding: 2px 8px 11px; }
+.railhead .mk { width: 22px; height: 22px; border-radius: var(--r); display: grid; place-items: center; background: var(--recess-2); color: var(--accent); font-size: .8rem; flex: none; }
+.railhead b { font-family: var(--f-display); font-weight: 600; font-size: .95rem; }
+.nav { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: var(--r); color: var(--ink-2); font-size: .86rem; }
+.nav[aria-current="true"] { background: var(--sheet); color: var(--ink); font-weight: 600; box-shadow: inset 0 0 0 1px var(--rule-2); }
+.nav .dot { width: 15px; text-align: center; color: var(--ink-3); font-size: 11px; }
+
+/* LA CONVERSATION EST LA PAGE. Pas une colonne de widgets avec un champ en bas : le point de
+   situation est le PREMIER TOUR, écrit par le concierge avant qu'on ait rien demandé. C'est ce
+   qui fait qu'il n'y a pas d'état vide à concevoir — l'écran arrive plein. */
+.main { display: grid; grid-template-rows: auto 1fr auto; min-height: 0; background: var(--paper); }
+.pagehead { padding: 16px 26px 12px; border-bottom: 1px solid var(--rule); display: flex; align-items: flex-start; gap: 14px; }
+.pagehead h2 { font-family: var(--f-display); font-weight: 600; font-size: 1.32rem; margin: 0; letter-spacing: -.012em; }
+.pagehead p { margin: 1px 0 0; color: var(--ink-2); font-size: .84rem; }
+.pagehead .sp { flex: 1; }
+/* La garantie de lecture seule est un FAIT du produit (trois ceintures, testées), pas une
+   promesse marketing : elle est écrite là où l'on décide de faire confiance. */
+.ro { font-family: var(--f-mono); font-size: .63rem; letter-spacing: .06em; color: var(--ink-3); border: 1px solid var(--rule-2); border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
+
+.thread { overflow-y: auto; padding: 20px 26px 8px; display: flex; flex-direction: column; gap: 20px; }
+.turn { display: flex; flex-direction: column; gap: 7px; max-width: var(--measure); }
+.turn.me { align-self: flex-end; align-items: flex-end; }
+.who { font-family: var(--f-mono); font-size: .63rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); display: flex; align-items: center; gap: 7px; }
+.turn.me .bubble { background: var(--recess); border-color: var(--rule-2); }
+.bubble { background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--r); padding: 14px 17px; display: flex; flex-direction: column; gap: 10px; }
+.bubble p { margin: 0; }
+.bubble p + p { margin-top: 2px; }
+
+/* Le point de situation. Il est écrit en PHRASES et pas en compteurs — un compteur se lit et se
+   range, une phrase dit ce qu'il faut en faire. Les objets qu'il nomme sont cliquables : la
+   décision et la chose sur laquelle décider ne sont pas à deux écrans l'une de l'autre. */
+.brief { border-color: var(--rule-2); }
+.brief .stamp { font-family: var(--f-mono); font-size: .65rem; color: var(--ink-3); display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+.brief .stamp button { border: 0; background: transparent; font: inherit; color: var(--accent-deep); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; padding: 0; }
+a.ref { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--rule-3); font-weight: 500; }
+a.ref:hover { border-bottom-color: var(--accent); color: var(--accent-deep); }
+.k { font-family: var(--f-mono); font-size: .82em; font-variant-numeric: tabular-nums; }
+
+/* Ce qui attend VRAIMENT une décision. Distinct du badge de la barre, qui compte ce qui est
+   arrêté : ici on ne liste que ce dont la suite dépend, avec le geste attendu. */
+.decisions { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--rule); border-radius: var(--r); overflow: hidden; }
+.dec { display: flex; align-items: baseline; gap: 11px; padding: 9px 13px; border-top: 1px solid var(--rule); background: var(--sheet); }
+.dec:first-child { border-top: 0; }
+.dec .sev { font-family: var(--f-mono); font-size: .6rem; letter-spacing: .09em; text-transform: uppercase; flex: none; width: 5.6em; padding-top: 2px; }
+.dec .sev.now { color: var(--bad); }
+.dec .sev.soon { color: var(--warn); }
+.dec .sev.fyi { color: var(--ink-3); }
+.dec .txt { font-size: .87rem; color: var(--ink-2); }
+.dec .txt b { color: var(--ink); font-weight: 600; }
+.dec .go { margin-left: auto; font-size: .8rem; color: var(--accent-deep); white-space: nowrap; align-self: center; }
+
+.ask { border-top: 1px solid var(--rule); padding: 12px 26px 16px; background: var(--sheet); display: flex; flex-direction: column; gap: 9px; }
+/* Au tout premier lancement la barre s'efface sans disparaître : le concierge sait encore
+   répondre « qu'est-ce que je peux faire ici », et la retirer ferait un cul-de-sac. */
+.ask.quiet { opacity: .55; }
+.suggest { display: flex; gap: 7px; flex-wrap: wrap; }
+.sug { font-size: .79rem; color: var(--ink-2); background: var(--recess); border: 1px solid var(--rule); border-radius: 999px; padding: 3px 11px; cursor: pointer; }
+.sug:hover { border-color: var(--rule-3); color: var(--ink); }
+.field { display: flex; gap: 9px; }
+.field .inp { flex: 1; border: 1px solid var(--rule-2); border-radius: var(--r); padding: 8px 12px; color: var(--ink-3); background: var(--paper); font-size: .88rem; }
+.field .btn { border: 1px solid var(--accent-deep); background: var(--accent-deep); color: var(--sheet); border-radius: var(--r); padding: 8px 16px; font-size: .88rem; font-weight: 500; display: flex; align-items: center; gap: 7px; cursor: pointer; }
+:root:not([data-theme="light"]) .field .btn { color: #23272f; }
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .field .btn { color: var(--sheet); } }
+
+/* Le premier lancement : le SEUL état où le point de situation n'existe pas encore. */
+.first { display: flex; flex-direction: column; gap: 11px; align-items: flex-start; max-width: var(--measure); margin: auto; padding: 30px 0; }
+.first h3 { font-family: var(--f-display); font-weight: 600; font-size: 1.18rem; margin: 0; }
+.first p { margin: 0; color: var(--ink-2); }
+
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 14px; }
+.note { border: 1px solid var(--rule); border-radius: var(--r); background: var(--sheet); padding: 15px 17px; display: flex; flex-direction: column; gap: 7px; }
+.note .lbl { font-family: var(--f-mono); font-size: .63rem; letter-spacing: .11em; text-transform: uppercase; color: var(--ink-3); border-bottom: 1px solid var(--rule); padding-bottom: 6px; }
+.note p { margin: 0; font-size: .87rem; color: var(--ink-2); }
+.note p strong { color: var(--ink); font-weight: 600; }
+</style>
+
+<div class="page">
+  <h1>La page du concierge</h1>
+  <div class="hr"></div>
+  <p class="lede">Le panneau de la barre pose une question et oublie la réponse au rechargement.
+    Une page ne peut pas se contenter de ça : un survol vide n'est rien, une page vide est une
+    promesse non tenue. La question dessinée ici n'est donc pas le champ de saisie, c'est
+    <strong>ce qu'on voit quand on n'a rien demandé</strong>.</p>
+
+  <div class="variants" role="group" aria-label="État">
+    <button type="button" data-s="brief" aria-pressed="true">Au réveil</button>
+    <button type="button" data-s="thread" aria-pressed="false">Après deux questions</button>
+    <button type="button" data-s="first" aria-pressed="false">Tout premier lancement</button>
+  </div>
+
+  <div class="frame">
+    <div class="app">
+      <div class="topbar">
+        <span class="brand">Legion</span>
+        <span class="sp"></span>
+        <span class="chip">3 sessions &nbsp; quota 5 h · 32 % &nbsp; docker ok</span>
+        <span class="ic">⌕</span>
+        <span class="ic on" title="Concierge">☉</span>
+        <span class="ic">⚙</span>
+      </div>
+      <div class="body">
+        <div class="iconrail" aria-hidden="true">
+          <div class="prj">AG</div>
+          <div class="prj b">KO</div>
+        </div>
+        <nav class="rail" aria-label="Navigation">
+          <div class="railhead"><span class="mk">☉</span><b>Concierge</b></div>
+          <span class="nav" aria-current="true"><span class="dot">◈</span>Point de situation</span>
+          <span class="nav"><span class="dot">≡</span>Conversations</span>
+          <span class="nav"><span class="dot">◔</span>Coût</span>
+        </nav>
+        <div class="main">
+          <div class="pagehead">
+            <div>
+              <h2>Concierge</h2>
+              <p>Ce qui tourne, ce qui bloque, ce que ça coûte — sur tous les projets.</p>
+            </div>
+            <span class="sp"></span>
+            <span class="ro">lecture seule · aucun outil d'écriture</span>
+          </div>
+          <div class="thread" id="thread"></div>
+          <div class="ask" id="ask">
+            <div class="suggest">
+              <span class="sug">qu'est-ce qui a tourné cette nuit ?</span>
+              <span class="sug">pourquoi la tranche 09 n'avance pas ?</span>
+              <span class="sug">combien j'ai dépensé cette semaine ?</span>
+            </div>
+            <div class="field">
+              <div class="inp">Poser une question…</div>
+              <div class="btn"><span>➤</span><span>Demander</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <div class="note">
+      <span class="lbl">Le choix de structure</span>
+      <p><strong>Le point de situation est le premier tour de la conversation</strong>, pas un
+        bandeau au-dessus d'elle. Trois choses tombent d'un coup : la page n'est jamais vide,
+        l'interface reste une conversation, et l'historique a un endroit naturel où vivre.</p>
+    </div>
+    <div class="note">
+      <span class="lbl">Des phrases, pas des compteurs</span>
+      <p>« 3 sessions » se lit et se range. « La tranche 09 attend depuis 40 minutes sur une
+        approbation que personne n'a vue » dit ce qu'il faut en faire. Les objets nommés sont
+        cliquables : la décision et la chose sur quoi décider ne sont pas à deux écrans l'une de
+        l'autre.</p>
+    </div>
+    <div class="note">
+      <span class="lbl">Ce que ça coûte, et la règle</span>
+      <p>Un point de situation est un appel de modèle. <strong>À la demande et mis en cache,
+        jamais sur minuterie</strong> : l'horodatage dit son âge et un lien le refait. Une
+        matinée entière vient d'être passée sur des jauges éteintes par trop d'appels.</p>
+    </div>
+    <div class="note">
+      <span class="lbl">Ce qui reste à trancher</span>
+      <p>L'historique ne survit pas aujourd'hui : le concierge est un <strong>tour unique</strong>
+        et les tours viennent du client à chaque appel. La page est bon marché, la mémoire est le
+        vrai travail — et sans elle, « Conversations » dans le rail ne désigne rien.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const el = (t, c, txt) => { const n = document.createElement(t); if (c) n.className = c; if (txt != null) n.textContent = txt; return n; };
+const html = (t, c, s) => { const n = el(t, c); n.innerHTML = s; return n; };
+
+/** Le point de situation. Écrit comme un humain l'écrirait à un autre humain qui revient de
+ *  déjeuner : ce qui a changé, ce qui attend, ce que ça a coûté. */
+function briefTurn() {
+  const turn = el("div", "turn");
+  turn.append(html("div", "who", "Concierge <span style=\"color:var(--rule-3)\">·</span> point de situation"));
+  const b = el("div", "bubble brief");
+  b.append(html("div", "stamp",
+    "calculé il y a 6 min, sur 2 projets · <button type=\"button\">refaire le point</button>"));
+  b.append(html("p",
+    null,
+    "Trois sessions tournent, toutes sur <a class=\"ref\" href=\"#\">Legion</a>. La nuit a livré "
+    + "<a class=\"ref\" href=\"#\">la tranche 08</a>, fusionnée à 6 h 12 avec les portes vertes."));
+  b.append(html("p",
+    null,
+    "Le quota de 5 h est à <span class=\"k\">32 %</span> et se réinitialise à <span class=\"k\">14 h 40</span>. "
+    + "Rien ne menace la fin de journée."));
+  const d = el("div", "decisions");
+  const rows = [
+    ["now", "Trois choses attendent une décision", null],
+    ["now", "<b>La tranche 09</b> est arrêtée depuis 40 min sur une approbation d'écriture hors de son worktree. Personne ne l'a vue passer.", "Ouvrir"],
+    ["soon", "<b>La PR #61</b> a ses contrôles au vert et aucune revue depuis hier soir. Elle bloque la 10 et la 11.", "Relire"],
+    ["fyi", "<b>Le coût d'hier</b> est de <span class=\"k\">4,10 $</span>, dont <span class=\"k\">2,80 $</span> sur la sonde de la tranche 09 — dix passages pour une spec de 245 lignes.", "Détailler"],
+  ];
+  for (const [sev, txt, go] of rows.slice(1)) {
+    const r = el("div", "dec");
+    r.append(el("span", "sev " + sev, sev === "now" ? "à faire" : sev === "soon" ? "bientôt" : "pour info"));
+    r.append(html("span", "txt", txt));
+    if (go) r.append(el("span", "go", go + " →"));
+    d.append(r);
+  }
+  b.append(d);
+  turn.append(b);
+  return turn;
+}
+
+function ask(text) {
+  const t = el("div", "turn me");
+  t.append(el("div", "who", "Opérateur"));
+  const b = el("div", "bubble");
+  b.append(el("p", null, text));
+  t.append(b);
+  return t;
+}
+
+function reply(...paras) {
+  const t = el("div", "turn");
+  t.append(el("div", "who", "Concierge"));
+  const b = el("div", "bubble");
+  for (const p of paras) b.append(html("p", null, p));
+  t.append(b);
+  return t;
+}
+
+const STATES = {
+  brief: () => [briefTurn()],
+  thread: () => [
+    briefTurn(),
+    ask("pourquoi la tranche 09 n'avance pas ?"),
+    reply(
+      "Sa session est arrêtée sur une gate : elle demande à écrire dans <span class=\"k\">web/src/ui/</span>, "
+      + "hors du worktree que son agent a le droit de toucher. La demande date de <span class=\"k\">12 h 21</span>.",
+      "Ce n'est pas une panne. Tant que personne ne répond, elle attend — le conteneur est détruit, "
+      + "donc ça ne consomme rien.",
+    ),
+    ask("et le coût de la semaine ?"),
+    reply(
+      "<span class=\"k\">18,40 $</span> sur sept jours, dont <span class=\"k\">11,10 $</span> les deux derniers. "
+      + "L'écart vient des sondes : elles ont tourné dix fois sur deux tranches au lieu d'une ou deux.",
+      "Je ne sais pas te dire le coût par tranche avant le 24 : la trace ne portait pas le lot à ce moment-là.",
+    ),
+  ],
+  first: () => {
+    const box = el("div", "first");
+    box.append(el("h3", null, "Rien à raconter pour l'instant"));
+    box.append(html("p", null,
+      "Le concierge lit ce que le control plane sait : sessions, tâches, blocages, dépenses. "
+      + "Aucun projet n'a encore tourné, donc il n'y a pas de situation à faire."));
+    box.append(html("p", null,
+      "<a class=\"ref\" href=\"#\">Créer un projet</a> — dès la première session, le point de "
+      + "situation s'écrit tout seul en haut de cette page."));
+    return [box];
+  },
+};
+
+let state = "brief";
+function render() {
+  const th = document.getElementById("thread");
+  th.textContent = "";
+  for (const n of STATES[state]()) th.append(n);
+  // Au tout premier lancement, la question reste POSSIBLE : le concierge sait répondre « ce que
+  // tu peux faire ici », et retirer le champ transformerait un écran calme en cul-de-sac.
+  document.getElementById("ask").classList.toggle("quiet", state === "first");
+  th.scrollTop = state === "thread" ? th.scrollHeight : 0;
+}
+for (const b of document.querySelectorAll("[data-s]")) {
+  b.addEventListener("click", () => {
+    state = b.dataset.s;
+    for (const o of document.querySelectorAll("[data-s]")) o.setAttribute("aria-pressed", String(o === b));
+    render();
+  });
+}
+render();
+</script>

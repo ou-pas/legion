@@ -1,0 +1,237 @@
+<title>La largeur du wiki</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<style>
+:root {
+  --paper: #f4f0e8; --sheet: #fcfaf6; --recess: #ede7da; --recess-2: #e5ddcc;
+  --ink: #1e1a15; --ink-2: #584f42; --ink-3: #6b6255;
+  --rule: #dcd3c3; --rule-2: #c6bba6; --rule-3: #aea18a;
+  --accent: #b03f1b; --accent-deep: #8e3213; --accent-wash: #f6e4da; --accent-line: #e3c0b2;
+  --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --measure: 72ch;
+  --w-iconrail: 56px; --w-rail: 214px; --w-anchors: 200px;
+  --r: 4px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #2e3440; --sheet: #3b4252; --recess: #2a2f3a; --recess-2: #252a33;
+    --ink: #eceff4; --ink-2: #cbd3df; --ink-3: #a3adbd;
+    --rule: #48505f; --rule-2: #5a6474; --rule-3: #6f7b8d;
+    --accent: #8fc7d6; --accent-deep: #a9d5e0; --accent-wash: #384550; --accent-line: #54707e;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #2e3440; --sheet: #3b4252; --recess: #2a2f3a; --recess-2: #252a33;
+  --ink: #eceff4; --ink-2: #cbd3df; --ink-3: #a3adbd;
+  --rule: #48505f; --rule-2: #5a6474; --rule-3: #6f7b8d;
+  --accent: #8fc7d6; --accent-deep: #a9d5e0; --accent-wash: #384550; --accent-line: #54707e;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+::selection { background: var(--accent-wash); color: var(--ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+svg { display: block; }
+
+.page { max-width: 1400px; margin: 0 auto; padding: 40px 20px 64px; display: flex; flex-direction: column; gap: 22px; }
+h1 { font-family: var(--f-display); font-weight: 600; font-size: clamp(1.7rem, 4vw, 2.3rem); line-height: 1.12; letter-spacing: -.014em; margin: 0; text-wrap: balance; }
+.lede { color: var(--ink-2); max-width: 68ch; margin: 0; }
+.hr { height: 3px; width: 64px; background: var(--ink); }
+
+.variants { display: flex; border: 1px solid var(--rule-2); border-radius: var(--r); overflow: hidden; align-self: flex-start; background: var(--sheet); }
+.variants button { border: 0; background: transparent; font: inherit; font-weight: 500; color: var(--ink-2); padding: .5em 1.05em; cursor: pointer; border-right: 1px solid var(--rule); }
+.variants button:last-child { border-right: 0; }
+.variants button[aria-pressed="true"] { background: var(--accent-wash); color: var(--accent-deep); }
+
+/* ── la maquette ── */
+.frame { border: 1px solid var(--rule-2); border-radius: 6px; overflow: hidden; background: var(--sheet); }
+.app { display: grid; grid-template-rows: 44px 1fr; height: 660px; }
+.topbar { display: flex; align-items: center; gap: 10px; padding: 0 12px; background: var(--sheet); border-bottom: 1px solid var(--rule); font-size: .85rem; }
+.topbar .brand { font-family: var(--f-display); font-weight: 600; }
+.topbar .sp { flex: 1; }
+.topbar .chip { font-family: var(--f-mono); font-size: .68rem; color: var(--ink-3); }
+
+.body { display: grid; grid-template-columns: var(--w-iconrail) var(--w-rail) 1fr; min-height: 0; }
+.iconrail { background: var(--recess-2); border-right: 1px solid var(--rule-2); display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 9px 0; }
+.prj { width: 34px; height: 34px; border-radius: 7px; display: grid; place-items: center; font-family: var(--f-mono); font-size: 12px; color: #fff; background: #6b5ca5; }
+.prj.on { border: 2px solid var(--ink); border-radius: 10px; }
+
+.rail { background: var(--recess); border-right: 1px solid var(--rule); padding: 11px 8px; display: flex; flex-direction: column; gap: 2px; overflow: auto; }
+.railhead { display: flex; align-items: center; gap: 9px; padding: 2px 8px 11px; }
+.railhead .mk { width: 22px; height: 22px; border-radius: var(--r); display: grid; place-items: center; background: var(--recess-2); color: var(--ink-2); flex: none; }
+.railhead b { font-family: var(--f-display); font-weight: 600; font-size: .95rem; }
+.nav { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: var(--r); color: var(--ink-2); font-size: .86rem; cursor: pointer; }
+.nav:hover { background: var(--sheet); color: var(--ink); }
+.nav[aria-current="true"] { background: var(--sheet); color: var(--ink); font-weight: 600; box-shadow: inset 0 0 0 1px var(--rule-2); }
+.railsep { margin: 9px 8px 3px; font-family: var(--f-mono); font-size: .62rem; letter-spacing: .11em; text-transform: uppercase; color: var(--ink-3); }
+
+.main { overflow: auto; padding: 20px 22px 40px; background: var(--paper); }
+
+/* La carte, dans les deux variantes. Ce qui change est ce qui l'entoure. */
+.card { background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--r); padding: 22px 26px; }
+.card h2 { font-family: var(--f-display); font-weight: 600; font-size: 1.3rem; margin: 0 0 2px; display: flex; align-items: center; gap: 9px; }
+.prose { max-width: var(--measure); display: flex; flex-direction: column; gap: 13px; }
+.prose h3 { font-family: var(--f-display); font-weight: 600; font-size: 1.02rem; margin: 14px 0 0; scroll-margin-top: 12px; }
+.prose p { margin: 0; }
+.prose code { font-family: var(--f-mono); font-size: .86em; background: var(--recess); padding: .08em .32em; border-radius: 3px; }
+
+/* A — la carte se resserre sur la mesure. Le vide devient une marge. */
+.main[data-v="resserre"] .card { max-width: calc(var(--measure) + 3.2rem); margin: 0 auto; }
+
+/* B — la carte reste large et la largeur libérée porte les titres de la page. */
+.main[data-v="ancres"] .sheetwrap { display: grid; grid-template-columns: minmax(0, 1fr) var(--w-anchors); gap: 26px; align-items: start; }
+.anchors { position: sticky; top: 0; display: flex; flex-direction: column; gap: 3px; padding-top: 26px; }
+.anchors .t { font-family: var(--f-mono); font-size: .62rem; letter-spacing: .11em; text-transform: uppercase; color: var(--ink-3); padding: 0 8px 5px; }
+.anchors a { color: var(--ink-3); text-decoration: none; font-size: .8rem; line-height: 1.35; padding: 4px 8px; border-left: 1px solid var(--rule); }
+.anchors a:hover { color: var(--ink); border-left-color: var(--rule-3); }
+.anchors a[aria-current="true"] { color: var(--ink); border-left-color: var(--accent); }
+.main[data-v="resserre"] .anchors { display: none; }
+.main[data-v="resserre"] .sheetwrap { display: block; }
+
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); gap: 14px; }
+.note { border-top: 2px solid var(--ink); padding-top: 9px; display: flex; flex-direction: column; gap: 5px; }
+.note[data-k="reco"] { border-top-color: var(--accent); }
+.note b { font-size: .89rem; }
+.note p { margin: 0; font-size: .86rem; color: var(--ink-2); }
+h2.sec { font-family: var(--f-display); font-weight: 600; font-size: 1.2rem; margin: 6px 0 0; }
+@media (max-width: 900px) { .body { grid-template-columns: var(--w-iconrail) 1fr; } .rail { display: none; } .main[data-v="ancres"] .sheetwrap { grid-template-columns: 1fr; } .anchors { display: none; } }
+</style>
+
+<div class="page">
+  <header style="display:flex;flex-direction:column;gap:9px">
+    <h1>Ce que la largeur libérée<br>peut faire du vide</h1>
+    <div class="hr"></div>
+    <p class="lede">Le texte s'arrête à 72 caractères et c'est le contrat de design : au-delà de soixante-quinze, l'œil perd sa ligne en revenant à gauche. Ce qui reste à décider n'est donc pas la largeur du texte mais celle de ce qui l'entoure.</p>
+  </header>
+
+  <div class="variants" role="group" aria-label="Variante">
+    <button type="button" data-v="ancres" aria-pressed="true">B · les titres de la page à droite</button>
+    <button type="button" data-v="resserre" aria-pressed="false">A · la carte se resserre</button>
+  </div>
+
+  <div class="frame">
+    <div class="app">
+      <div class="topbar">
+        <span class="brand">Legion</span>
+        <span class="sp"></span>
+        <span class="chip">2 sessions · quota 5 h · 41 % · docker ok</span>
+      </div>
+      <div class="body">
+        <nav class="iconrail" aria-label="Projets">
+          <div class="prj on">AG</div>
+          <div class="prj" style="background:#3e6b2e">ON</div>
+        </nav>
+
+        <nav class="rail" aria-label="Wiki">
+          <div class="railhead">
+            <span class="mk"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/></svg></span>
+            <b>Wiki</b>
+          </div>
+          <div class="nav">Accueil</div>
+          <div class="railsep">Produit</div>
+          <div class="nav">Ce qu'est Legion</div>
+          <div class="nav">Pour qui</div>
+          <div class="nav">Les principes</div>
+          <div class="nav" aria-current="true">Les décisions actées</div>
+          <div class="nav">Où en est le produit</div>
+          <div class="railsep">Concepts</div>
+          <div class="nav">Agent</div>
+          <div class="nav">Tâche</div>
+          <div class="nav">Session</div>
+          <div class="nav">Runner</div>
+        </nav>
+
+        <div class="main" data-v="ancres" id="main">
+          <div class="sheetwrap">
+            <article class="card">
+              <h2>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/></svg>
+                Les décisions actées
+              </h2>
+              <div class="prose">
+                <p>Ce que le produit a tranché, et pourquoi. Les raisons comptent autant que les conclusions : sans elles, on refait le débat trois mois plus tard sans savoir ce qu'on avait déjà appris.</p>
+
+                <h3 id="s1">Un seul opérateur, sur sa machine</h3>
+                <p>L'interface n'a pas d'authentification et le control plane écoute en local. Cette hypothèse traverse tout : les secrets sont déchiffrés côté serveur avec une clé maître dans l'environnement, la base est un fichier SQLite, Docker tourne sur la même machine.</p>
+                <p>Ce que ça a coûté le 26/08 : un conteneur de session pouvait appeler l'interface, puisqu'il connaît l'adresse du control plane pour ses propres callbacks. La réponse a été de réserver l'interface à la boucle locale, ce qu'un conteneur ne peut pas imiter, plutôt que d'inventer une authentification dont personne n'avait besoin.</p>
+
+                <h3 id="s2">Le conteneur meurt pendant l'attente</h3>
+                <p>Quand un agent pose une question, sa session est détruite. C'était contre-intuitif au départ, parce qu'on pense d'abord à garder le conteneur pour éviter la réinstallation, et c'est devenu l'invariant central : rien ne tourne, rien ne coûte, et la conversation reprend intacte grâce à l'identifiant de session du SDK.</p>
+                <p>Le prix, assumé : les dépôts sont reclonés au réveil.</p>
+
+                <h3 id="s3">Le réseau n'est pas cloisonné par défaut</h3>
+                <p>Un agent sans environnement n'a aucune restriction de sortie. Cette décision a été prise, annulée et reprise dans la même journée, ce qui vaut d'être raconté.</p>
+                <p>Le matin, la bascule vers un mur par omission semblait évidente. Le soir, un audit a montré la vraie carte : six agents sur sept portaient un jeton d'écriture, trois portaient une clé d'API qu'aucun de leurs outils n'utilisait, et l'agent que le mur cloisonnait le mieux était le seul à ne rien porter.</p>
+                <p>Le mur n'a pas disparu, il est redevenu un choix : un environnement <code>limited</code> assigné à un agent cloisonne ses sessions. Ce qui a disparu est le mur par omission.</p>
+
+                <h3 id="s4">Une tâche peut attendre plusieurs tâches</h3>
+                <p>Le blocage entre tâches est un graphe, et non plus une seule case « bloquée par ». La raison est la chaîne <code>feature</code> : une spec y est découpée en tranches dont certaines sont indépendantes, et l'étape Wiki doit attendre toutes les tranches, pas la dernière dans l'ordre.</p>
+              </div>
+            </article>
+
+            <nav class="anchors" aria-label="Sur cette page">
+              <span class="t">Sur cette page</span>
+              <a href="#s1" aria-current="true">Un seul opérateur, sur sa machine</a>
+              <a href="#s2">Le conteneur meurt pendant l'attente</a>
+              <a href="#s3">Le réseau n'est pas cloisonné par défaut</a>
+              <a href="#s4">Une tâche peut attendre plusieurs tâches</a>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="sec">Ce qui les sépare</h2>
+  <div class="notes">
+    <div class="note" data-k="reco">
+      <b>B utilise la largeur, A la range</b>
+      <p>Le rail porte la liste des pages ; la colonne de droite porterait les sections de celle qu'on lit. Deux informations différentes, toutes deux utiles, et c'est ce que fait toute documentation qu'on lit vraiment.</p>
+    </div>
+    <div class="note">
+      <b>B coûte une donnée que le serveur a déjà</b>
+      <p>Les titres viennent du markdown, que le serveur parse déjà pour le rendre. Les ancres sont un balayage des `h2` du rendu, pas une nouvelle route.</p>
+    </div>
+    <div class="note">
+      <b>A est plus juste sur une page courte</b>
+      <p>Une page de trois paragraphes n'a pas de sections à lister : la colonne de droite y serait vide. B doit donc savoir disparaître sous deux ou trois titres — sinon elle recrée le vide qu'elle prétend remplir.</p>
+    </div>
+    <div class="note">
+      <b>Ce que ni l'une ni l'autre ne change</b>
+      <p>La mesure du texte. 72 caractères, dans les deux. Le débat porte sur ce qui l'entoure, jamais sur lui.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var main = document.getElementById("main");
+  Array.prototype.forEach.call(document.querySelectorAll(".variants button"), function (b) {
+    b.addEventListener("click", function () {
+      var v = b.getAttribute("data-v");
+      main.setAttribute("data-v", v);
+      Array.prototype.forEach.call(document.querySelectorAll(".variants button"), function (o) {
+        o.setAttribute("aria-pressed", String(o.getAttribute("data-v") === v));
+      });
+    });
+  });
+  // L'ancre active suit la lecture — c'est ce qui distingue une colonne d'ancres d'une liste.
+  var heads = Array.prototype.slice.call(document.querySelectorAll(".prose h3"));
+  var links = Array.prototype.slice.call(document.querySelectorAll(".anchors a"));
+  if ("IntersectionObserver" in window && heads.length) {
+    var seen = new Set();
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) seen.add(e.target.id); else seen.delete(e.target.id); });
+      var first = heads.map(function (h) { return h.id; }).filter(function (id) { return seen.has(id); })[0];
+      links.forEach(function (a) { a.setAttribute("aria-current", String(a.getAttribute("href") === "#" + first)); });
+    }, { root: main, rootMargin: "0px 0px -70% 0px" });
+    heads.forEach(function (h) { io.observe(h); });
+  }
+})();
+</script>

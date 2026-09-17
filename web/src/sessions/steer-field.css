@@ -1,0 +1,28 @@
+/* The steering field: a row of controls and under it ONE feedback line (caption, confirmation or
+   refusal, never two at once).
+
+   The block must not JUMP in height on send: it sits in the session verdict above the trace, and a
+   few pixels of jolt per message would be paid by everything below. No fixed height guarantees it;
+   the three variants share the SAME metrics: `Caption` (ui/text.tsx, size="xs") and `.ui-form-msg`
+   (ui/form.css) are both `--fs-xs` / `--lh-snug`. Changing one without the other brings the jolt
+   back.
+
+   The tightest vertical gap of the scale: the caption belongs to the field. */
+.ui-steer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  flex: 1;
+  min-width: 0;
+}
+
+/* The field takes the room, the button keeps its own: otherwise the send button gets crushed as
+   soon as the verdict is narrow. */
+.ui-steer .ui-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.ui-steer .ui-btn {
+  flex-shrink: 0;
+}

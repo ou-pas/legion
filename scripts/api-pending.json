@@ -1,0 +1,16 @@
+{
+  "_": [
+    "Declared contract debt. Each entry is a missing half of a feature, and the value says who",
+    "must deliver it. An undeclared entry fails `make contract`; a declared entry that no longer",
+    "applies fails too, so the list does not become a graveyard nobody reads.",
+    "",
+    "Removing a line here is what closes a gap."
+  ],
+
+  "missing": {},
+
+  "unused": {
+    "GET /api/connections/callback": "Not debt, and the one line here that will never go: the screen never calls it. The OAuth provider sends the browser back to it from the URL registered on its side, so no `/api/…` literal can exist in `web/src/`, and making one up to silence this check would lie to the check. It is the case the header of `api-contract.ts` names: some routes are there for the outside.",
+    "POST /api/projects/:p/agents": "Agents screen: a \"New agent\" button (name, role instruction, starting grants). The route exists since 04/09 because there was no way to create a named agent; the screen still only offers the library."
+  }
+}

@@ -1,0 +1,91 @@
+/* One elevation only, never a card inside a card (craft floor): inside, use <Inset> or
+   <Divider>. */
+.ui-card {
+  background: var(--sheet);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-3);
+  box-shadow: var(--el-1);
+  min-width: 0;
+}
+
+/* :where() keeps specificity at (0,1,0) so a page class passed as `className` can still adjust
+   the padding. */
+.ui-card:where([data-pad="true"]) {
+  padding: var(--sp-7) var(--sp-8);
+}
+
+.ui-card-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  min-width: 0;
+  margin-bottom: var(--sp-3);
+}
+
+.ui-card-head > svg {
+  color: var(--ink-2);
+}
+
+.ui-card-head:last-child {
+  margin-bottom: 0;
+}
+
+/* `min-width: 0` so title and subtitle truncate instead of pushing the actions out. */
+.ui-card-heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  min-width: 0;
+}
+
+/* The subtitle qualifies, it does not compete. */
+.ui-card-sub {
+  min-width: 0;
+  font-size: var(--fs-xs);
+  font-style: italic;
+  line-height: var(--lh-snug);
+  color: var(--ink-3);
+}
+
+.ui-card-title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+  min-width: 0;
+  font-size: var(--fs-xl);
+  letter-spacing: var(--tr-tight);
+}
+
+.ui-card-desc {
+  max-width: var(--measure);
+  margin-bottom: var(--sp-7);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-loose);
+  color: var(--ink-2);
+}
+
+.ui-card-desc:last-child {
+  margin-bottom: 0;
+}
+
+/* Mono is for data only: a path, a secret name, a command. */
+.ui-card-desc code {
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  background: var(--recess);
+  border-radius: var(--r-1);
+  padding: var(--sp-1) var(--sp-3);
+}
+
+.ui-card-body:where([data-pad="true"]) {
+  padding: var(--sp-7) var(--sp-8);
+}
+
+/* Size imposed by the slot (see tokens.css). Direct child so icons of buttons in `actions` are
+   untouched. */
+.ui-card-head > svg {
+  flex: none;
+  width: var(--icon-head);
+  height: var(--icon-head);
+}

@@ -1,0 +1,61 @@
+/* One row = one full-width option, never a variable-width button: the column sets the width, the
+   text sets the height. */
+.ui-option-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.ui-option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-5);
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  padding: var(--sp-5) var(--sp-6);
+  border-radius: var(--r-2);
+  border: 1px solid var(--border-control);
+  background: var(--sheet);
+  font: inherit;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-body);
+  color: var(--ink);
+  transition:
+    background-color var(--dur-1) var(--ease),
+    border-color var(--dur-1) var(--ease);
+}
+
+.ui-option:hover:not(:disabled) {
+  background: var(--row-hover);
+}
+
+/* Disabled is a rendering of its own (dead surface), not an opacity veil (see ui-btn). */
+.ui-option:disabled {
+  background: var(--recess);
+  color: var(--ink-3);
+  cursor: not-allowed;
+}
+
+.ui-option[data-selected="true"] {
+  background: var(--row-selected);
+  border-color: var(--row-selected-line);
+}
+
+.ui-option-mark {
+  width: var(--sz-choice);
+  height: var(--sz-choice);
+  border-radius: var(--r-round);
+  border: 1.5px solid var(--border-strong);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.ui-option[data-selected="true"] .ui-option-mark {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.ui-option:disabled .ui-option-mark {
+  border-color: var(--border-control);
+}

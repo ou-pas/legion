@@ -1,0 +1,144 @@
+.schedules-page {
+  display: grid;
+  grid-template-columns: minmax(300px, 400px) 1fr;
+  gap: var(--space-4);
+  height: 100%;
+}
+
+.schedules-list-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.schedules-list-section h2 {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0;
+}
+
+.schedules-detail-section {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.schedule-row {
+  all: unset;
+  display: block;
+  cursor: pointer;
+  width: 100%;
+}
+
+.schedule-row-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  align-items: flex-end;
+}
+
+.schedule-detail-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.schedule-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.schedule-detail-header h2 {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.schedule-detail-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.cron-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--ink);
+  background: var(--surface2);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.prompt-preview {
+  font-size: var(--text-sm);
+  color: var(--ink2);
+  font-style: italic;
+}
+
+.schedule-history {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-3);
+}
+
+.schedule-history h3 {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.outcome-summary {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.runs-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.schedule-run-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  background: var(--surface2);
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+}
+
+.schedule-run-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.schedule-run-header time {
+  font-size: var(--text-sm);
+  color: var(--ink2);
+  font-family: var(--font-mono);
+}
+
+.error-reason {
+  color: var(--error-text);
+  font-size: var(--text-sm);
+  font-family: var(--font-mono);
+}
+
+.schedule-run-item:empty {
+  display: none;
+}

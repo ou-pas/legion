@@ -1,0 +1,387 @@
+/* Foundations: the single source of every design value.
+
+   Visual world "Atelier": drawing board, warm neutrals, structuring lines, Archivo for titles and
+   interface alike. The world carries typography, spacing and geometry, shared by both themes. Color
+   here is the light theme's (default, Atelier palette); theme-dark.css holds the dark one (Nord).
+   A light Nord was tried and dropped on 20/08: darkened to pass AA on a light sheet, its aurora hues
+   lost their identity.
+
+   No component declares a hardcoded color, radius, duration or font size. A missing value is added
+   here with a semantic name, never locally.
+
+   WCAG AA checked: every ink/semantic × surface pair is ≥ 4.5:1, including ink-3 on recess (4.86)
+   and accent on its wash (4.77). */
+:root {
+  /* Surfaces. paper = app background (carries the grid) · sheet = sheet on top (cards, panels) ·
+     hi = hovered sheet · recess = recess (fields, inset blocks, column headers) */
+  --paper: #f4f0e8;
+  --sheet: #fcfaf6;
+  --sheet-hi: #ffffff;
+  --recess: #ede7da;
+  --recess-2: #e5ddcc;
+
+  /* Background behind a brand logo, and it does not follow the theme: that is the point.
+     `theme-dark.css` does not redefine it, since leaving it out there is the only guarantee it never
+     diverges.
+
+     Why (round 4, 16/09): a brand has one color. On dark `--recess`, Linear (#5E6AD2) fell to 2.87:1
+     against 4.71:1 for GitLab (#FC6D26), one crisp and the other washed out. A constant light
+     background restores the conditions the logos' colors were chosen for, as providers do on their
+     own integration pages. It also lets GitHub keep its mark: #181717 is invisible on a dark
+     background, and reaches 16:1 here. */
+  --brand-plate: #f6f3ec;
+
+  /* Ink. ink = main text · ink-2 = readable secondary · ink-3 = tertiary / placeholder (AA floor, do
+     not go lower) */
+  --ink: #1e1a15;
+  --ink-2: #584f42;
+  --ink-3: #6b6255;
+
+  /* Lines. rule = quiet inner separation · rule-2 = object border · rule-3 = strong border (hover,
+     uncolored focus) */
+  --rule: #dcd3c3;
+  --rule-2: #c6bba6;
+  --rule-3: #aea18a;
+
+  /* Lines by role. No component picks `--rule`, `--rule-2` or `--rule-3` directly: it declares the
+     line's role, and the role sets the strength. Otherwise a card, a panel, a menu and a field ended
+     up with three different lines for no reason (operator feedback).
+       surface   = object on the board (card, panel, inset block)
+       floating  = surface that overlays (menu, popover, select list, toast, modal, drawer), stronger
+                   so it detaches
+       control   = button, field, closed select, checkbox
+       separator = inner line (list row, table header, rule)
+       strong    = control hover / press */
+  --border-surface: var(--rule);
+  --border-floating: var(--rule-2);
+  --border-control: var(--rule-2);
+  --border-separator: var(--rule);
+  --border-strong: var(--rule-3);
+
+  /* Semantic. Each state is an fg / wash / line triplet so chips, banners, borders and icons of a
+     state always match. */
+  --accent: #b03f1b; /* vermilion: interactive, primary, focus */
+  --accent-deep: #8e3213;
+  --accent-wash: #f6e4da;
+  --accent-line: #e3c0b2;
+
+  --run: #1b6350; /* running */
+  --run-wash: #deeae4;
+  --run-line: #bfd5cc;
+
+  --wait: #8a5a00; /* waiting for you / paused */
+  --wait-mark: #c08a12; /* hatch stroke */
+  --wait-wash: #f6e9ce;
+  --wait-line: #e2cd9c;
+
+  /* Approval gate: hatching plus icon. Same family as --wait ("waiting for you"): its ink and line,
+     only a quieter wash. Made explicit so no theme can silently break the link, which happened. */
+  --gate: var(--wait);
+  --gate-wash: #fdf7ea;
+  --gate-line: var(--wait-line);
+  --gate-hatch: rgba(192, 138, 18, 0.1);
+
+  --ok: #3e6b2e; /* completed successfully */
+  --ok-wash: #e1ebdf;
+  --ok-line: #c2d6bf;
+
+  --bad: #a02617; /* failure, refusal, danger */
+  --bad-on: #fcfaf6; /* ink on a danger fill */
+  --bad-deep: #7d1a0e; /* destructive action hover */
+  --bad-wash: #f7dfda;
+  --bad-line: #e7c3bb;
+  --bad-hatch: rgba(160, 38, 23, 0.1);
+
+  /* Merged (PR): a success of a different nature than --ok. A merged PR never reopens, while --ok
+     (mergeable, done) is a passing state; without its own tint "open" and "merged" read the same
+     (operator feedback; GitHub/Linear convention: green = open, violet = merged). Same hue as
+     --prj-hue-4 but literal, not `var()`: the dark theme needs a lightened value for AA, while
+     project squares stay identical in both themes (6.53:1 on --sheet here). */
+  --merged: #6b4a9c;
+  --merged-wash: #e7e0e9;
+  --merged-line: #d0c4db;
+
+  /* Project mark hue scale for the icon rail (slice nav/02). A project does not choose its color:
+     `projects/project-mark.ts` hashes its id into a rank on this scale, hence twelve named steps
+     here and no literal in TSX.
+
+     Twelve, not 360: on a rail only spaced hues are distinguishable, and two projects 4° apart would
+     look identical. They stay in the Atelier world, muted in saturation and lightness.
+
+     The step count is repeated in `PROJECT_HUES` (project-mark.ts), the only value both files share. */
+  --prj-hue-0: #b03f1b; /* vermilion (the accent: the first project carries the product color) */
+  --prj-hue-1: #3e6b2e; /* olive */
+  --prj-hue-2: #1b6350; /* fir */
+  --prj-hue-3: #2f5d86; /* slate */
+  --prj-hue-4: #6b4a9c; /* plum */
+  --prj-hue-5: #99306a; /* garnet */
+  --prj-hue-6: #8a5a00; /* ochre */
+  --prj-hue-7: #a02617; /* brick */
+  --prj-hue-8: #4a6a1f; /* moss */
+  --prj-hue-9: #146272; /* petrol */
+  --prj-hue-10: #574a8f; /* violet ink */
+  --prj-hue-11: #7d4520; /* terracotta */
+  /* Ink on a project square: all twelve hues are dark, so one light ink is enough whatever the rank. */
+  --prj-ink: #fcfaf6;
+
+  /* Typography. One interface family (sans, Archivo), titles included, and one data family (mono)
+     only for paths, hashes, commands, payloads, measures. Never mono as a "technical" costume on
+     running text. */
+  --sans: "Archivo Variable", "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --fs-3xs: 0.59375rem; /* 9.5px: count in a dot, dense chip */
+  --fs-2xs: 0.6875rem; /* 11px: capital labels, counts */
+  --fs-xs: 0.75rem; /* 12px: meta, hints */
+  --fs-sm: 0.8125rem; /* 13px: dense (list rows, buttons) */
+  --fs-md: 0.875rem; /* 14px: body */
+  --fs-lg: 0.9375rem; /* 15px: emphatic body */
+  --fs-xl: 1.0625rem; /* 17px: card title */
+  --fs-2xl: 1.1875rem; /* 19px: strong section title */
+  --fs-3xl: 1.5rem; /* 24px: page title */
+  --fs-4xl: 2rem; /* 32px: landing title */
+
+  --lh-tight: 1.15;
+  --lh-snug: 1.35;
+  --lh-body: 1.5;
+  --lh-loose: 1.65;
+
+  --tr-display: -0.03em;
+  --tr-tight: -0.015em;
+  --tr-normal: 0;
+  --tr-caps: 0.1em;
+
+  --fw-normal: 400;
+  --fw-medium: 500;
+  --fw-semi: 600;
+  --fw-bold: 700;
+
+  /* Reading measure: prose never goes beyond (craft floor 65-75ch) */
+  --measure: 72ch;
+  /* Screen lede: shorter than body, since it is skimmed rather than read line by line (no-project
+     screen, direction-double-nav mockup). */
+  --measure-lede: 54ch;
+  /* Margin note: a preflight line's explanation, a side door's text. */
+  --measure-note: 46ch;
+
+  /* Spacing (4px scale, one set) */
+  --sp-0: 0;
+  --sp-1: 2px;
+  --sp-2: 4px;
+  --sp-3: 6px;
+  --sp-4: 8px;
+  --sp-5: 10px;
+  --sp-6: 12px;
+  --sp-7: 14px;
+  --sp-8: 16px;
+  --sp-9: 20px;
+  --sp-10: 24px;
+  --sp-11: 32px;
+  --sp-12: 40px;
+  --sp-13: 48px;
+
+  /* Dimensions. One control geometry for buttons, fields, selects and icon buttons (what makes a
+     toolbar align), plus scroll area heights.
+
+     Every box containing text is `max(px, rem)`. The type scale is in `rem` and follows the
+     browser's base font size, which a low-vision user sets to 20 or 24px. Boxes were fixed px, so
+     the container did not follow the content: at a 24px root the logo glyph was 27px in a 22px box
+     and a button label 30px in 32. The px in `max()` is the floor: below a 16px root, geometry and
+     click targets do not shrink. A purely decorative box may stay px. */
+  --h-control-sm: max(24px, 1.5rem);
+  --h-control-md: max(32px, 2rem);
+  /* Touch target, compact breakpoint only (14/09, DESIGN.md § 3 bis): a thumb misses what a cursor
+     hits. `--h-touch` and `--sz-mark-touch` take over the two 44px values already in `tab-bar.css`
+     and `shell.css` (same computed value, no rendering change). `--icon-touch` is new: the tools
+     panel glyphs stayed at 14px inside a 44px target, still unreadable. 17px, and not
+     `--sz-avatar` although it is also 28px: a project square is not an avatar. */
+  --h-touch: max(44px, 2.75rem);
+  --icon-touch: 17px;
+  --sz-mark-touch: max(28px, 1.75rem);
+  /* Head band shared by the shell's three columns (13/09). Each column computed its height from its
+     own paddings, so nothing held the line: vertical centers measured at 22px (icon rail mark), 21px
+     (rail head) and 26px (bar title), five pixels of drift on the most looked-at line of the app.
+     The value comes from the bar, the most constrained: a --h-control-md control plus two --sp-5
+     gutters. */
+  --h-head: max(52px, 3.25rem);
+  /* Squares holding a glyph: product mark, operator avatar, drawn checkbox (it used --sp-8, a
+     spacing token; a control dimension is not a gutter). */
+  --sz-mark: max(22px, 1.375rem);
+  --sz-avatar: max(28px, 1.75rem);
+  --sz-choice: max(16px, 1rem);
+  /* Larger than the product mark: a navigation target, not an ornament, holding two readable
+     letters. */
+  --sz-prj: max(34px, 2.125rem);
+  /* Count stitched to a project square's corner. Fixed px, not rem: it must not eat the square it
+     decorates. */
+  --sz-prj-badge: 15px;
+  /* Dot at the center of the swatch the rule would have picked, in the project color picker (v47).
+     Readable on a 34px square without filling it. */
+  --sz-hue-mark: 8px;
+  /* A switch has no glyph but lines up with a label that grows. */
+  --w-switch: max(32px, 2rem);
+  --h-switch: max(20px, 1.25rem);
+  --sz-switch-knob: max(14px, 0.875rem);
+  /* Icon size inside a control, imposed by the button's CSS, not the caller: otherwise each screen
+     picks 11 to 14 and an action bar never has two icons the same size (operator feedback). */
+  --icon-control: 14px;
+  --icon-control-sm: 13px;
+  /* Same for the other two icon roles. Call sites passed 11 to 16px depending on the screen; the
+     slots' CSS now imposes these sizes, so `size={…}` at the call site has no effect. */
+  --icon-row: 15px; /* starts a registry row (list, panel, queue) */
+  --icon-head: 16px; /* card or panel header */
+  /* Product mark in its square. A role of its own: its square is a project's (`--sz-prj`) since
+     15/09, since 22px looked odd at the head of a rail of 34px squares. Glyph/square ratio kept at
+     0.64. */
+  --icon-brand: 22px;
+  /* The square holding a provider logo in its connection tile, identifying the tile before the name
+     is read. A box replacing a glyph follows the base font (rule 16). Replaced `--sz-connect-mark`
+     (round 3), which sized the drawing: the box now has the size and the drawing fills it minus
+     padding. */
+  --sz-connect-mark-box: max(40px, 2.5rem);
+  --h-scroll-sm: 180px;
+  --h-scroll-md: 320px;
+  --h-scroll-lg: 480px;
+  --h-scroll-viewport: 52vh;
+  /* Text columns follow the base font too. */
+  --w-aside: max(280px, 17.5rem); /* side column (goal guardrails, agent grants) */
+  --w-rail: max(224px, 14rem);
+  /* Open wiki page sections, right of the text (direction-wiki-largeur, B). A list of titles, so it
+     follows the base font (rule 16). Reserved even when the page has no heading, otherwise the body
+     jumps between pages. */
+  --w-anchors: max(200px, 12.5rem);
+  /* Icon rail left of the project rail (direction-double-nav mockup, variant B). It holds
+     two-letter mark squares, not bare icons, so it follows the base font (rule 16). */
+  --w-iconrail: max(56px, 3.5rem);
+  /* Live channel column: a list of task titles, follows the base font (rule 16). */
+  --w-channels: max(236px, 14.75rem);
+  /* A field's width announces the expected input length: stretched across the topbar it no longer
+     looked like a field. `rem` so it grows with the base font. */
+  --w-command: 30rem;
+  /* Centered sheet of a single-purpose screen (the no-project screen); text, so it follows the base
+     font. */
+  --w-sheet: max(620px, 38.75rem);
+  /* Waiting panel under the bar (direction-double-nav mockup): a list of task sentences, follows the
+     base font (rule 16). */
+  --w-pending-panel: max(330px, 20.625rem);
+  /* The concierge is a conversation: its replies are paragraphs, not lines. */
+  --w-concierge-panel: max(400px, 25rem);
+  /* Runner fleet on hover of the Docker indicator: a row holds a short name and a full-width status
+     chip ("docker unavailable"); narrower, the chip overflows (the generic popover caps at 320px). */
+  --w-runners-panel: max(360px, 22.5rem);
+  /* Side panel (`ui/side-panel`, 04/09): a key and a mono value per line; a branch name truncates
+     rather than widening it. */
+  --w-sidepanel: max(340px, 21.25rem);
+  /* A field expecting a short number (session cap, quantity). Stretched across its column, a
+     two-digit field lies about its input. */
+  --w-field-num: max(72px, 4.5rem);
+  /* Questionnaire step rail (`ui/step-rail`, inbox-decoupes A mockup, 07/09): question labels and
+     answers, follows the base font (rule 16). Below 900px the rail moves on top and this width no
+     longer applies. */
+  --w-steprail: max(250px, 15.625rem);
+  /* An option card laid out in a row (`ui/option-card`) does not go below this: narrower, a
+     three-word label wraps on three lines and the grid reads as a misaligned column. */
+  --w-optcard: max(180px, 11.25rem);
+  /* Minimum connection tile width (`ui/connect-tile`). Narrower, the code to copy (mono, `--fs-3xl`,
+     letter-spaced) wraps on two lines and can no longer be read from a distance, the one thing this
+     screen must get right. */
+  --w-connect-tile: max(232px, 14.5rem);
+  /* Severity column of the status overview. Fixed rather than `auto`: the three words align and the
+     sentences start at the same place, which makes the column read as a sort. */
+  --w-severity: max(80px, 5rem);
+
+  /* Scroll area edge shadow: a "there is more" cue, not decoration. */
+  --edge-shade: rgba(30, 26, 21, 0.11);
+
+  /* PR state (04/09): GitHub's colors on purpose, where the operator learned them and finds them
+     again on click. Only for the PR icon (`review/pr-mark.tsx`); the rest of the app keeps its
+     ok/wait/bad tones. Open, merged, closed, draft. */
+  --pr-open: #1a7f37;
+  --pr-merged: #8250df;
+  --pr-closed: #cf222e;
+  --pr-draft: #59636e;
+
+  /* Radii. Drawing board world: short radii, nothing above 5px except pills and circles. */
+  --r-1: 2px;
+  --r-2: 3px;
+  --r-3: 5px;
+  --r-pill: 99px;
+  --r-round: 50%;
+
+  /* Elevation. Flat since 04/09: a resting surface (card, panel, button) is bounded by its line
+     only. Only what floats above the page (menu, popover, modal: `--el-2`) keeps a shadow, because
+     there it says something true. Warm shadows with offset and blur (a halo without offset is
+     decoration, not depth: craft floor). */
+  --el-1: none;
+  --el-2: 0 1px 2px rgba(46, 36, 22, 0.06), 0 18px 34px -26px rgba(46, 36, 22, 0.45);
+  --el-inset: none;
+  --el-btn: none;
+
+  /* Focus: one ring in the whole app, on the interactive tint. */
+  --focus-ring: 2px solid var(--accent);
+  --focus-offset: 2px;
+  /* Fields: inner line (the border thickens inwards), no outer halo: nothing overflows, no
+     interaction with hover. */
+  --field-ring: inset 0 0 0 1px var(--accent);
+  --field-ring-bad: inset 0 0 0 1px var(--bad);
+
+  /* Motion. dur-1 = state feedback (hover, focus) · dur-2 = entrances · ease-out = exponential exit
+     from an already visible state. */
+  --dur-1: 0.12s;
+  --dur-2: 0.18s;
+  --dur-pulse: 1.6s; /* a "running" dot's pulse: rhythm, not transition */
+  --ease: ease;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.3, 1);
+
+  /* Planes (named z-index, never 9999 again) */
+  --z-sticky: 10;
+  /* Card lifted in drag and drop (dnd-kit `DragOverlay`, portalled out of the React tree): above
+     board content and the sticky bar, below everything that deliberately covers the screen
+     (drawer, modal). */
+  --z-drag: 15;
+  --z-drawer: 20;
+  --z-modal: 30;
+  --z-popover: 35; /* menu or popover opened from a modal */
+  --z-cmdp: 40;
+  --z-tooltip: 50;
+  --z-toast: 60;
+
+  /* <select> chevron: color is baked into the URI, so the theme replaces the URI. */
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6255' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+
+  /* Hovered row on a sheet: select option, menu item, rail entry. It darkens in both themes, the
+     same gesture everywhere (operator feedback: the rail darkened while the select lightened). */
+  --row-hover: var(--recess);
+
+  /* Chosen row (select option, active rail entry). In light the accent wash is enough; in dark it
+     needs a tint lighter than the sheet, otherwise the chosen row digs a hole. */
+  --row-selected: var(--accent-wash);
+  /* Strong enough to read as a frame. */
+  --row-selected-line: var(--accent-line);
+
+  /* A token so a theme can take it over. */
+  --selection: rgba(176, 63, 27, 0.2);
+
+  /* Tinted from ink, never pure black. */
+  --scrim: color-mix(in srgb, var(--ink) 52%, transparent);
+
+  /* Board grid, the world's signature. Minor 16px, major 96px, very low opacity: it structures
+     without being seen. */
+  --grid-minor: rgba(30, 26, 21, 0.03);
+  --grid-major: rgba(30, 26, 21, 0.07);
+  --grid-minor-size: 16px;
+  --grid-major-size: 96px;
+
+  /* Hatching: attention mark (gate, security event). Shared pattern so every hatch has the same
+     pitch. */
+  --hatch-step: 6px;
+  --hatch-gap: 13px;
+  --hatch-angle: 135deg;
+  --neutral-hatch: rgba(30, 26, 21, 0.09);
+
+  --w-toast: max(320px, 20rem);
+
+  /* Phone tab bar: its target, its line, the home indicator gutter. The toast uses it to avoid
+     sitting on it. */
+  --h-tabbar: calc(var(--h-touch) + 1px + env(safe-area-inset-bottom, 0px));
+}

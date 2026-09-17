@@ -1,0 +1,79 @@
+node_modules/
+dist/
+*.log
+
+# ── sensible : env, credentials, clés — JAMAIS dans git ──
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.local
+*.pem
+*.key
+*_deploy
+*_deploy.pub
+credentials*.json
+
+# ── runtime ──
+server/legion.db*
+server/data/
+# Le chemin par défaut est RELATIF au cwd (`shared/db.ts`) : lancer la suite depuis la racine du
+# dépôt au lieu de `server/` y dépose une base bien réelle, avec ses secrets chiffrés dedans. Elle
+# traînait déjà en non suivi le 01/09 ; une base ne doit pas pouvoir entrer par un `git add -A`.
+/legion.db*
+
+# ── scories locales ──
+_to_delete/
+.DS_Store
+
+# Sortie de `tsc` lancé sans --noEmit (le piège : `npm exec tsc --noEmit` fait avaler le
+# drapeau par npm, tsc émet alors un .js à côté de chaque .ts et oxlint les analyse).
+server/src/*.js
+server/src/**/*.js
+web/src/**/*.js
+
+# Artefacts du pont de fichiers : remplacer un fichier ouvert par le serveur laisse un
+# `.fuse_hidden*` derrière. Ce n'est ni du code ni de la donnée — juste l'ancien inode qui
+# attend la fermeture du descripteur.
+.fuse_hidden*
+**/.fuse_hidden*
+# Dépôt des archives livrées dans la session (tarballs extraits sur place).
+_incoming/
+
+# Copies de build de `make image` : le Makefile copie runner-payload/*.mjs dans
+# session-image/ avant `docker build`. Générées, jamais commitées — une copie suivie
+# apparaissait « modifiée » après chaque make image et bloquait les pull --rebase.
+session-image/*.mjs
+
+# Atelier du design system (sortie de `storybook build`)
+web/storybook-static/
+web/node_modules/.vite-storybook/
+
+# Coffres de configuration : chiffrés, mais jamais versionnés — un export réussi qui finit
+# dans un commit annule tout son chiffrement.
+*.aos
+
+# ── outillage de session : les scripts et les instantanés d'un lot ──
+# Un `git status` qui affiche cinquante fichiers non suivis ne se lit plus, donc on cesse de le
+# lire — et c'est précisément le jour où quelque chose de VRAI y apparaît sans être vu. Ces
+# fichiers sont des outils de passage : le script qui commite un lot, l'archive prise avant un
+# merge, le worktree d'une PR en cours. Aucun n'a de raison d'être versionné.
+commit-lot*.sh
+*.tgz
+.pr37work*/
+main-changes.txt
+
+# ── IDE ──
+.idea/
+
+# ── the slice workflow (the operator's local skills) ──
+# `.work/<slug>/` holds a spec, its slices and proofs while the work is open. Not versioned: what
+# survives is the code, the wiki and the pull request.
+.work/
+.claude/worktrees/
+.playwright-mcp/
+
+# Les captures d'écran prises à la racine pendant une revue visuelle. Deux d'entre elles sont
+# parties dans un commit de code (9e38451) parce que rien ne les retenait : un `git add` large
+# emporte ce qui traîne, et une capture de revue n'a pas à survivre à la revue.
+/*.png

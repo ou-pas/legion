@@ -1,0 +1,494 @@
+/* Demo containers only: truncation or right alignment only shows within a bounded width. Nothing
+   here is a product component. */
+.ds-tp-narrow {
+  max-width: 34ch;
+}
+
+.ds-tp-numcol {
+  display: grid;
+  gap: var(--sp-2);
+  width: 16ch;
+  padding-right: var(--sp-4);
+  border-right: 1px solid var(--border-separator);
+}
+/* Data display specimens. Lists, tables and timelines need a surface for their rules to show;
+   that is all this section provides. */
+.dsd-sheet {
+  background: var(--sheet);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-3);
+  box-shadow: var(--el-1);
+  overflow: hidden;
+  width: 100%;
+  min-width: 0;
+}
+
+.dsd-pad {
+  padding: var(--sp-8);
+}
+
+/* Narrow column: proves lists and gauges fit in a rail. */
+.dsd-narrow {
+  width: 100%;
+  max-width: var(--w-aside);
+}
+
+.dsd-half {
+  width: 100%;
+  max-width: 460px;
+}
+
+.dsd-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+  width: 100%;
+  min-width: 0;
+}
+
+.dsd-payload {
+  margin-top: var(--sp-3);
+}
+/* Feedback and state specimens. */
+
+/* Hatch as a list row: the caller removes the frame because the panel already has one, a case the
+   component must support without being rewritten. */
+.dsf-hatch-row {
+  border: none;
+  border-bottom: 1px solid var(--border-separator);
+  border-radius: 0;
+}
+
+.dsf-hatch-row:last-child {
+  border-bottom: none;
+}
+
+/* Shows a page-level empty state at its real scale, on a surface. */
+.dsf-sheet {
+  width: 100%;
+  background: var(--sheet);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-3);
+}
+
+.dsf-pad {
+  padding: var(--sp-8);
+}
+
+/* Tooltip anchor pushed to the right edge: shows flipping and recentring. */
+.dsf-edge {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.dsf-quiet {
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+}
+
+.dsf-mono {
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: var(--w-rail);
+}
+
+.dsf-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+  width: 100%;
+  min-width: 0;
+}
+
+.dsf-skel-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-6);
+  padding: var(--sp-5) var(--sp-8);
+  border-bottom: 1px solid var(--border-separator);
+}
+
+.dsf-skel-row:last-child {
+  border-bottom: none;
+}
+
+.dsf-skel-grow {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Dense timeline: 30px rows packed as on the task page, where side="right" keeps a top/bottom
+   bubble from covering the neighbouring row. */
+.dsf-dense {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-2);
+}
+
+.dsf-dense-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  height: var(--h-control-sm);
+  padding: 0 var(--sp-5);
+  border-bottom: 1px solid var(--border-separator);
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+}
+
+.dsf-dense-row:last-child {
+  border-bottom: none;
+}
+
+/* DropIndicator: anchors the overlay on a placeholder card whose content is hidden but keeps its
+   size, as SortableTaskCard does on the board during a drag. */
+.dsf-drop-demo {
+  position: relative;
+  width: max(220px, 14rem);
+}
+
+.dsf-drop-demo-ghost {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  visibility: hidden;
+  padding: var(--sp-7) var(--sp-8);
+  background: var(--sheet);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-3);
+}
+
+/* Keyboard handle: reuses the board classes (`sortable-task-card.css`) rather than a copy, so the
+   demo matches what `SortableTaskCard` renders. Fixed width like `.dsf-drop-demo`, otherwise the
+   placeholder card (no real Card around it) stretches across the row. */
+.dsf-handle-demo {
+  position: relative;
+  width: max(220px, 14rem);
+  padding: var(--sp-7) var(--sp-8);
+  background: var(--sheet);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-3);
+}
+
+.dsf-handle-demo .ui-sortable-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+/* Pinned bubble: shows the open state without hovering, with the same markup <Tooltip> renders
+   (.ui-tooltip). */
+.dsf-tip-static {
+  position: relative;
+  display: inline-flex;
+}
+
+.dsf-tip-static-bubble {
+  position: absolute;
+  top: calc(100% + var(--sp-2));
+  left: 50%;
+  transform: translateX(-50%);
+}
+/* Layout and structure specimens (placeholder boxes, fake log lines). */
+.dsl-frame {
+  border: 1px dashed var(--border-control);
+  border-radius: var(--r-2);
+  padding: var(--sp-5);
+  width: 100%;
+}
+
+.dsl-narrow {
+  max-width: 340px;
+}
+
+.dsl-sheet {
+  background: var(--sheet);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-3);
+  padding: var(--sp-8);
+  width: 100%;
+}
+
+.dsl-box {
+  background: var(--recess);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-1);
+  padding: var(--sp-2) var(--sp-5);
+  font-size: var(--fs-sm);
+  min-width: 0;
+}
+
+.dsl-num,
+.dsl-mono {
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+}
+
+.dsl-quiet {
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  min-width: 0;
+}
+
+.dsl-empty {
+  padding: var(--sp-9);
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--ink-3);
+}
+
+.dsl-ellipsis {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.dsl-card-head-pad {
+  padding: var(--sp-7) var(--sp-8) 0;
+}
+
+.dsl-tile-label {
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+}
+
+.dsl-tile-value {
+  margin-top: var(--sp-2);
+  font-family: var(--serif);
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-semi);
+  letter-spacing: var(--tr-tight);
+}
+
+/* Log line: time and type are data (mono), the text is prose. */
+.dsl-log {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-5);
+  padding: var(--sp-4) var(--sp-8);
+  font-size: var(--fs-sm);
+  border-bottom: 1px solid var(--border-separator);
+}
+
+.dsl-log:last-child {
+  border-bottom: none;
+}
+
+.dsl-log-time {
+  font-family: var(--mono);
+  font-size: var(--fs-2xs);
+  color: var(--ink-3);
+  flex-shrink: 0;
+}
+
+.dsl-log-type {
+  font-family: var(--mono);
+  font-size: var(--fs-2xs);
+  color: var(--ink-3);
+  min-width: 108px;
+  flex-shrink: 0;
+}
+
+.dsl-log-text {
+  color: var(--ink-2);
+  min-width: 0;
+}
+/* Navigation and surface specimens (placeholder rail, fake trace lines). */
+.dsn-rail {
+  width: var(--w-rail);
+  padding: var(--sp-5) var(--sp-4);
+  background: var(--sheet);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-3);
+}
+
+.dsn-badge {
+  flex-shrink: 0;
+  padding: var(--sp-1) var(--sp-3);
+  border: 1px solid var(--border-control);
+  border-radius: var(--r-pill);
+  background: var(--recess);
+  font-size: var(--fs-2xs);
+  color: var(--ink-3);
+}
+
+.dsn-toggle {
+  margin-top: var(--sp-5);
+}
+
+.dsn-pane {
+  padding: var(--sp-8);
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+}
+
+.dsn-trace {
+  padding: var(--sp-3) 0;
+}
+
+.dsn-trace-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-5);
+  padding: var(--sp-3) var(--sp-8);
+  border-bottom: 1px solid var(--border-separator);
+}
+
+.dsn-trace-row:last-child {
+  border-bottom: none;
+}
+
+.dsn-trace-time,
+.dsn-trace-type {
+  font-family: var(--mono);
+  font-size: var(--fs-2xs);
+  color: var(--ink-3);
+  flex-shrink: 0;
+}
+
+.dsn-trace-type {
+  min-width: 92px;
+}
+
+.dsn-trace-body {
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  min-width: 0;
+}
+
+/* Popover trigger pill: a piece of data explained on hover. */
+.dsn-pastille {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-5);
+  border: 1px dashed var(--border-control);
+  border-radius: var(--r-pill);
+  background: var(--recess);
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+}
+
+.dsn-def {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: var(--sp-3) var(--sp-6);
+  font-size: var(--fs-sm);
+}
+
+.dsn-def dt {
+  color: var(--ink-3);
+}
+
+.dsn-def dd {
+  color: var(--ink);
+  min-width: 0;
+}
+
+/* CommandTrigger context: a bar with room to spare, to show the trigger is bounded and does not
+   stretch to the edge. */
+.dsn-topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-7);
+  width: 100%;
+  padding: var(--sp-5) var(--sp-7);
+  background: var(--sheet);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-3);
+}
+
+/* Constrained space: the placeholder text yields to an ellipsis, the shortcut stays readable. */
+.dsn-topbar--tight {
+  max-width: 15rem;
+}
+/* Channel specimens. The list and the status column are full-height panes of a three-pane page:
+   outside their width and height, neither title truncation nor the pinned footer shows. */
+.dsc-rail {
+  display: flex;
+  width: var(--w-channels);
+  height: 520px;
+}
+
+.dsc-aside {
+  display: flex;
+  width: var(--w-aside);
+  height: 520px;
+}
+
+/* The conversation, bounded to its real width in the page. */
+.dsc-conv {
+  width: 100%;
+  max-width: 760px;
+  min-width: 0;
+}
+
+/* The action band is a region of the conversation pane, not a free-floating card: outside this
+   sheet its raised background and separator have nothing to read against, and you could not see
+   that it does not scroll. */
+.dsc-conv-sheet {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 760px;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--sheet);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-3);
+  box-shadow: var(--el-1);
+}
+
+/* A thread line under the band, only there to show the boundary. */
+.dsc-conv-sheet-thread {
+  padding: var(--sp-9);
+  color: var(--ink-3);
+  font-size: var(--fs-xs);
+}
+
+/* Fixed-height sheet (07/09), as a channel column imposes. Without a ceiling a story cannot show
+   that a too-tall band scrolls inside and leaves the thread its strip. */
+.dsc-conv-sheet[data-tall] {
+  height: var(--h-scroll-lg);
+}
+
+/* ScrollArea `fill`: a fixed-height column with a header and footer, showing what `fill` settles:
+   the pane takes the rest and the footer never leaves the frame. */
+.dsl-fill-frame {
+  display: flex;
+  flex-direction: column;
+  height: 320px;
+  min-height: 0;
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-3);
+  background: var(--sheet);
+  overflow: hidden;
+}
+
+.dsl-fill-head,
+.dsl-fill-foot {
+  flex-shrink: 0;
+  padding: var(--sp-5) var(--sp-7);
+  background: var(--recess);
+  color: var(--ink-2);
+  font-size: var(--fs-xs);
+}
+
+.dsl-fill-head { border-bottom: 1px solid var(--border-separator); }
+.dsl-fill-foot { border-top: 1px solid var(--border-separator); }
+
+/* Channel footer at its minimum width. Its grid is `auto-fit minmax(190px, 1fr)`: the four columns
+   stack as the pane narrows, and lineage truncation is judged at this width, not a wide screen. */
+.sb-narrow-details {
+  max-width: 222px; /* 190px column + the grid horizontal padding */
+}

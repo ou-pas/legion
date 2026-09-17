@@ -1,0 +1,63 @@
+/* Derived state badge: the icon-only variant of Chip, showing what a task is actually doing.
+   Absolutely positioned in the card's top-right corner (spec 16/09). */
+
+.task-state-badge {
+  position: absolute;
+  top: var(--sp-2);
+  right: var(--sp-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--sp-7);
+  height: var(--sp-7);
+  flex-shrink: 0;
+  border-radius: var(--r-pill);
+  border: 1px solid transparent;
+  color: currentcolor;
+  transition: border-color var(--dur-1) var(--ease);
+}
+
+.task-state-badge[data-state="not-started"] {
+  background: var(--recess);
+  color: var(--ink-2);
+  border-color: var(--border-control);
+}
+
+.task-state-badge[data-state="running"] {
+  background: var(--run-wash);
+  color: var(--run);
+  border-color: var(--run-line);
+}
+
+.task-state-badge[data-state="paused"] {
+  background: var(--wait-wash);
+  color: var(--wait);
+  border-color: var(--wait-line);
+}
+
+/* `blocked` uses the waiting tokens like `paused` (both wait for the operator), but its ring is
+   drawn solid: a gate is not unblocked by answering, it needs a decision, and this is the only
+   badge where a click is expected. */
+.task-state-badge[data-state="blocked"] {
+  background: var(--wait-wash);
+  color: var(--wait);
+  border-color: var(--wait);
+}
+
+.task-state-badge[data-state="completed"] {
+  background: var(--ok-wash);
+  color: var(--ok);
+  border-color: var(--ok-line);
+}
+
+.task-state-badge[data-state="failed"] {
+  background: var(--bad-wash);
+  color: var(--bad);
+  border-color: var(--bad-line);
+}
+
+.task-state-badge[data-state="contradiction"] {
+  background: var(--bad-wash);
+  color: var(--bad);
+  border-color: var(--bad-line);
+}

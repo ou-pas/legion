@@ -1,0 +1,104 @@
+/* `overflow: hidden` so row lines stop cleanly at the radius. */
+.ui-panel {
+  background: var(--sheet);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-3);
+  box-shadow: var(--el-1);
+  overflow: hidden;
+  min-width: 0;
+}
+
+.ui-panel-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+  flex-wrap: wrap;
+  padding: var(--sp-6) var(--sp-8);
+  border-bottom: 1px solid var(--border-separator);
+  background: var(--recess);
+}
+
+.ui-panel-head > svg {
+  color: var(--ink-2);
+}
+
+.ui-panel-title {
+  font-size: var(--fs-lg);
+  letter-spacing: var(--tr-tight);
+  min-width: 0;
+}
+
+.ui-panel-row {
+  display: flex;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+  padding: var(--sp-5) var(--sp-8);
+  font-size: var(--fs-sm);
+  border-bottom: 1px solid var(--border-separator);
+}
+
+.ui-panel-row[data-align="center"] {
+  align-items: center;
+}
+
+.ui-panel-row[data-align="baseline"] {
+  align-items: baseline;
+}
+
+.ui-panel-row[data-align="start"] {
+  align-items: flex-start;
+}
+
+.ui-panel-row > svg {
+  color: var(--ink-3);
+}
+
+/* No hover on a registry row: it is not clickable, visual feedback would lie. A row that leads
+   somewhere is an <a> with its own hover. */
+.ui-panel-row:last-child,
+.ui-panel-note:last-child {
+  border-bottom: none;
+}
+
+.ui-panel-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-4);
+  padding: var(--sp-5) var(--sp-8);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-snug);
+  border-bottom: 1px solid var(--border-separator);
+}
+
+.ui-panel-note-body {
+  min-width: 0;
+  max-width: var(--measure);
+}
+
+.ui-panel-note[data-tone="wait"] {
+  background: var(--wait-wash);
+  color: var(--wait);
+}
+
+.ui-panel-note[data-tone="bad"] {
+  background: var(--bad-wash);
+  color: var(--bad);
+}
+
+.ui-panel-note[data-tone="neutral"] {
+  color: var(--ink-2);
+}
+
+/* Icon sizes imposed by the slot, not the caller (see tokens.css). Direct-child selectors: action
+   button icons keep the control size. */
+.ui-panel-row > svg {
+  flex: none;
+  width: var(--icon-row);
+  height: var(--icon-row);
+}
+
+.ui-panel-head > svg {
+  flex: none;
+  width: var(--icon-head);
+  height: var(--icon-head);
+}

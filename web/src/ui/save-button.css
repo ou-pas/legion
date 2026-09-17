@@ -1,0 +1,46 @@
+/* Same footprint as an IconBtn so the row does not shift a pixel when the icon becomes a spinner
+   then a check. */
+.ui-save {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.ui-save-btn,
+.ui-save-state {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--h-control-sm);
+  height: var(--h-control-sm);
+  border-radius: var(--r-2);
+  flex: none;
+}
+
+.ui-save-btn {
+  border: 1px solid var(--accent-line);
+  background: var(--accent-wash);
+  color: var(--accent-deep);
+  cursor: pointer;
+}
+.ui-save-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+.ui-save-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.ui-save-state {
+  border: 1px solid transparent;
+}
+.ui-save-ok {
+  color: var(--ok);
+}
+
+.ui-save-error {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  color: var(--bad);
+}

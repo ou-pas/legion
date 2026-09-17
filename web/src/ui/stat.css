@@ -1,0 +1,105 @@
+/* No surface of its own: the background comes from the container (bar, card, grid cell), which
+   keeps the tile from becoming a nested card again. */
+.ui-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  min-width: 0;
+}
+
+.ui-stat-label {
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-semi);
+  text-transform: uppercase;
+  letter-spacing: var(--tr-caps);
+  color: var(--ink-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ui-stat-line {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-4);
+  min-width: 0;
+}
+
+.ui-stat-value {
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-semi);
+  letter-spacing: var(--tr-tight);
+  color: var(--ink);
+  min-width: 0;
+}
+
+.ui-stat-trend {
+  font-size: var(--fs-xs);
+  flex-shrink: 0;
+}
+
+.ui-stat-hint {
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* inline: a measure in an instrument bar. */
+.ui-stat[data-variant="inline"] {
+  padding: var(--sp-5) var(--sp-8);
+}
+
+/* tile: the same measure with more air, in a grid or card. */
+.ui-stat[data-variant="tile"] {
+  gap: var(--sp-3);
+  padding: var(--sp-7) var(--sp-8);
+}
+
+.ui-stat[data-variant="tile"] .ui-stat-value {
+  font-size: var(--fs-3xl);
+  letter-spacing: var(--tr-display);
+}
+
+.ui-stat-group {
+  min-width: 0;
+}
+
+.ui-stat-group[data-variant="inline"] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  background: var(--sheet);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-3);
+  box-shadow: var(--el-1);
+  overflow: hidden;
+}
+
+.ui-stat-group[data-variant="inline"] > .ui-stat {
+  flex: 1 1 0;
+}
+
+/* A line between two measures: the bar reads like a graduated dial. */
+.ui-stat-group[data-variant="inline"] > .ui-stat + .ui-stat {
+  border-left: 1px solid var(--border-separator);
+}
+
+.ui-stat-group[data-variant="tile"] {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(var(--w-rail), 100%), 1fr));
+  gap: var(--sp-6);
+}
+
+/* Below 560px the bar stacks: the line moves to the top. */
+@media (max-width: 560px) {
+  .ui-stat-group[data-variant="inline"] > .ui-stat {
+    flex-basis: 100%;
+  }
+
+  .ui-stat-group[data-variant="inline"] > .ui-stat + .ui-stat {
+    border-left: none;
+    border-top: 1px solid var(--border-separator);
+  }
+}

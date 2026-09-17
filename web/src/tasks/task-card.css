@@ -1,0 +1,37 @@
+/* Anchor for the state badge, absolutely positioned in the top-right corner. */
+.dm-task-card-positioned {
+  position: relative;
+}
+
+/* The title row stops before the state badge (14px + gutter). */
+.dm-task-title-row {
+  padding-right: var(--sp-6);
+}
+
+/* A card title behaves like the link it is: on hover of the TITLE, not the whole card, the ink
+   turns accent like `.ui-link:hover`. That is the "open" affordance, distinct from the drag one
+   (the grab cursor on the card). Operator feedback, 23/08: once the whole card became draggable,
+   nothing said where to click. */
+.dm-task-title {
+  transition: color var(--dur-1) var(--ease);
+  /* The cursor says the same: pointer on the title, grab elsewhere on the card. It beats the
+     `cursor: inherit` that sortable-task-card.css sets on the wrapping link (more specific). */
+  cursor: pointer;
+}
+
+.dm-task-title:hover {
+  color: var(--accent);
+}
+
+/* Spinner of the "image rebuilding" chip (12/09). Two to four minutes without a sign of life
+   would look like the card forgot the click. Duration comes from tokens, like
+   `.ui-btn-spin svg`. */
+.dm-task-image-spin {
+  animation: dm-task-image-turn calc(var(--dur-2) * 5) linear infinite;
+}
+
+@keyframes dm-task-image-turn {
+  to {
+    transform: rotate(1turn);
+  }
+}

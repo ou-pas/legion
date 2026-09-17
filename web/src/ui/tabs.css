@@ -1,0 +1,110 @@
+/* The label never changes weight between active and inactive: selection reads through the line and
+   ink, not a width shift that would make the bar jump. Same rhythm as page blocks (page.css,
+   .ui-page): without this gap the segmented bar (GoalsPage) stuck to the card below. */
+.ui-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-9);
+  min-width: 0;
+}
+
+.ui-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-4);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--ink-2);
+  white-space: nowrap;
+  transition:
+    color var(--dur-1) var(--ease),
+    background var(--dur-1) var(--ease),
+    border-color var(--dur-1) var(--ease);
+}
+
+.ui-tab:hover:not(:disabled) {
+  color: var(--ink);
+}
+
+.ui-tab:disabled {
+  color: var(--ink-3);
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* `--ink-3` passes AA on --paper and --sheet but not on --recess-2 (4.44:1 measured): on a deep
+   recess the count uses secondary ink. */
+.ui-tab-count {
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-semi);
+  line-height: 1;
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--r-pill);
+  background: var(--recess-2);
+  color: var(--ink-2);
+}
+
+.ui-tab[aria-selected="true"] .ui-tab-count {
+  background: var(--accent-wash);
+  color: var(--accent-deep);
+}
+
+/* underline: navigation inside a page (task page). */
+.ui-tabs[data-variant="underline"] .ui-tablist {
+  display: flex;
+  gap: var(--sp-2);
+  padding: 0 var(--sp-4);
+  border-bottom: 1px solid var(--border-separator);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.ui-tabs[data-variant="underline"] .ui-tab {
+  padding: var(--sp-5) var(--sp-7);
+  margin-bottom: -1px;
+  border-bottom: 2px solid transparent;
+}
+
+.ui-tabs[data-variant="underline"] .ui-tab[aria-selected="true"] {
+  color: var(--ink);
+  border-bottom-color: var(--accent);
+}
+
+/* segmented: choosing a view (joined buttons). */
+.ui-tabs[data-variant="segmented"] .ui-tablist {
+  display: inline-flex;
+  align-self: flex-start;
+  gap: var(--sp-1);
+  padding: var(--sp-1);
+  background: var(--recess);
+  border: 1px solid var(--border-control);
+  border-radius: var(--r-3);
+}
+
+.ui-tabs[data-variant="segmented"] .ui-tab {
+  height: var(--h-control-md);
+  padding: 0 var(--sp-7);
+  border-radius: var(--r-2);
+}
+
+.ui-tabs[data-variant="segmented"] .ui-tab:hover:not(:disabled):not([aria-selected="true"]) {
+  background: var(--sheet);
+}
+
+.ui-tabs[data-variant="segmented"] .ui-tab[aria-selected="true"] {
+  background: var(--sheet-hi);
+  color: var(--ink);
+  box-shadow: var(--el-btn);
+}
+
+/* No permanent focus ring on the panel: it is focusable only so the keyboard can reach
+   non-interactive content (scrolling a trace). */
+.ui-tabpanel {
+  min-width: 0;
+  outline: none;
+}
+
+.ui-tabpanel:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: calc(var(--focus-offset) * -1);
+}

@@ -1,0 +1,63 @@
+/* The head does not scroll, the view scrolls alone (slice nav/17, direction
+   docs/directions/direction-vues-tache.html, variant B). The page used to stack nine blocks
+   before its tabs, so clicking "Diff" did not show the diff: you still had to scroll. */
+
+/* The page takes the height of the content area. Without a DEFINITE height, `flex: 1` on the view
+   has nothing to share: both blocks take their content height, `.ui-main` scrolls and the head
+   goes up with it. */
+.tsk-page {
+  height: 100%;
+}
+
+/* The head keeps its content height and is not squeezed by a three hundred line trace. */
+.tsk-head {
+  flex: none;
+}
+
+/* `flex: 1` is `flex: 1 1 0%`: the basis is ZERO, so the view claims the REMAINING space rather
+   than its content height. With an `auto` basis the flex computation would start from content
+   taller than the window and squeeze the head proportionally. `min-height: 0` because a flex item
+   refuses by default to shrink below its content size, and `overflow-y` would never kick in. */
+.tsk-view {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  /* A flex column, so a view can claim the remaining height instead of a pixel cap (see
+     `.tsk-fill`). */
+  display: flex;
+  flex-direction: column;
+  /* The rule marks where the head ends. Carried by the view, not the head, so that the `.ui-page`
+     gap stays above the line, on the side that does not move. */
+  border-top: 1px solid var(--border-separator);
+  padding-top: var(--sp-8);
+}
+
+/* An ORDINARY view keeps its content height and lets the view scroll. Otherwise a screen whose
+   descendant clips its overflow (the diff and its panes) would be squeezed to nothing. */
+.tsk-view > * {
+  flex-shrink: 0;
+}
+
+/* The view that takes the full height, and there is only one: the trace. Its pane used to cap at
+   480px, fine while the whole page scrolled; inside a view that already scrolls, two scrollbars
+   stack up. Three containers separate the view from the pane (the screen frame, its card, and the
+   column carrying the stream banner) and the height has to cross all three.
+
+   Height only crosses FLEX COLUMNS, and `.tsk-fill` had stayed `display: block`: the chain stopped
+   there and the card took its content height, 9,271px in a 489px block. The pane could not scroll
+   at all, so following the bottom of a live session (`follow`), the "new below" pill and the edge
+   shadows were dead. Measured in Chrome at the 01/09 certification, while this comment described a
+   mechanism that did not work. Being a flex child is not enough, it must be a flex container too. */
+.tsk-fill,
+.tsk-fill > .ui-card,
+.tsk-fill .tsk-fill-body {
+  flex: 1;
+  min-height: 0;
+}
+
+/* `.tsk-fill-body` is a `<Stack>`, already a flex column by construction. */
+.tsk-fill,
+.tsk-fill > .ui-card {
+  display: flex;
+  flex-direction: column;
+}

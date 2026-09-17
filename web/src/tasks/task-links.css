@@ -1,0 +1,21 @@
+/* Section heading inside the register ("Proposed during", "Proposed"). It is not a row, it names
+   the rows that follow, hence the list row gutter (var(--sp-8)): the words line up with the titles
+   they announce instead of floating two pixels off. */
+.dm-links-section {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-5) var(--sp-8) var(--sp-3);
+  border-top: 1px solid var(--border-separator);
+}
+
+/* The panel head and the note already carry a bottom rule: a top rule would draw a double line.
+   The section only draws one when it follows a list. */
+.ui-panel-head + .dm-links-section,
+.ui-panel-note + .dm-links-section {
+  border-top: none;
+}
+
+.dm-links-section svg {
+  flex-shrink: 0;
+}

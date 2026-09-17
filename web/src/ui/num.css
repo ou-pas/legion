@@ -1,0 +1,38 @@
+/* Size comes from context (a stat, a cell, a chip): Num only decides face, figures and alignment. */
+.ui-num {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-variant-ligatures: none;
+  letter-spacing: var(--tr-normal);
+  white-space: nowrap;
+}
+
+.ui-num[data-align="end"] {
+  /* block: the value fills its cell, otherwise `text-align` has nothing to align. */
+  display: block;
+  text-align: right;
+}
+
+.ui-num[data-tone="default"] {
+  color: var(--ink);
+}
+
+.ui-num[data-tone="muted"] {
+  color: var(--ink-2);
+}
+
+.ui-num[data-tone="subtle"] {
+  color: var(--ink-3);
+}
+
+.ui-num[data-tone="wait"] {
+  color: var(--wait);
+}
+
+.ui-num[data-tone="bad"] {
+  color: var(--bad);
+}
+
+.ui-num[data-tone="ok"] {
+  color: var(--ok);
+}

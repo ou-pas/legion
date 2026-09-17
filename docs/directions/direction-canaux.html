@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Legion — direction « Canaux »</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   DIRECTION « CANAUX » — une tâche est une conversation.
+   Exploration du 25/08, à la demande de l'opérateur.
+
+   Ce fichier n'invente AUCUNE couleur : la palette est celle de
+   web/src/ui/tokens.css et theme-dark.css, recopiée telle quelle. Ce qui
+   est exploré ici est la MISE EN PAGE, pas le monde visuel — l'Atelier
+   reste l'Atelier, il change seulement de disposition.
+   ═══════════════════════════════════════════════════════════════════════ */
+:root {
+  --paper:#f4f0e8; --sheet:#fcfaf6; --sheet-hi:#ffffff; --recess:#ede7da; --recess-2:#e5ddcc;
+  --ink:#1e1a15; --ink-2:#584f42; --ink-3:#6b6255;
+  --rule:#dcd3c3; --rule-2:#c6bba6; --rule-3:#aea18a;
+  --accent:#b03f1b; --accent-deep:#8e3213; --accent-wash:#f6e4da; --accent-line:#e3c0b2;
+  --run:#1b6350; --run-wash:#deeae4; --run-line:#bfd5cc;
+  --wait:#8a5a00; --wait-mark:#c08a12; --wait-wash:#f6e9ce; --wait-line:#e2cd9c;
+  --gate-hatch:rgba(192,138,18,.10);
+  --ok:#3e6b2e; --ok-wash:#e1ebdf; --ok-line:#c2d6bf;
+  --bad:#a02617; --bad-wash:#f7dfda; --bad-line:#e7c3bb;
+  --sans:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+
+  --fs-3xs:.59375rem; --fs-2xs:.6875rem; --fs-xs:.75rem; --fs-sm:.8125rem;
+  --fs-md:.875rem; --fs-lg:.9375rem; --fs-xl:1.0625rem; --fs-2xl:1.1875rem; --fs-3xl:1.5rem;
+  --tr-caps:.1em; --tr-tight:-.015em; --tr-display:-.03em;
+  --r-1:3px; --r-2:5px; --r-3:8px; --r-pill:999px; --r-round:50%;
+  --measure:72ch;
+}
+html[data-theme="dark"] {
+  --paper:#2e3440; --sheet:#3b4252; --sheet-hi:#434c5e; --recess:#2a2f3a; --recess-2:#252a33;
+  --ink:#eceff4; --ink-2:#d8dee9; --ink-3:#adb8ca;
+  --rule:#495062; --rule-2:#5a6172; --rule-3:#6e7585;
+  --accent:#8fc7d6; --accent-deep:#a9d5e0; --accent-wash:#384550; --accent-line:#54707e;
+  --run:#93c3c2; --run-wash:#39444d; --run-line:#576e74;
+  --wait:#ebcb8b; --wait-mark:#c08a12; --wait-wash:#474646; --wait-line:#81755e;
+  --gate-hatch:rgba(235,203,139,.10);
+  --ok:#a9c492; --ok-wash:#3c4740; --ok-line:#61735a;
+  --bad:#e2a0a7; --bad-wash:#4a3b3f; --bad-line:#7d5b60;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink); font-family:var(--sans);
+  font-size:var(--fs-md); line-height:1.5;
+  /* La trame de planche à dessin — signature du monde Atelier. */
+  background-image:linear-gradient(var(--rule) 1px,transparent 1px),linear-gradient(90deg,var(--rule) 1px,transparent 1px);
+  background-size:32px 32px; background-position:-1px -1px;
+}
+html[data-theme="dark"] body{opacity:1}
+body::before{content:"";position:fixed;inset:0;background:var(--paper);opacity:.94;pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1}
+
+/* ── note de direction ─────────────────────────────────────────────── */
+.note{max-width:var(--measure);margin:0 auto;padding:40px 24px 28px}
+.note h1{font-family:var(--sans);font-size:var(--fs-3xl);letter-spacing:var(--tr-display);font-weight:600;margin-bottom:4px}
+.note .sub{color:var(--ink-3);font-size:var(--fs-sm);margin-bottom:20px}
+.note p{color:var(--ink-2);margin-bottom:12px}
+.note strong{color:var(--ink);font-weight:600}
+.note .caveat{border-left:2px solid var(--wait-line);padding-left:14px;color:var(--ink-2);font-size:var(--fs-sm)}
+.toggle{position:fixed;bottom:18px;right:18px;z-index:5;box-shadow:0 2px 8px rgba(0,0,0,.18);font:inherit;font-size:var(--fs-xs);
+  background:var(--sheet);color:var(--ink-2);border:1px solid var(--rule-2);border-radius:var(--r-pill);
+  padding:6px 12px;cursor:pointer}
+.toggle:hover{border-color:var(--rule-3);color:var(--ink)}
+
+/* ── cadre d'application ───────────────────────────────────────────── */
+.app{
+  max-width:1360px;margin:0 auto 56px;height:760px;display:grid;
+  grid-template-columns:236px minmax(0,1fr) 264px;
+  background:var(--paper);border:1px solid var(--rule-2);border-radius:var(--r-3);overflow:hidden;
+  box-shadow:0 1px 2px rgba(0,0,0,.06),0 12px 32px rgba(0,0,0,.10);
+}
+
+/* ── rail : la liste des canaux ────────────────────────────────────── */
+.rail{background:var(--recess);border-right:1px solid var(--rule);display:flex;flex-direction:column;min-height:0}
+.brand{display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--rule)}
+.brand .mark{width:20px;height:20px;border-radius:var(--r-2);background:var(--accent);color:var(--paper);
+  display:grid;place-items:center;font-family:var(--sans);font-weight:700;font-size:var(--fs-xs)}
+.brand .name{font-family:var(--sans);font-weight:600;letter-spacing:var(--tr-tight)}
+.rail-scroll{overflow:auto;padding:10px 0 16px;flex:1;min-height:0}
+.sec{padding:14px 16px 6px;font-size:var(--fs-2xs);text-transform:uppercase;letter-spacing:var(--tr-caps);
+  font-weight:600;color:var(--ink-3);display:flex;align-items:center;justify-content:space-between}
+.chan{display:flex;align-items:center;gap:8px;padding:6px 16px;cursor:pointer;color:var(--ink-2);font-size:var(--fs-sm)}
+.chan:hover{background:var(--sheet);color:var(--ink)}
+.chan[aria-current="true"]{background:var(--sheet);color:var(--ink);box-shadow:inset 2px 0 0 var(--accent)}
+.chan .dot{width:7px;height:7px;border-radius:var(--r-round);flex:none;background:var(--rule-3)}
+.chan .dot[data-s="run"]{background:var(--run)}
+.chan .dot[data-s="wait"]{background:var(--wait)}
+.chan .dot[data-s="ok"]{background:var(--ok)}
+.chan .dot[data-s="bad"]{background:var(--bad)}
+.chan .label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chan .badge{flex:none;font-size:var(--fs-3xs);font-weight:600;background:var(--wait);color:var(--recess-2);
+  border-radius:var(--r-pill);padding:1px 6px}
+.rail-foot{border-top:1px solid var(--rule);padding:10px 16px;font-size:var(--fs-xs);color:var(--ink-3);line-height:1.45}
+.closed{margin:20px 12px 0;padding:11px 12px;border:1px dashed var(--rule-2);border-radius:var(--r-2);
+  font-size:var(--fs-xs);color:var(--ink-3);line-height:1.45}
+.closed strong{color:var(--ink-2);font-weight:600}
+.closed a{display:inline-block;margin-top:6px;color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--rule-2)}
+.rail-foot a{color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--rule-2)}
+
+/* ── colonne centrale : la conversation ────────────────────────────── */
+.chan-col{display:flex;flex-direction:column;min-width:0;background:var(--paper)}
+.chan-head{display:flex;align-items:center;gap:10px;padding:12px 20px;border-bottom:1px solid var(--rule);
+  background:var(--sheet)}
+.chan-head h2{font-family:var(--sans);font-size:var(--fs-xl);font-weight:600;letter-spacing:var(--tr-tight);
+  min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:var(--fs-2xs);font-weight:500;
+  border-radius:var(--r-pill);padding:2px 8px;border:1px solid var(--rule-2);color:var(--ink-2);
+  background:var(--sheet);white-space:nowrap}
+.chip[data-s="run"]{color:var(--run);border-color:var(--run-line);background:var(--run-wash)}
+.chip[data-s="wait"]{color:var(--wait);border-color:var(--wait-line);background:var(--wait-wash)}
+.chip[data-s="ok"]{color:var(--ok);border-color:var(--ok-line);background:var(--ok-wash)}
+.chip[data-s="bad"]{color:var(--bad);border-color:var(--bad-line);background:var(--bad-wash)}
+.chip .cdot{width:6px;height:6px;border-radius:var(--r-round);background:currentColor}
+.tag{font-family:var(--mono);font-size:var(--fs-2xs);color:var(--ink-2);background:var(--recess);
+  border:1px solid var(--rule);border-radius:var(--r-1);padding:1px 5px;white-space:nowrap}
+
+.stream{flex:1;min-height:0;overflow:auto;padding:22px 20px 8px;display:flex;flex-direction:column;gap:18px}
+
+/* un message */
+.msg{display:grid;grid-template-columns:26px minmax(0,1fr);gap:10px}
+.av{width:26px;height:26px;border-radius:var(--r-2);display:grid;place-items:center;
+  font-size:var(--fs-2xs);font-weight:700;font-family:var(--sans);flex:none;margin-top:1px}
+.av[data-who="human"]{background:var(--accent);color:var(--paper)}
+.av[data-who="agent"]{background:var(--recess-2);color:var(--ink-2);border:1px solid var(--rule-2)}
+.who{display:flex;align-items:baseline;gap:8px;margin-bottom:4px}
+.who .n{font-weight:600;font-size:var(--fs-sm)}
+.who .t{font-size:var(--fs-2xs);color:var(--ink-3);font-family:var(--mono)}
+.body{color:var(--ink-2);max-width:var(--measure)}
+.body p+p{margin-top:8px}
+.body strong{color:var(--ink);font-weight:600}
+
+/* le brief : premier message du canal, épinglé */
+.pinned{background:var(--sheet);border:1px solid var(--rule);border-radius:var(--r-3);padding:14px 16px}
+.pinned .pin-l{font-size:var(--fs-2xs);text-transform:uppercase;letter-spacing:var(--tr-caps);
+  color:var(--ink-3);font-weight:600;margin-bottom:8px;display:flex;gap:6px;align-items:center}
+.pinned .more{font-size:var(--fs-xs);color:var(--accent);cursor:pointer;background:none;border:0;font-family:inherit;padding:0;margin-top:8px}
+
+/* la bande de travail : 300 événements repliés en une ligne */
+details.work{border:1px dashed var(--rule-2);border-radius:var(--r-2);background:transparent}
+details.work>summary{list-style:none;cursor:pointer;padding:7px 12px;display:flex;align-items:center;gap:8px;
+  font-size:var(--fs-xs);color:var(--ink-3)}
+details.work>summary::-webkit-details-marker{display:none}
+details.work>summary:hover{color:var(--ink-2)}
+details.work[open]>summary{border-bottom:1px dashed var(--rule-2)}
+.work .chev{transition:transform .15s ease;flex:none}
+details.work[open] .chev{transform:rotate(90deg)}
+.work-list{padding:8px 12px;display:flex;flex-direction:column;gap:5px}
+.work-list .l{display:flex;gap:8px;font-size:var(--fs-xs);color:var(--ink-3);font-family:var(--mono);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.work-list .l b{color:var(--ink-2);font-weight:500}
+
+/* un round : le formulaire DANS le message */
+.round{background:var(--sheet);border:1px solid var(--rule);border-radius:var(--r-3);overflow:hidden}
+.round-h{padding:10px 14px;border-bottom:1px solid var(--rule);background:var(--recess);
+  display:flex;align-items:center;gap:8px;font-size:var(--fs-sm);font-weight:600}
+.round-b{padding:14px}
+.q{padding:12px 0}
+.q+.q{border-top:1px solid var(--rule)}
+.q .qt{font-size:var(--fs-2xs);text-transform:uppercase;letter-spacing:var(--tr-caps);color:var(--ink-3);
+  font-weight:600;margin-bottom:8px}
+.opts{display:flex;flex-wrap:wrap;gap:8px 20px;margin-bottom:8px}
+.opt{display:inline-flex;align-items:center;gap:8px;font-size:var(--fs-sm);color:var(--ink-2);cursor:pointer}
+.opt:hover{color:var(--ink)}
+.radio{width:16px;height:16px;border-radius:var(--r-round);border:1px solid var(--rule-2);
+  background:var(--sheet);display:grid;place-items:center;flex:none}
+.opt[data-on="1"] .radio{background:var(--accent);border-color:var(--accent-deep)}
+.opt[data-on="1"] .radio::after{content:"";width:6px;height:6px;border-radius:var(--r-round);background:var(--sheet-hi)}
+.opt[data-on="1"]{color:var(--ink)}
+.reco{font-size:var(--fs-xs);color:var(--ink-3);max-width:var(--measure)}
+.reco b{color:var(--wait);font-weight:600}
+.note-in{margin-top:8px;width:100%;max-width:520px;font:inherit;font-size:var(--fs-sm);
+  background:var(--recess);border:1px solid var(--rule-2);border-radius:var(--r-2);padding:6px 10px;color:var(--ink)}
+.note-in::placeholder{color:var(--ink-3)}
+.round-f{padding:10px 14px;border-top:1px solid var(--rule);display:flex;align-items:center;gap:10px;background:var(--recess)}
+.btn{font:inherit;font-size:var(--fs-sm);font-weight:500;border-radius:var(--r-2);padding:6px 12px;cursor:pointer;
+  border:1px solid var(--rule-2);background:var(--sheet);color:var(--ink)}
+.btn[data-v="primary"]{background:var(--accent);border-color:var(--accent-deep);color:var(--paper)}
+html[data-theme="dark"] .btn[data-v="primary"]{color:var(--recess-2)}
+.btn:hover{border-color:var(--rule-3)}
+.hint{font-size:var(--fs-xs);color:var(--ink-3)}
+
+/* un round DÉJÀ répondu se replie tout seul */
+details.answered{background:var(--sheet);border:1px solid var(--rule);border-radius:var(--r-3)}
+details.answered>summary{list-style:none;cursor:pointer;padding:10px 14px;display:flex;align-items:center;gap:8px;
+  font-size:var(--fs-sm);color:var(--ink-2)}
+details.answered>summary::-webkit-details-marker{display:none}
+details.answered .ans{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 12px}
+details.answered .chev{transition:transform .15s ease}
+details.answered[open] .chev{transform:rotate(90deg)}
+
+/* événement système : incident, relance, gate */
+.sys{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:var(--r-2);
+  font-size:var(--fs-sm);border:1px solid var(--rule);background:var(--sheet);color:var(--ink-2)}
+.sys[data-s="bad"]{border-color:var(--bad-line);background:var(--bad-wash);color:var(--ink)}
+.sys[data-s="gate"]{border-color:var(--wait-line);
+  background:
+    repeating-linear-gradient(45deg,var(--gate-hatch) 0 6px,transparent 6px 12px),
+    var(--sheet)}
+.sys .sicon{flex:none;margin-top:1px}
+.sys code{font-family:var(--mono);font-size:var(--fs-xs);color:var(--ink-2)}
+
+/* le composer : le champ de steering, à sa place */
+.composer{border-top:1px solid var(--rule);background:var(--sheet);padding:12px 20px 14px}
+.cbox{display:flex;align-items:center;gap:10px;background:var(--recess);border:1px solid var(--rule-2);
+  border-radius:var(--r-3);padding:8px 12px}
+.cbox input{flex:1;background:none;border:0;outline:none;font:inherit;font-size:var(--fs-md);color:var(--ink)}
+.cbox input::placeholder{color:var(--ink-3)}
+.clegend{font-size:var(--fs-xs);color:var(--ink-3);margin-top:6px}
+
+/* ── colonne d'état ────────────────────────────────────────────────── */
+.state{background:var(--recess);border-left:1px solid var(--rule);overflow:auto;padding:16px 14px;
+  display:flex;flex-direction:column;gap:16px}
+.card{background:var(--sheet);border:1px solid var(--rule);border-radius:var(--r-3);overflow:hidden}
+.card h3{font-size:var(--fs-2xs);text-transform:uppercase;letter-spacing:var(--tr-caps);color:var(--ink-3);
+  font-weight:600;padding:9px 12px;border-bottom:1px solid var(--rule);background:var(--recess)}
+.rows{padding:4px 0}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:5px 12px;font-size:var(--fs-sm)}
+.row .k{color:var(--ink-3);font-size:var(--fs-xs)}
+.row .v{color:var(--ink);text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lnk{display:block;padding:7px 12px;font-size:var(--fs-sm);color:var(--ink-2);text-decoration:none;border-top:1px solid var(--rule)}
+.lnk:hover{background:var(--sheet-hi);color:var(--ink)}
+html[data-theme="dark"] .lnk:hover{background:var(--sheet-hi)}
+.lnk .sub{display:block;font-size:var(--fs-xs);color:var(--ink-3)}
+.empty{padding:10px 12px;font-size:var(--fs-xs);color:var(--ink-3)}
+
+.legend{max-width:var(--measure);margin:0 auto;padding:0 24px 56px;color:var(--ink-2)}
+.legend h2{font-family:var(--sans);font-size:var(--fs-2xl);font-weight:600;margin:28px 0 10px;color:var(--ink)}
+.legend p{margin-bottom:10px}
+.legend ul{margin:0 0 10px 18px}
+.legend li{margin-bottom:6px}
+@media (max-width:1180px){
+  .app{grid-template-columns:200px minmax(0,1fr);height:auto}
+  .state{display:none}
+}
+</style>
+</head>
+<body>
+<button class="toggle" onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'">thème</button>
+<div class="wrap">
+
+<div class="note">
+  <h1>Direction « Canaux »</h1>
+  <p class="sub">Exploration du 25/08 — une tâche est une conversation.</p>
+  <p>Legion est déjà conversationnel : un brief est un message de l'humain à l'agent, une question
+  d'inbox un message de l'agent à l'humain, le steering un message dans l'autre sens. Ce que cette
+  direction change n'est pas la nature des objets, c'est le fait qu'ils vivent aujourd'hui dans
+  <strong>quatre endroits différents</strong> — les onglets d'une page tâche, la file d'inbox, les
+  notices, et le miroir Discord.</p>
+  <p>Ici, le canal <strong>remplace les onglets, pas le board</strong>. Le board reste la vue de
+  l'état ; le canal est la vue du temps. Et l'inbox cesse d'être un lieu pour devenir un filtre :
+  « les canaux qui t'attendent ».</p>
+  <p>La règle qui rend l'ensemble tenable est de l'opérateur : <strong>un canal est une conversation
+  VIVANTE</strong>. Il naît quand le travail commence, il disparaît quand la tâche est terminée.
+  Une note dans « Plus tard » n'est pas un canal — rien n'y parle encore. Le rail ne grandit donc
+  jamais avec le backlog : il ne montre que ce qui a une voix.</p>
+  <p class="caveat">Ce que ça ne résout pas tout seul : une conversation n'a pas de machine à
+  états. Le statut, la gate, le diff, la PR, le coût ne sont pas des messages — d'où la colonne
+  de droite. Et 333 événements de trace ne peuvent pas devenir 333 messages : le travail de
+  l'agent se replie en une bande, sa parole seule reste un message.</p>
+</div>
+
+<div class="app">
+
+  <!-- ── RAIL ────────────────────────────────────────────────────── -->
+  <aside class="rail">
+    <div class="brand"><span class="mark">A</span><span class="name">Legion</span></div>
+    <div class="rail-scroll">
+      <div class="sec">Ça t'attend <span>2</span></div>
+      <div class="chan" aria-current="true">
+        <span class="dot" data-s="wait"></span>
+        <span class="label">spécifier le mode discussion</span>
+        <span class="badge">1</span>
+      </div>
+      <div class="chan">
+        <span class="dot" data-s="wait"></span>
+        <span class="label">écran settings 09</span>
+        <span class="badge">gate</span>
+      </div>
+
+      <div class="sec">En cours <span>1</span></div>
+      <div class="chan">
+        <span class="dot" data-s="run"></span>
+        <span class="label">relais backend environnements</span>
+      </div>
+
+      <div class="closed">
+        <p><strong>4 canaux fermés aujourd'hui.</strong> Une tâche terminée n'est plus une
+        conversation : elle redevient une carte. Le fil reste lisible depuis le board, en lecture
+        seule.</p>
+        <a href="#">voir sur le board →</a>
+      </div>
+    </div>
+    <div class="rail-foot">
+      <span>14 tâches en « Plus tard » — <a href="#">sur le board</a>, pas ici : rien n'y parle
+      encore.</span>
+    </div>
+  </aside>
+
+  <!-- ── CANAL ───────────────────────────────────────────────────── -->
+  <section class="chan-col">
+    <header class="chan-head">
+      <h2>spécifier le mode discussion</h2>
+      <span class="chip" data-s="wait"><span class="cdot"></span>t'attend</span>
+      <span class="tag">spec</span>
+      <span class="tag">opus</span>
+    </header>
+
+    <div class="stream">
+
+      <!-- le brief : premier message, épinglé -->
+      <div class="msg">
+        <div class="av" data-who="human">R</div>
+        <div>
+          <div class="who"><span class="n">l'opérateur</span><span class="t">12:29</span></div>
+          <div class="pinned">
+            <div class="pin-l">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 17v5M9 10.76V7a3 3 0 0 1 6 0v3.76a2 2 0 0 0 .59 1.42L17 13.6V17H7v-3.4l1.41-1.42A2 2 0 0 0 9 10.76Z"/></svg>
+              brief · épinglé
+            </div>
+            <div class="body">
+              <p>Il manque à Legion une façon de <strong>discuter</strong> une fonctionnalité avant
+              de la lancer. On écrit un titre et un brief ; si le brief est mince, la tâche part
+              quand même et l'agent découvre les trous en cours de route.</p>
+              <p>Conduis un grilling. Ton livrable est un <code style="font-family:var(--mono);font-size:var(--fs-xs)">spec.md</code>.</p>
+              <button class="more">déplier les 62 lignes du brief</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- l'agent parle -->
+      <div class="msg">
+        <div class="av" data-who="agent">S</div>
+        <div>
+          <div class="who"><span class="n">spec</span><span class="t">12:31</span></div>
+          <div class="body"><p>Je charge la skill <strong>grilling</strong> et je lis le code avant
+          de poser quoi que ce soit.</p></div>
+        </div>
+      </div>
+
+      <!-- LA BANDE DE TRAVAIL : 333 événements en une ligne -->
+      <details class="work">
+        <summary>
+          <svg class="chev" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+          <span><b style="color:var(--ink-2);font-weight:500">a travaillé 4 min</b> — 61 outils, 18 fichiers lus, 0 écrit</span>
+        </summary>
+        <div class="work-list">
+          <div class="l"><b>read</b> runner-payload/session-runner.mjs:373-429</div>
+          <div class="l"><b>grep</b> "validateFormSpec" server/src/inbox/</div>
+          <div class="l"><b>read</b> server/src/sessions/runner/manager.ts:230-260</div>
+          <div class="l"><b>read</b> web/src/api/inbox.ts</div>
+          <div class="l" style="color:var(--ink-3)">… 57 de plus</div>
+        </div>
+      </details>
+
+      <!-- round 1 : répondu, donc replié -->
+      <details class="answered">
+        <summary>
+          <svg class="chev" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+          <span><b>Round 1</b> · 6 questions — répondu à 13:02</span>
+        </summary>
+        <div class="ans">
+          <span class="chip">lit le dépôt</span>
+          <span class="chip">les deux points d'entrée</span>
+          <span class="chip">spec + tâche</span>
+          <span class="chip">web seulement</span>
+          <span class="chip">dort indéfiniment</span>
+          <span class="chip">à côté de la chaîne</span>
+        </div>
+      </details>
+
+      <!-- incident : un canal montre ce qui casse, à sa place dans le temps -->
+      <div class="sys" data-s="bad">
+        <svg class="sicon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/></svg>
+        <div>
+          <strong>Session morte au réveil</strong> — <code>proxy run failed: the container name
+          "legion-proxy-0WpRyW8bF9d1" is already in use</code>. Deux rounds répondus, 51 min, aucun
+          artifact. <em>Corrigé depuis (d2e14d2), relancée avec les décisions acquises.</em>
+        </div>
+      </div>
+
+      <!-- round 2 : répondu, replié -->
+      <details class="answered">
+        <summary>
+          <svg class="chev" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+          <span><b>Round 2</b> · 6 questions — répondu à 13:20</span>
+        </summary>
+        <div class="ans">
+          <span class="chip">nouvel agent intégré</span>
+          <span class="chip">skillNames dans AgentSpec</span>
+          <span class="chip">onglet sur la page tâche</span>
+          <span class="chip">geste visible pour sortir</span>
+          <span class="chip">brief à 20 000</span>
+          <span class="chip">compteur, pas de plafond</span>
+        </div>
+      </details>
+
+      <!-- ROUND 3 : vivant, le formulaire est DANS le message -->
+      <div class="msg">
+        <div class="av" data-who="agent">S</div>
+        <div>
+          <div class="who"><span class="n">spec</span><span class="t">13:41</span><span class="chip" data-s="wait"><span class="cdot"></span>attend ta réponse</span></div>
+          <div class="round">
+            <div class="round-h">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/><circle cx="12" cy="12" r="10"/></svg>
+              Round 3 · 5 questions
+            </div>
+            <div class="round-b">
+
+              <div class="q">
+                <div class="qt">Ce qui survit à une pause</div>
+                <div class="opts">
+                  <span class="opt"><span class="radio"></span>rien, statu quo</span>
+                  <span class="opt"><span class="radio"></span>le conteneur arrêté</span>
+                  <span class="opt" data-on="1"><span class="radio"></span>un volume /workspace par session</span>
+                  <span class="opt"><span class="radio"></span>un volume par run scope</span>
+                </div>
+                <div class="reco"><b>recommandé</b> — il préserve exactement ce que la pause détruit
+                (node_modules, fichiers non suivis) sans toucher l'invariant « waiting-inbox = pas
+                de conteneur ».</div>
+                <input class="note-in" placeholder="pourquoi ce choix ? (facultatif)"
+                  value="je voulais garder le conteneur ; d'accord pour le volume si la q2 suit">
+              </div>
+
+              <div class="q">
+                <div class="qt">Un cache de paquets partagé entre toutes les sessions</div>
+                <div class="opts">
+                  <span class="opt" data-on="1"><span class="radio"></span>oui — store pnpm + cache npm</span>
+                  <span class="opt"><span class="radio"></span>non — cache vide à chaque session</span>
+                </div>
+                <div class="reco"><b>recommandé</b> — la seule option qui accélère aussi le PREMIER
+                run, et elle ne change aucun invariant : un montage de plus.</div>
+              </div>
+
+              <div class="q">
+                <div class="qt">Nom de l'agent d'entretien</div>
+                <div class="opts">
+                  <span class="opt" data-on="1"><span class="radio"></span>interviewer</span>
+                  <span class="opt"><span class="radio"></span>grilling</span>
+                  <span class="opt"><span class="radio"></span>discussant</span>
+                </div>
+                <div class="reco"><b>recommandé</b> — les cinq intégrés portent des noms de POSTE
+                (spec, plan, senior-dev). « grilling » nommerait la technique, qui vit dans la skill.</div>
+              </div>
+
+              <div class="q" style="color:var(--ink-3);font-size:var(--fs-xs)">… 2 questions de plus</div>
+
+            </div>
+            <div class="round-f">
+              <button class="btn" data-v="primary">Soumettre les réponses</button>
+              <span class="hint">tout est déjà coché sur ses recommandations</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- la gate, quand elle viendra : un message hachuré, pas un bouton perdu -->
+      <div class="sys" data-s="gate">
+        <svg class="sicon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 22h14M5 2h14M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></svg>
+        <div><strong>Gate d'approbation</strong> — quand la spec sera déposée, elle attendra ici
+        que tu l'approuves. Rien ne passe en done sans toi.</div>
+      </div>
+
+    </div>
+
+    <div class="composer">
+      <div class="cbox">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="2"><path d="m4 17 6-6-6-6M12 19h8"/></svg>
+        <input placeholder="dis-lui quelque chose — il le recevra sans s'arrêter">
+        <button class="btn">Envoyer</button>
+      </div>
+      <div class="clegend">Le champ de steering est le composer du canal. C'est le même objet,
+      posé là où on l'attend.</div>
+    </div>
+  </section>
+
+  <!-- ── ÉTAT : ce qu'une conversation ne sait pas porter ─────────── -->
+  <aside class="state">
+    <div class="card">
+      <h3>État</h3>
+      <div class="rows">
+        <div class="row"><span class="k">statut</span><span class="v"><span class="chip" data-s="wait"><span class="cdot"></span>t'attend</span></span></div>
+        <div class="row"><span class="k">agent</span><span class="v">spec</span></div>
+        <div class="row"><span class="k">modèle</span><span class="v">opus</span></div>
+        <div class="row"><span class="k">coût</span><span class="v">1,08 $</span></div>
+        <div class="row"><span class="k">rounds</span><span class="v">3</span></div>
+        <div class="row"><span class="k">branche</span><span class="v"><span class="tag">legion/rtQLldYSm2</span></span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Livrables</h3>
+      <div class="empty">Aucun artifact déposé — la spec arrive à la fin de l'entretien.</div>
+      <a class="lnk" href="#">Diff <span class="sub">aucun fichier touché — lecture seule</span></a>
+    </div>
+
+    <div class="card">
+      <h3>Filiation</h3>
+      <a class="lnk" href="#">08 · Écran Environnements <span class="sub">déposée pendant</span></a>
+      <a class="lnk" href="#">Relais backend : routes API <span class="sub">a déposé · plus tard</span></a>
+    </div>
+
+    <div class="card">
+      <h3>Droits</h3>
+      <div class="rows">
+        <div class="row"><span class="k">dépôts</span><span class="v">lecture</span></div>
+        <div class="row"><span class="k">réseau</span><span class="v">limited · 5 hôtes</span></div>
+        <div class="row"><span class="k">secrets</span><span class="v">GITHUB_TOKEN</span></div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<div class="legend">
+  <h2>Les quatre décisions que cette maquette porte</h2>
+  <ul>
+    <li><strong>Le canal remplace les onglets, pas le board.</strong> Kanban est une vue de
+    l'état, un canal est une vue du temps. Les deux répondent à des questions différentes
+    (« où en est le travail ? » contre « que s'est-il passé ? ») et aucune ne remplace l'autre.</li>
+    <li><strong>Le travail de l'agent se replie, sa parole reste.</strong> 333 événements ne
+    peuvent pas devenir 333 messages. Une bande d'une ligne entre deux prises de parole, dépliable :
+    c'est la même demande que « les questions d'inbox repliées par défaut », généralisée.</li>
+    <li><strong>Un round répondu se replie tout seul, ses réponses en résumé.</strong> La
+    question « comment on relit un entretien » disparaît : on remonte.</li>
+    <li><strong>L'inbox devient un filtre, pas un lieu.</strong> « Ça t'attend » est une section
+    du rail. Une question n'existe plus hors de son canal, donc on ne la lit plus sans son contexte.</li>
+    <li><strong>Un canal fermé disparaît.</strong> Une tâche terminée redevient une carte du board.
+    C'est ce qui empêche le rail de devenir une liste de deux cents lignes, et ça donne au mot
+    « canal » un sens net : une conversation en cours, pas une archive.</li>
+  </ul>
+
+  <h2>Ce qu'il faut regarder de près avant de s'engager</h2>
+  <p><strong>Le moment où un canal se ferme.</strong> La règle « done = disparu » est nette, mais
+  il y a une minute où elle gêne : celle qui suit ton approbation, quand tu veux encore regarder le
+  diff ou la PR. Deux réponses possibles, à trancher — le canal s'efface immédiatement et la
+  notification d'approbation porte le lien vers la carte, ou il reste jusqu'à la fin de la journée
+  dans un repli « terminées ». La maquette a choisi la première, la plus stricte.</p>
+  <p><strong>Où se relit un fil fermé.</strong> S'il n'est plus dans le rail, il doit être quelque
+  part : la carte du board ouvre la même conversation, en lecture seule. C'est la même vue, sans le
+  composer — pas un second écran à écrire.</p>
+  <p><strong>La chronologie n'est pas toujours le bon ordre.</strong> Le compte-rendu, le brief et
+  les artifacts se lisent hors du temps. Ils sont ici épinglés ou en colonne de droite ; si cette
+  colonne enfle, c'est que le canal ne suffisait pas.</p>
+  <p><strong>Discord devient redondant, ou devient le vrai client.</strong> Si l'app ressemble à
+  un serveur de discussion, la question « pourquoi deux ? » se pose pour de bon. Une réponse
+  possible : Discord notifie et laisse répondre en une ligne, l'app porte les formulaires et
+  l'état — mais il faut la choisir, pas la subir.</p>
+</div>
+
+</div>
+</body>
+</html>

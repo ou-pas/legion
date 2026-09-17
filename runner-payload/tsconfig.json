@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "noUncheckedIndexedAccess": true,
+    "types": ["node"],
+    "outDir": "../session-image",
+    // No image is built on a payload that does not compile: without this flag `tsc` still writes
+    // its `.mjs` and `make image-session` would bake the error into the image.
+    "noEmitOnError": true
+  },
+  "include": ["*.mts"]
+}

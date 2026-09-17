@@ -1,0 +1,16 @@
+/* A registry row's meta usually holds a measure (a cost, a time) and never wraps. An agent's holds
+   a sentence (its grants) followed by pills, so it may wrap and shrink, or a narrow window pushes
+   the agent name out of the row. The override is local to this row. */
+.dm-agent-row .ui-list-meta {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+/* The summary gives way before the pills: it is the longest and least urgent. */
+.dm-agent-caps {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -1,0 +1,190 @@
+/* The list carries the lines, never the caller: no screen reinvents "the last row has no line". */
+.ui-list {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  list-style: none;
+}
+
+.ui-list > * {
+  border-bottom: 1px solid var(--border-separator);
+}
+
+.ui-list > :last-child {
+  border-bottom: none;
+}
+
+.ui-list-item,
+.ui-list-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-6);
+  min-width: 0;
+  width: 100%;
+  color: inherit;
+  text-align: left;
+  text-decoration: none;
+  background: transparent;
+  transition:
+    background-color var(--dur-1) var(--ease),
+    box-shadow var(--dur-1) var(--ease);
+}
+
+.ui-list-item {
+  padding: var(--sp-6) var(--sp-8);
+}
+
+.ui-list-row {
+  gap: var(--sp-5);
+  padding: var(--sp-4) var(--sp-8);
+  font-size: var(--fs-sm);
+}
+
+.ui-list[data-density="compact"] > .ui-list-item {
+  gap: var(--sp-5);
+  padding: var(--sp-4) var(--sp-6);
+}
+
+.ui-list[data-density="compact"] > .ui-list-row {
+  padding: var(--sp-3) var(--sp-6);
+}
+
+.ui-list-lead {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--ink-2);
+}
+
+/* min-width: 0 is what allows truncation: without it a long title pushes the meta out. */
+.ui-list-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  flex: 1;
+  min-width: 0;
+}
+
+.ui-list-row > .ui-list-main {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--sp-5);
+  flex-wrap: wrap;
+}
+
+/* Dot, meta and actions on the first line. A row with a body under its subtitle centered its
+   right-hand markers on the full height, where they read as belonging to the body. */
+.ui-list-item[data-align="start"],
+.ui-list-row[data-align="start"] {
+  align-items: flex-start;
+}
+
+.ui-list-body {
+  margin-top: var(--sp-3);
+}
+
+.ui-list-title {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-snug);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ui-list[data-density="compact"] .ui-list-title {
+  font-size: var(--fs-sm);
+}
+
+.ui-list-sub {
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+  line-height: var(--lh-snug);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The meta never shrinks: a wrapped column of costs is unreadable. */
+.ui-list-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+
+.ui-list-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-shrink: 0;
+}
+
+.ui-list-item[data-interactive="true"]:not([data-disabled="true"]),
+.ui-list-row[data-interactive="true"]:not([data-disabled="true"]) {
+  cursor: pointer;
+}
+
+/* --row-* rather than --recess/--accent-wash: a row is a row. The rail, menus and dropdowns
+   already used role tokens while lists and tables used raw values, so the same selection had two
+   tints in dark theme (--row-selected is tuned separately there). */
+.ui-list-item[data-interactive="true"]:not([data-disabled="true"]):hover,
+.ui-list-row[data-interactive="true"]:not([data-disabled="true"]):hover {
+  background: var(--row-hover);
+}
+
+/* Selection: wash plus a 1px left line (thicker is the banned colored edge). */
+.ui-list-item[data-selected="true"],
+.ui-list-row[data-selected="true"] {
+  background: var(--row-selected);
+  box-shadow: inset 1px 0 0 var(--row-selected-line);
+}
+
+.ui-list-item[data-selected="true"] .ui-list-title {
+  color: var(--accent-deep);
+}
+
+.ui-list-item[data-disabled="true"],
+.ui-list-row[data-disabled="true"] {
+  color: var(--ink-3);
+  cursor: not-allowed;
+}
+
+.ui-list-item[data-disabled="true"] .ui-list-sub,
+.ui-list-item[data-disabled="true"] .ui-list-lead {
+  color: var(--ink-3);
+}
+
+/* One leading icon size, imposed by CSS. Call sites passed 12 to 15px depending on the screen,
+   so neighbouring rows did not share a column (operator feedback, twice). `> svg`: the row's
+   action button icons keep the control size. */
+.ui-list-lead > svg {
+  flex: none;
+  width: var(--icon-row);
+  height: var(--icon-row);
+}
+
+/* Compact (≤ 640px): two rows, not a squeezed line. */
+@media (max-width: 640px) {
+  .ui-list-item,
+  .ui-list-row {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  /* Title and subtitle share the first row with the dot; meta and actions wrap below. */
+  .ui-list-item > .ui-list-meta,
+  .ui-list-row > .ui-list-meta {
+    flex-basis: 100%;
+    margin-top: var(--sp-3);
+  }
+
+  .ui-list-item > .ui-list-actions,
+  .ui-list-row > .ui-list-actions {
+    margin-top: var(--sp-3);
+  }
+}

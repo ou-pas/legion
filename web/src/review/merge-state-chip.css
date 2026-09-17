@@ -1,0 +1,55 @@
+/* A PR's merge state chip: compact pill with icon + short word. */
+
+.merge-state-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--r-pill);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+}
+
+.merge-state-chip svg {
+  flex-shrink: 0;
+  width: var(--icon-control-sm);
+  height: var(--icon-control-sm);
+}
+
+/* Per-state variants. They referenced tokens that never existed in tokens.css (`--ok-fg`,
+   `--bad-fg`, `--wait-fg`, `--fw-5`), so from #71 until 03/09 the chip rendered in inherited ink and
+   weight, with NONE of its three colours. */
+.merge-state-chip-ok {
+  color: var(--ok);
+  background-color: var(--ok-wash);
+}
+
+.merge-state-chip-bad {
+  color: var(--bad);
+  background-color: var(--bad-wash);
+}
+
+.merge-state-chip-wait {
+  color: var(--wait);
+  background-color: var(--wait-wash);
+}
+
+/* Spinner for the waiting state, honouring prefers-reduced-motion. */
+.merge-state-chip-spinner {
+  animation: merge-state-spin 1s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .merge-state-chip-spinner {
+    animation: none;
+  }
+}
+
+@keyframes merge-state-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

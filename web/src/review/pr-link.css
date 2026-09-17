@@ -1,0 +1,38 @@
+/* Compact line: icon, name, repo, state, external link. Fits a toolbar as well as a list, never
+   breaking onto two lines. */
+.dm-pr {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-4);
+  max-width: 100%;
+  padding: var(--sp-2) var(--sp-5);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-3);
+  background: var(--sheet);
+  font-size: var(--fs-xs);
+  white-space: nowrap;
+  transition:
+    border-color var(--dur-1) var(--ease),
+    background-color var(--dur-1) var(--ease);
+}
+
+.dm-pr:hover {
+  background: var(--sheet-hi);
+  border-color: var(--border-surface);
+}
+
+.dm-pr-icon {
+  flex-shrink: 0;
+  color: var(--ink-3);
+}
+
+.dm-pr-label {
+  color: var(--ink-2);
+  font-weight: var(--fw-medium);
+}
+
+/* The exit arrow stays light: it confirms the external tab, it does not announce it. */
+.dm-pr-out {
+  flex-shrink: 0;
+  color: var(--ink-3);
+}

@@ -1,0 +1,26 @@
+/* Underline offset and thickness come from base.css (`a`): only what sets variants apart is
+   declared here. */
+.ui-link {
+  color: var(--accent-deep);
+  text-decoration-line: underline;
+  transition: color var(--dur-1) var(--ease);
+}
+
+.ui-link:hover {
+  color: var(--accent);
+}
+
+/* No underline: only for links whose area already carries the affordance (chip, card, hoverable
+   list row). Never for a link inside a paragraph. */
+.ui-link-plain {
+  text-decoration-line: none;
+}
+
+.ui-link-inherit {
+  color: inherit;
+  text-decoration-line: none;
+}
+
+.ui-link-inherit:hover {
+  color: inherit;
+}

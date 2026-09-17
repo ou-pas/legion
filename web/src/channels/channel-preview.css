@@ -1,0 +1,120 @@
+/* Preview of a channel to come (15/09). Recesses, not cards: the app's sunken surfaces (`--recess`,
+   `--recess-2`), no border or shadow, since it is a drawing of what will come, not an object. No
+   animation: see `channel-preview.tsx`.
+
+   One turn HEIGHT, varying WIDTHS. Three heights would need three dimensions, and the only tokens at
+   that scale are SPACING tokens, which `tokens.css` warns against borrowing. Width is a percentage of
+   the pane. */
+
+.ch-demo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+  padding: var(--sp-7);
+  /* The WHOLE pane: the emptiness below the preview is what was removed. The thread stretches
+     (`flex: 1` below), header and footer hold the edges. */
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.ch-demo-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+  padding-bottom: var(--sp-6);
+  border-bottom: 1px solid var(--border-separator);
+}
+
+.ch-demo-title {
+  height: var(--h-control-sm);
+  width: 42%;
+  border-radius: var(--r-1);
+  background: var(--recess-2);
+}
+
+.ch-demo-chips {
+  display: flex;
+  gap: var(--sp-4);
+  margin-left: auto;
+}
+
+.ch-demo-chips > span {
+  width: var(--sz-prj);
+  height: var(--h-control-sm);
+  border-radius: var(--r-pill);
+  background: var(--recess);
+}
+
+.ch-demo-thread {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  /* The thread fades downwards: a conversation does not stop sharply, and shapes ending on an edge read
+     as the end of something. */
+  mask-image: linear-gradient(to bottom, #000 45%, transparent 100%);
+}
+
+/* A turn. The side says who speaks (agent left, operator right), the only thing the preview asserts
+   about a channel's content. */
+.ch-demo-turn {
+  height: var(--h-control-md);
+  border-radius: var(--r-3);
+  background: var(--recess);
+}
+
+.ch-demo-turn[data-side="agent"][data-size="lg"] {
+  width: 78%;
+}
+
+.ch-demo-turn[data-side="agent"][data-size="md"] {
+  width: 64%;
+}
+
+.ch-demo-turn[data-side="agent"][data-size="sm"] {
+  width: 46%;
+}
+
+.ch-demo-turn[data-side="you"] {
+  width: 52%;
+  align-self: flex-end;
+  background: var(--recess-2);
+}
+
+.ch-demo-foot {
+  display: flex;
+  gap: var(--sp-4);
+  padding-top: var(--sp-6);
+  border-top: 1px solid var(--border-separator);
+}
+
+.ch-demo-foot > span {
+  flex: 1;
+  height: var(--h-control-sm);
+  border-radius: var(--r-2);
+  background: var(--recess);
+}
+
+.ch-demo-caption {
+  text-align: center;
+  text-wrap: balance;
+}
+
+/* Below 640px the pane is already narrow: turns widen, or the left/right alternation stops reading. */
+@media (max-width: 640px) {
+  .ch-demo {
+    padding: var(--sp-5);
+    gap: var(--sp-5);
+  }
+
+  .ch-demo-turn[data-side="agent"] {
+    width: 88%;
+  }
+
+  .ch-demo-turn[data-side="you"] {
+    width: 68%;
+  }
+}

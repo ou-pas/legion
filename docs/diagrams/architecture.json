@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Legion architecture",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "legend": { "entries": { "frontend": { "label": "Screen" }, "backend": { "label": "Server" }, "database": { "label": "Database" }, "cloud": { "label": "Infrastructure" }, "security": { "label": "Trust boundary" }, "messagebus": { "label": "Bus" }, "external": { "label": "External" } } },
+    "views": [
+      { "id": "task-path", "label": "Path of a task", "focus": ["operator", "tls", "api", "docker", "session", "egress", "claude"], "note": "From the operator to the model: TLS front, control plane, container, egress proxy." },
+      { "id": "trust", "label": "Trust boundaries", "focus": ["tls", "api", "funnel", "session", "egress"], "note": "Three doors, three proofs: an operator session on /api, a session token on /internal, a signature on /webhooks." },
+      { "id": "reach-operator", "label": "Reaching the operator", "focus": ["api", "push", "operator", "discord"], "note": "An agent that waits for you reaches your phone through Web Push. Discord is the second bridge." }
+    ]
+  },
+  "components": [
+    { "id": "push", "type": "external", "label": "Web Push service", "sublabel": "Apple, FCM, Mozilla", "pos": [310, 80], "size": [150, 60] },
+    { "id": "discord", "type": "external", "label": "Discord", "sublabel": "optional second bridge", "pos": [850, 80], "size": [150, 60] },
+    { "id": "providers", "type": "external", "label": "Providers", "sublabel": "GitHub, GitLab, Linear", "pos": [1120, 80], "size": [150, 60] },
+    { "id": "operator", "type": "external", "label": "Operator", "sublabel": "browser or installed PWA", "pos": [40, 260], "size": [150, 60] },
+    { "id": "tls", "type": "security", "label": "TLS front", "sublabel": "Caddy, tailnet only", "pos": [310, 260], "size": [150, 60] },
+    { "id": "api", "type": "backend", "label": "Control plane", "sublabel": "Hono, screen + API", "pos": [580, 260], "size": [150, 60], "tag": "operator session" },
+    { "id": "funnel", "type": "security", "label": "Tailscale Funnel", "sublabel": "/webhooks only", "pos": [850, 260], "size": [150, 60], "tag": "public surface" },
+    { "id": "db", "type": "database", "label": "SQLite", "sublabel": "secrets AES-256-GCM", "pos": [310, 440], "size": [150, 60] },
+    { "id": "docker", "type": "cloud", "label": "Docker daemon", "sublabel": "local socket or ssh://", "pos": [580, 440], "size": [150, 60] },
+    { "id": "session", "type": "backend", "label": "Session container", "sublabel": "Claude Agent SDK", "pos": [850, 440], "size": [150, 60], "tag": "ephemeral" },
+    { "id": "egress", "type": "security", "label": "Egress proxy", "sublabel": "domain allowlist", "pos": [1120, 440], "size": [150, 60] },
+    { "id": "claude", "type": "external", "label": "Anthropic API", "sublabel": "Claude", "pos": [1120, 620], "size": [150, 60] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Runner, local or ssh://", "wraps": ["docker", "session", "egress"] },
+    { "kind": "security-group", "label": "internal network", "wraps": ["session", "egress"] }
+  ],
+  "connections": [
+    { "id": "operator-tls", "from": "operator", "to": "tls", "label": "HTTPS", "variant": "emphasis" },
+    { "id": "tls-api", "from": "tls", "to": "api", "label": "HTTP :8790", "variant": "emphasis" },
+    { "id": "api-db", "from": "api", "to": "db", "label": "SQL" },
+    { "id": "api-docker", "from": "api", "to": "docker", "label": "starts the container", "variant": "emphasis", "labelAt": [588, 350] },
+    { "id": "docker-session", "from": "docker", "to": "session", "label": "1 per session" },
+    { "id": "session-egress", "from": "session", "to": "egress", "label": "outbound" },
+    { "id": "egress-claude", "from": "egress", "to": "claude", "label": "api.anthropic.com", "variant": "emphasis", "labelAt": [1250, 560] },
+    { "id": "egress-providers", "from": "egress", "to": "providers", "label": "git push" },
+    { "id": "session-api", "from": "session", "to": "api", "label": "/internal, session token", "variant": "security", "fromSide": "top", "toSide": "bottom" },
+    { "id": "providers-funnel", "from": "providers", "to": "funnel", "label": "PR merged", "variant": "dashed" },
+    { "id": "funnel-api", "from": "funnel", "to": "api", "label": "signature checked", "variant": "security" },
+    { "id": "api-push", "from": "api", "to": "push", "label": "encrypted push", "variant": "dashed", "fromSide": "top", "toSide": "bottom" },
+    { "id": "push-operator", "from": "push", "to": "operator", "label": "notification", "fromSide": "left", "toSide": "top" },
+    { "id": "api-discord", "from": "api", "to": "discord", "label": "questions, answers", "variant": "dashed", "fromSide": "top", "toSide": "bottom" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Control plane", "items": ["Serves the screen and the API on one port", "Every /api call needs an operator session", "Private network only, behind a TLS front"] },
+    { "dot": "emerald", "title": "Execution", "items": ["One Docker container per session, destroyed after", "Internal network, egress through an allowlist", "Calls back on /internal with its session token"] },
+    { "dot": "rose", "title": "Outside", "items": ["Only /webhooks is public, and it checks a signature", "The control plane opens PRs and holds OAuth connections", "Web Push reaches the phone; Discord is optional"] }
+  ]
+}

@@ -1,0 +1,154 @@
+/* A project's square in the icon rail (direction-double-nav mock-up, variant B). The column itself
+   is set by `.ui-iconrail` in ui/shell.css; this file only describes what goes in it. */
+
+.prj {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--sz-prj);
+  height: var(--sz-prj);
+  flex-shrink: 0;
+  border-radius: var(--r-3);
+  /* Border always set, transparent at rest: without it, marking the open project would shift the
+     other squares by two pixels on hover. */
+  border: 2px solid transparent;
+  font-family: var(--mono);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-medium);
+  color: var(--prj-ink);
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color var(--dur-1) var(--ease-out);
+}
+
+/* The hue scale. The rank comes from `projects/project-mark.ts`, the twelve colours from
+   `ui/tokens.css`: neither file holds the other half. Twelve hand-written rules rather than a
+   computed style, because `style={{}}` is a lint error in this repository, and the constraint gives
+   the better result here: the palette reads at a glance in the tokens. */
+.prj[data-hue="0"] {
+  background: var(--prj-hue-0);
+}
+.prj[data-hue="1"] {
+  background: var(--prj-hue-1);
+}
+.prj[data-hue="2"] {
+  background: var(--prj-hue-2);
+}
+.prj[data-hue="3"] {
+  background: var(--prj-hue-3);
+}
+.prj[data-hue="4"] {
+  background: var(--prj-hue-4);
+}
+.prj[data-hue="5"] {
+  background: var(--prj-hue-5);
+}
+.prj[data-hue="6"] {
+  background: var(--prj-hue-6);
+}
+.prj[data-hue="7"] {
+  background: var(--prj-hue-7);
+}
+.prj[data-hue="8"] {
+  background: var(--prj-hue-8);
+}
+.prj[data-hue="9"] {
+  background: var(--prj-hue-9);
+}
+.prj[data-hue="10"] {
+  background: var(--prj-hue-10);
+}
+.prj[data-hue="11"] {
+  background: var(--prj-hue-11);
+}
+
+.prj:hover {
+  border-color: var(--border-strong);
+}
+.prj:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+/* The open project: a ring in text ink. The only signal, and enough. The mock-up added a larger
+   radius, dropped because the design contract's radius scale stops at 5px outside pills and
+   circles (docs/DESIGN.md). */
+.prj.is-current {
+  border-color: var(--ink);
+}
+
+.prj-initials {
+  line-height: 1;
+}
+
+/* The same mark at the top of the project rail, next to the name written out. */
+.prj-sm {
+  width: var(--sz-mark);
+  height: var(--sz-mark);
+  border-radius: var(--r-2);
+  border-width: 0;
+  font-size: var(--fs-3xs);
+  cursor: default;
+}
+
+/* Below 640px, `.prj-sm` only appears in two places: the top bar trigger (rail head hidden at this
+   tier, see ui/shell.css) and the rows of the menu it opens. One rule covers both: the trigger is
+   already at the touch floor (14/09), the list must join it. */
+@media (max-width: 640px) {
+  .prj-sm {
+    width: var(--sz-mark-touch);
+    height: var(--sz-mark-touch);
+    font-size: var(--fs-2xs);
+  }
+}
+
+/* The counter, stitched to the top-right corner and overflowing: it must read even when the square
+   is covered by a neighbour's hover. The outline has the rail's colour, not the square's, which
+   detaches it without a visible border. */
+.prj-badge {
+  position: absolute;
+  top: calc(var(--sp-1) * -1.5);
+  right: calc(var(--sp-2) * -1);
+  display: grid;
+  place-items: center;
+  min-width: var(--sz-prj-badge);
+  height: var(--sz-prj-badge);
+  padding: var(--sp-0) var(--sp-1);
+  border-radius: var(--r-pill);
+  border: 2px solid var(--recess-2);
+  background: var(--accent);
+  color: var(--prj-ink);
+  font-size: var(--fs-3xs);
+  line-height: 1;
+}
+
+/* Adding a project: a drawn outline, not a filled square. No project behind it yet, so no mark. */
+.prj-add {
+  display: grid;
+  place-items: center;
+  width: var(--sz-prj);
+  height: var(--sz-prj);
+  flex-shrink: 0;
+  padding: var(--sp-0);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--r-3);
+  background: transparent;
+  color: var(--ink-3);
+  cursor: pointer;
+  transition:
+    color var(--dur-1) var(--ease-out),
+    border-color var(--dur-1) var(--ease-out);
+}
+
+.prj-add:hover {
+  color: var(--ink);
+  border-color: var(--ink-3);
+}
+.prj-add:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+.prj-add svg {
+  width: var(--icon-control);
+  height: var(--icon-control);
+}

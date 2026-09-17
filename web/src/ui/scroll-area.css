@@ -1,0 +1,103 @@
+/* `overscroll-behavior: contain`: at the bottom of the log, the wheel does not start scrolling the
+   page behind. */
+.ui-scroll {
+  position: relative;
+  min-width: 0;
+}
+
+.ui-scroll-view {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  min-width: 0;
+}
+
+.ui-scroll-view[data-size="sm"] {
+  max-height: var(--h-scroll-sm);
+}
+
+.ui-scroll-view[data-size="md"] {
+  max-height: var(--h-scroll-md);
+}
+
+.ui-scroll-view[data-size="lg"] {
+  max-height: var(--h-scroll-lg);
+}
+
+/* `viewport`: a task's timeline, which must leave the footer visible. */
+.ui-scroll-view[data-size="viewport"] {
+  max-height: var(--h-scroll-viewport);
+}
+
+/* `fill`: no cap, take what the parent gives. `min-height: 0` makes it possible in a flex column:
+   without it a scrolling child refuses to shrink below its content and pushes the composer off
+   screen. */
+.ui-scroll[data-fill] {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ui-scroll-view[data-size="fill"] {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Both shadows stay in the DOM, only their opacity follows scrolling: no layout jump as content
+   grows. */
+.ui-scroll::before,
+.ui-scroll::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  height: var(--sp-9);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--dur-1) var(--ease);
+}
+
+.ui-scroll::before {
+  top: 0;
+  background: linear-gradient(to bottom, var(--edge-shade), transparent);
+}
+
+.ui-scroll::after {
+  bottom: 0;
+  background: linear-gradient(to top, var(--edge-shade), transparent);
+}
+
+.ui-scroll[data-edge="top"]::before,
+.ui-scroll[data-edge="both"]::before {
+  opacity: 1;
+}
+
+.ui-scroll[data-edge="bottom"]::after,
+.ui-scroll[data-edge="both"]::after {
+  opacity: 1;
+}
+
+/* "New content below". Overlaid at the bottom of the pane, out of flow, so appearing does not move
+   a single line (which would reintroduce, more quietly, the jump just removed). */
+.ui-scroll-jump {
+  position: absolute;
+  inset-inline: 0;
+  bottom: var(--sp-6);
+  margin-inline: auto;
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-4) var(--sp-7);
+  border: var(--rule) solid var(--border-floating);
+  border-radius: var(--r-pill);
+  background: var(--sheet-hi);
+  color: var(--ink);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  box-shadow: var(--el-2);
+  cursor: pointer;
+}
+
+.ui-scroll-jump:hover {
+  background: var(--row-hover);
+}

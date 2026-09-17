@@ -1,0 +1,134 @@
+/* The bar's status group (direction-double-nav mockup): machine facts as figures, right of the
+   identity. Mono because they CHANGE: moving digits in a proportional font make the whole line jump.
+
+   The group that yields. The bar wraps (`flex-wrap: wrap`, from a responsive audit) so that at 640px
+   it does not push 736px of content off screen. But wrapping started firing on normal screens once
+   the bar received everything the rail carried (29/08): eleven children, the avatar dropped to a
+   second line, and the bar grew from 44 to 95px on every page.
+
+   THIS group must yield, and only it: sessions and Docker are information and can truncate; a button
+   cannot, it becomes unreachable. `min-width: 0` because a flex child refuses to shrink below its
+   content otherwise, the most common cause of an unrequested wrap. */
+.topbar-status {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-7);
+  min-width: 0;
+  flex-shrink: 1;
+  overflow: hidden;
+  font-family: var(--mono);
+  font-size: var(--fs-2xs);
+  color: var(--ink-3);
+}
+
+/* A too-long chip TRUNCATES rather than pushing its neighbours. On 29/08 a whole sentence in a chip
+   slid under the waiting button and hid "docker ok". The tooltip carries the full text. */
+.topbar-status-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topbar-status-icon {
+  width: 1em;
+  height: 1em;
+  flex: none;
+  color: var(--ink-2);
+}
+
+.topbar-status-count {
+  flex: none;
+  font-family: var(--mono);
+  font-size: var(--fs-2xs);
+}
+
+/* Status dot. `wait` and `bad` pulse gently; `run`, `off` and `ok` stay calm. */
+.topbar-status-indicator {
+  width: var(--sp-3);
+  height: var(--sp-3);
+  flex: none;
+  border-radius: var(--r-round);
+}
+
+.topbar-status-indicator[data-status="run"] {
+  background: var(--run);
+}
+
+.topbar-status-indicator[data-status="off"] {
+  background: var(--ink-3);
+}
+
+.topbar-status-indicator[data-status="ok"] {
+  background: var(--ok);
+}
+
+/* Waiting pulses: the only one asking for an action. */
+.topbar-status-indicator[data-status="wait"] {
+  background: var(--wait);
+  animation: topbar-pulse-wait var(--dur-pulse) ease-in-out infinite;
+}
+
+.topbar-status-indicator[data-status="bad"] {
+  background: var(--bad);
+  animation: topbar-pulse-bad var(--dur-pulse) ease-in-out infinite;
+}
+
+@keyframes topbar-pulse-wait {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes topbar-pulse-bad {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .topbar-status-indicator[data-status="wait"],
+  .topbar-status-indicator[data-status="bad"] {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* Two classes to beat `.ui-popover`, which caps at 320px: too short for a name + status dot line
+   (same pattern as `.concierge-pop` / `.pending-pop`). */
+.ui-popover.topbar-docker-popover {
+  width: var(--w-runners-panel);
+  max-width: min(var(--w-runners-panel), calc(100vw - var(--sp-9)));
+}
+
+/* The Docker trigger is a real <button> (Popover), unlike its neighbours, which are plain `<span>`s
+   under Tooltip. `.ui-popover-trigger` imposes a `min-height` and `border-radius` meant for a styled
+   button elsewhere, which made this item stand out (native button chrome, visible rounded corner).
+   Brought back to the same inert format as its neighbours. */
+.topbar-docker-trigger {
+  min-height: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  border-radius: 0;
+  appearance: none;
+}
+
+/* Below 900px the screen is for TRIAGE (product decision): what awaits a decision stays, the machine
+   figures go. They are not read from a phone. */
+@media (max-width: 900px) {
+  .topbar-status {
+    display: none;
+  }
+}

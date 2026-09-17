@@ -1,0 +1,32 @@
+/* PR state chip (open/merged/closed): compact pill with icon + short word. */
+
+.pr-state-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--r-pill);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+}
+
+.pr-state-chip svg {
+  flex-shrink: 0;
+  width: var(--icon-control-sm);
+  height: var(--icon-control-sm);
+}
+
+.pr-state-chip-ok {
+  color: var(--ok);
+  background-color: var(--ok-wash);
+}
+
+.pr-state-chip-neutral {
+  color: var(--ink);
+  background-color: var(--recess);
+}
+
+.pr-state-chip-merged {
+  color: var(--merged);
+  background-color: var(--merged-wash);
+}

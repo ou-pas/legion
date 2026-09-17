@@ -1,0 +1,54 @@
+/* A question's page (07/09). It has the whole screen, which is the point: the questionnaire rail on
+   the left, the question pane takes the rest. Nothing competes with the decision. */
+.inbox-q-page {
+  display: grid;
+  gap: var(--sp-9);
+  align-content: start;
+}
+
+/* The bar: where you came from, and the two exits. A rule below, since it belongs to navigation, not
+   content. Page blocks breathe at `--sp-9` (operator feedback, 07/09 evening: not enough space); the
+   bar keeps `--sp-5` to stay a navigation line. */
+.inbox-q-bar {
+  padding-bottom: var(--sp-5);
+  border-bottom: 1px solid var(--rule);
+  min-width: 0;
+}
+
+/* Blocks INSIDE the sheet: bar, header, rounds, questionnaire. This is where space was missing: the
+   card packed them at `--sp-5`. */
+.inbox-q-sheet {
+  display: grid;
+  gap: var(--sp-9);
+  min-width: 0;
+}
+
+.inbox-q-head {
+  min-width: 0;
+}
+
+/* The TASK name as title: the subject. The question body goes below in muted ink, since a round's body
+   ("Round 1 — 6 questions (…)") is a subtitle, not a title. */
+.inbox-q-title {
+  font-size: var(--fs-xl);
+  text-wrap: balance;
+}
+
+/* Below 640px, D2 (14/09): the sheet's horizontal gutter tightens to `--sp-5` (10px) instead of
+   `ui/card.css`'s `--sp-8` (16px): 12 (`--sp-6`, `.ui-main`) + 1 border + 10 = 23px from screen edge to
+   text, instead of 46. Set HERE, not in `ui/card.css`, which plans for it (`:where()` keeps the shared
+   rule's specificity at zero). */
+@media (max-width: 640px) {
+  .inbox-q-page > .ui-card[data-pad="true"] {
+    padding-left: var(--sp-5);
+    padding-right: var(--sp-5);
+  }
+}
+
+/* The save mention slot (15/09): a caption line reserved as soon as the form is open, so the mention
+   appears and changes text without anything moving. `nowrap` keeps the other half of the promise: the
+   saved message is longer than the saving one and would wrap to two lines on a phone. */
+.inbox-q-mark {
+  min-height: 1lh;
+  white-space: nowrap;
+}

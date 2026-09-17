@@ -1,0 +1,56 @@
+/* Only the file name may truncate: the icon, the size and the chip geometry stay whole. */
+.dm-artifact {
+  max-width: 100%;
+}
+
+.dm-artifact .dm-artifact-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dm-artifact[data-toggle="true"] {
+  cursor: pointer;
+}
+
+.dm-artifact-preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  min-width: 0;
+}
+
+/* The frame takes the panel width and a scroll area height: a preview takes a known share of the
+   screen, it does not eat it. */
+.dm-artifact-frame {
+  display: block;
+  width: 100%;
+  height: var(--h-scroll-lg);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-2);
+  background: var(--sheet);
+}
+
+/* Same box as the text frame, but `object-fit: contain`: an image must neither overflow nor
+   stretch. */
+.dm-artifact-image {
+  display: block;
+  width: 100%;
+  height: var(--h-scroll-lg);
+  object-fit: contain;
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-2);
+  background: var(--sheet);
+}
+
+/* Non-image binary: no frame to fill, only the reason and the fallback gesture. */
+.dm-artifact-download {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-4);
+  padding: var(--sp-8);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-2);
+  background: var(--sheet);
+}

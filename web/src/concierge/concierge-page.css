@@ -1,0 +1,73 @@
+/* The concierge page holds the content area's height so the thread scrolls alone and the field
+   stays at the bottom: a conversation, not a list pushing the page. */
+.cc-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+/* The body: the conversation list next to the thread, same geometry as Channels
+   (`channels/channels-page.css`, `.ch-panel`). The situation report stays the first turn inside
+   the thread, not a banner spanning both panes. */
+.cc-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: var(--sp-8);
+}
+
+.cc-aside,
+.cc-main {
+  min-height: 0;
+  background: var(--sheet);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-3);
+  box-shadow: var(--el-1);
+  overflow: hidden;
+}
+
+.cc-aside {
+  flex: none;
+  width: var(--w-channels);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.cc-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.cc-page-thread {
+  min-height: 0;
+}
+
+.cc-page-missing {
+  margin: var(--sp-8);
+  color: var(--ink-2);
+  font-size: var(--fs-sm);
+  max-width: var(--measure);
+}
+
+/* The narrow-width conversation selector replaces the list, it does not double it (same pattern as
+   `.ch-switch`, `channels/channels-page.css`). */
+.cc-switch {
+  display: none;
+  flex-shrink: 0;
+}
+
+/* Below 640px (the app's mobile tier), the fixed aside (`--w-channels`, 236px) and the thread no
+   longer fit side by side without crushing the thread under 100px (measured at 375px: aside 236px,
+   thread 99px). The list becomes a selector above the thread, like Channels below 1000px. */
+@media (max-width: 640px) {
+  .cc-aside {
+    display: none;
+  }
+
+  .cc-switch {
+    display: block;
+  }
+}

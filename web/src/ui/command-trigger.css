@@ -1,0 +1,57 @@
+/* Borrows the geometry and surface of a native field (see base.css): same height, line and
+   radius as every control. Not the cursor: you open it, you do not type in it. */
+.ui-cmd-trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  /* Elastic but bounded: stretched across the topbar, it no longer looked like a field. */
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: var(--w-command);
+  height: var(--h-control-md);
+  padding: 0 var(--sp-4) 0 var(--sp-5);
+  font-family: var(--sans);
+  font-size: var(--fs-sm);
+  /* Prompt tone, not a label: it is what you could type, not a named action. */
+  color: var(--ink-3);
+  text-align: left;
+  background: var(--sheet);
+  border: 1px solid var(--border-control);
+  border-radius: var(--r-2);
+  cursor: pointer;
+  transition:
+    border-color var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease);
+}
+
+.ui-cmd-trigger:hover {
+  border-color: var(--border-strong);
+  color: var(--ink-2);
+}
+
+/* Visible focus comes from the shared rule in base.css. */
+
+.ui-cmd-trigger-icon {
+  flex: none;
+  display: inline-flex;
+}
+
+/* CSS beats lucide's attributes: one control icon size in the app. */
+.ui-cmd-trigger-icon svg {
+  width: var(--icon-control);
+  height: var(--icon-control);
+}
+
+/* The prompt pushes the shortcut to the right edge, not a computed gutter. */
+.ui-cmd-trigger-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ui-cmd-trigger-keys {
+  flex: none;
+  display: inline-flex;
+}

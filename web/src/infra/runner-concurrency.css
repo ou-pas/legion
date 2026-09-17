@@ -1,0 +1,22 @@
+/* The cap field holds one two-character number: stretched across its column it announced long
+   input. The width comes from a token. */
+.ru-conc-field {
+  width: var(--w-field-num);
+}
+
+/* In the RAM field, the save button aligns with the slider track (same control height). Centred on
+   the whole block (track + scale), it floated between the two lines (operator feedback, 02/09). */
+.ir-field-ram .ui-save {
+  align-self: flex-start;
+}
+
+/* A settings drawer field label: capitals, like the vitals labels, so the drawer speaks the card's
+   language. Sans, not mono (type contract review, 08/09): a field label is running text, not
+   measured data. */
+.ir-field-label {
+  font-family: var(--sans);
+  font-size: var(--fs-3xs);
+  letter-spacing: var(--tr-caps);
+  text-transform: uppercase;
+  color: var(--ink-3);
+}

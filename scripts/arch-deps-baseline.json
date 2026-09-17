@@ -1,0 +1,23 @@
+{
+  "_": [
+    "LA DETTE D'ARCHITECTURE, DÉCLARÉE (05/09). Chaque entrée est une arête du graphe d'imports",
+    "que .dependency-cruiser.cjs interdit et que le code franchit quand même, avec le nom du",
+    "chantier qui doit la solder.",
+    "",
+    "Une arête non déclarée fait échouer `make arch` ; une entrée déclarée qui n'existe plus le",
+    "fait AUSSI, pour que la liste ne devienne pas un cimetière qu'on cesse de lire. Le nombre",
+    "d'entrées ne peut donc que baisser — c'est tout le mécanisme.",
+    "",
+    "Retirer une ligne d'ici est ce qui referme une frontière. C'est le seul geste qui compte.",
+    "`make arch-baseline` régénère ce fichier : à ne lancer QUE quand on a délibérément ajouté",
+    "une dette, et jamais pour faire taire un échec qu'on n'a pas lu."
+  ],
+  "violations": [
+    {
+      "rule": "no-circular",
+      "from": "web/src/ui/permission-list.tsx",
+      "to": "web/src/ui/vocabulary.ts",
+      "chantier": "vocabulaire du design system — permission-list et vocabulary dans un seul sens"
+    }
+  ]
+}

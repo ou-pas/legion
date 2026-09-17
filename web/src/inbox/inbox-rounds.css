@@ -1,0 +1,44 @@
+/* The rounds bar (07/09). Pills, not tabs: a tab promises the page changes around it, while each round
+   IS a page. */
+.inbox-rounds-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.inbox-rounds-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--sp-1) var(--sp-4);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-pill);
+  background: var(--sheet);
+  color: var(--ink-2);
+  font-size: var(--fs-sm);
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    border-color var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease);
+}
+
+a.inbox-rounds-pill:hover {
+  border-color: var(--rule-3);
+  color: var(--ink);
+}
+
+/* "You are here": accent, no link. */
+.inbox-rounds-pill[data-state="current"] {
+  border-color: var(--accent);
+  background: var(--accent-wash);
+  color: var(--ink);
+  font-weight: var(--fw-medium);
+}
+
+/* Still open, so still owed: the waiting amber, as on the status pill. Without it an interview with
+   two open rounds would not say which to look at. */
+.inbox-rounds-pill[data-state="open"] {
+  border-color: var(--wait-line);
+  background: var(--wait-wash);
+  color: var(--wait);
+}

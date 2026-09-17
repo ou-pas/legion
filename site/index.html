@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Legion</title>
+<meta name="description" content="Legion is a self-hosted control room for Claude agents: each task runs in a throwaway container with only the access you granted, and the agent comes to you when a decision is yours.">
+<meta name="theme-color" content="#f4f0e8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#2e3440" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="icon" href="icon-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preload" href="fonts/archivo-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<!--
+THESIS: one product, two places. The page is laid out as two lanes, the desk and away from it, and every section hangs off that split; it refuses the centered hero plus feature-card grid.
+OWN-WORLD: Legion's Atelier palette (warm paper #f4f0e8, sheet, ink #1e1a15, vermillon #b03f1b, run teal, wait amber with hatching), Archivo for everything, JetBrains Mono only for paths, ports and headers. Short radii, hairline rules, tables as ruled sheets.
+STORY: the visitor reads the definition, sees the board and the phone side by side, follows who does what, understands why a waiting session costs nothing, checks the security layers and the scope, then opens the docs.
+FIRST VIEWPORT: definition sentence as h1 on the left, docs action on the right; below it the desktop board with the phone board overlapping its lower right corner, each lane labelled.
+FORM: two-lane split, candidate 6 of 7, seed key 4a8def14.
+FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
+-->
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top">
+  <div class="wrap top__row">
+    <a class="brand" href="#" aria-label="Legion, top of page">
+      <svg class="brand__mark" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#1e1a15"/><rect x="136" y="130" width="104" height="252" rx="20" fill="#f4f0e8"/><rect x="256" y="278" width="104" height="104" rx="20" fill="#f4f0e8"/><rect x="272" y="118" width="104" height="104" rx="20" fill="#e0714b"/></svg>
+      <span>Legion</span>
+    </a>
+    <nav class="top__nav" aria-label="Sections">
+      <a href="#gestures">What it does</a>
+      <a href="#phone">Phone</a>
+      <a href="#why">Why</a>
+      <a href="#security">Security</a>
+      <a href="#diagrams">Diagrams</a>
+      <a href="#scope">Scope</a>
+    </nav>
+    <a class="btn btn--quiet" href="https://github.com/ou-pas/legion">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65S8.93 17.38 9 18v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+      Repository
+    </a>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="wrap hero__head">
+      <h1 id="hero-title">Legion is a self-hosted control room for Claude agents: each task runs in a throwaway container with only the access you granted, <em>and the agent comes to you when a decision is yours.</em></h1>
+      <div class="hero__side">
+        <p class="hero__note">A personal tool with one operator, built and used daily by its author. It is not built for teams, it is not offered as a hosted service, and it has not reached a stable release.</p>
+        <div class="actions">
+          <a class="btn btn--primary" href="https://github.com/ou-pas/legion#quickstart">Read the quickstart</a>
+          <a class="btn btn--line" href="#gestures">See what it does</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <div class="stage">
+        <figure class="stage__desk">
+          <figcaption class="lane-label"><span class="dot dot--desk"></span>At your desk</figcaption>
+          <picture><source srcset="assets/screens/desktop-board-dark.png" media="(prefers-color-scheme: dark)"><img class="shot shot--desk" src="assets/screens/desktop-board.png" width="1440" height="900" alt="Legion's board: tasks assigned to Claude agents, each running in its own throwaway container, and a count of what is waiting for you."></picture>
+        </figure>
+        <figure class="stage__phone">
+          <figcaption class="lane-label"><span class="dot dot--away"></span>Away from it</figcaption>
+          <picture><source srcset="assets/screens/phone-board-dark.png" media="(prefers-color-scheme: dark)"><img class="shot shot--phone" src="assets/screens/phone-board.png" width="390" height="844" alt="The same board on a phone."></picture>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="gestures" class="band" aria-labelledby="gestures-title">
+    <div class="wrap split">
+      <div class="split__text">
+        <h2 id="gestures-title">What it does for you</h2>
+        <p class="lede">You write a brief and assign an agent. Everything between that and the review is Legion's, and it happens without you.</p>
+        <ol class="relay" aria-label="Who does what, in order">
+          <li class="relay__you">You write a brief</li>
+          <li class="relay__you">You assign an agent</li>
+          <li class="relay__legion">Starts a container</li>
+          <li class="relay__legion">Clones the repositories that agent is granted</li>
+          <li class="relay__legion">Streams the trace to your screen</li>
+          <li class="relay__legion">Pushes the branch as the work goes</li>
+          <li class="relay__legion">Opens a pull request</li>
+          <li class="relay__legion">Destroys the container</li>
+          <li class="relay__legion">Moves the task to review</li>
+          <li class="relay__you">You read the diff and comment line by line</li>
+          <li class="relay__you">You send the agent back to work on the same branch, or merge</li>
+        </ol>
+        <p class="relay__key" aria-hidden="true"><span class="key key--you">You</span><span class="key key--legion">Legion</span></p>
+      </div>
+      <figure class="split__media">
+        <picture><source srcset="assets/screens/desktop-task-dark.png" media="(prefers-color-scheme: dark)"><img class="shot" src="assets/screens/desktop-task.png" width="1440" height="900" loading="lazy" alt="A task's page on the desktop: live trace, cost, branch diff and artifacts of a running session."></picture>
+        <figcaption>A task's page: live trace, cost, branch diff and artifacts.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section id="phone" class="band band--sheet" aria-labelledby="phone-title">
+    <div class="wrap">
+      <h2 id="phone-title" class="phone__title">The agent comes to find you instead of waiting for you to come back.</h2>
+      <p class="lede">You launch a task at your desk, the agent hits a question two hours later, a push notification reaches your phone, you answer in the street, and the session starts again.</p>
+
+      <div class="lanes" data-reveal>
+        <p class="lanes__head lanes__head--desk">Desk</p>
+        <p class="lanes__head lanes__head--box">Container</p>
+        <p class="lanes__head lanes__head--away">Phone</p>
+
+        <div class="step step--1">
+          <p class="step__desk">You launch a task</p>
+          <p class="step__box box box--on"><span>Running</span></p>
+          <p class="step__away"></p>
+        </div>
+        <div class="step step--2">
+          <p class="step__desk"></p>
+          <p class="step__box box box--off"><span>Question asked, work pushed, container destroyed</span></p>
+          <p class="step__away">Push notification</p>
+        </div>
+        <div class="step step--3">
+          <p class="step__desk"></p>
+          <p class="step__box box box--off"><span>Nothing runs, nothing costs</span></p>
+          <p class="step__away">You answer in the street</p>
+        </div>
+        <div class="step step--4">
+          <p class="step__desk"></p>
+          <p class="step__box box box--on"><span>Fresh container, same conversation, same workspace</span></p>
+          <p class="step__away"></p>
+        </div>
+      </div>
+
+      <div class="phone__grid">
+        <div class="phone__copy">
+          <p>A waiting session has given back its container. It pushed its work, the container was destroyed, and nothing runs or costs while it waits. Answering from the phone is not remote control of a live process: it is the same gesture as from the desk, and a fresh container resumes with the same conversation and the same workspace.</p>
+          <p>The phone does more than answer. You can launch a task from it and follow its trace. The screen installs as a PWA and receives Web Push notifications, with nothing to set up with a third party.</p>
+          <p>There is no offline mode, on purpose: a service worker serving a cache would freeze the screen on a dead version.</p>
+        </div>
+        <figure class="phone__shot">
+          <picture><source srcset="assets/screens/phone-question-dark.png" media="(prefers-color-scheme: dark)"><img class="shot shot--phone" src="assets/screens/phone-question.png" width="390" height="844" loading="lazy" alt="An agent's question answered on a phone, from the push notification."></picture>
+          <figcaption>A question, from the notification</figcaption>
+        </figure>
+        <figure class="phone__shot">
+          <picture><source srcset="assets/screens/phone-trace-dark.png" media="(prefers-color-scheme: dark)"><img class="shot shot--phone" src="assets/screens/phone-trace.png" width="390" height="844" loading="lazy" alt="A session's live trace on a phone."></picture>
+          <figcaption>The live trace</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="why" class="band" aria-labelledby="why-title">
+    <div class="wrap">
+      <h2 id="why-title">Why it is built this way</h2>
+      <table class="sheet-table">
+        <thead><tr><th scope="col">Choice</th><th scope="col">Why</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">One throwaway container per session</th><td>Nothing survives the container except what was pushed and what was said. An agent cannot break what it was never given.</td></tr>
+          <tr><th scope="row">Grants per agent, enforced by the server</th><td>An agent sees the repositories, folders, MCP servers, secrets and tools it was granted, and nothing else. A secret is injected only when it is ticked for that agent.</td></tr>
+          <tr><th scope="row">Approval gates enforced by the API</th><td>An agent told to close a gated task gets a refusal from the API. It does not read a sentence in its prompt asking it to refrain.</td></tr>
+          <tr><th scope="row">Work pushed during the session</th><td>Code is committed and pushed at intervals, not only at the end. A cut session, a quota hit or Docker going down costs a few turns, not the task.</td></tr>
+          <tr><th scope="row">The container dies while waiting</th><td>A question or an exhausted quota puts the session on hold instead of killing it. It resumes in a fresh container when the cause is lifted.</td></tr>
+          <tr><th scope="row">The inbox is the only interruption</th><td>An agent reaches you only through it. A question arrives with what the agent read and what your answer will change, so you decide from the list.</td></tr>
+          <tr><th scope="row">Merging stays human</th><td>The server opens a pull request for any session that pushed code, because an open pull request commits nobody. Approving a task, merging and approving a goal's definition of done are yours.</td></tr>
+        </tbody>
+      </table>
+      <div class="pair">
+        <figure>
+          <picture><source srcset="assets/screens/desktop-agents-dark.png" media="(prefers-color-scheme: dark)"><img class="shot" src="assets/screens/desktop-agents.png" width="1440" height="900" loading="lazy" alt="An agent's grants: what it can reach, and what it is refused."></picture>
+          <figcaption>An agent's grants: what it can reach, and what it is refused.</figcaption>
+        </figure>
+        <figure>
+          <picture><source srcset="assets/screens/desktop-inbox-dark.png" media="(prefers-color-scheme: dark)"><img class="shot" src="assets/screens/desktop-inbox.png" width="1440" height="900" loading="lazy" alt="The inbox: gates and questions waiting for a decision."></picture>
+          <figcaption>The inbox: gates and questions waiting for a decision.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="security" class="band band--ink" aria-labelledby="security-title">
+    <div class="wrap">
+      <h2 id="security-title">Security model</h2>
+      <div class="layers">
+        <p class="layer"><span class="layer__who">The network</span> decides who can reach the port.</p>
+        <p class="layer"><span class="layer__who">Legion</span> decides who is allowed to act.</p>
+      </div>
+      <p class="lede">Two layers, which are not the same thing. Node has no address guard: the socket listens on every interface so that session containers can call back.</p>
+
+      <p class="prereq"><strong>A private network is a prerequisite, not an option.</strong> Without one, port 8790 is open to anything that reaches the machine, and the operator token is the only lock left. Your phone, your workstation and the machines that run sessions sit on a tailnet (Tailscale or equivalent), with ACLs.</p>
+
+      <table class="sheet-table sheet-table--ink">
+        <thead><tr><th scope="col">Surface</th><th scope="col">Who reaches it</th><th scope="col">What it requires</th></tr></thead>
+        <tbody>
+          <tr><th scope="row"><code>Port 8790</code></th><td>Whatever the network lets through</td><td>Nothing from Node. Limiting it is the job of the machine's firewall and your tailnet ACLs.</td></tr>
+          <tr><th scope="row"><code>/api/*</code></th><td>The operator, from a browser or a tool</td><td>An operator session, opened by pasting the operator token once in the browser, or <code>Authorization: Bearer &lt;token&gt;</code>. Mutations also pass a same-origin check.</td></tr>
+          <tr><th scope="row"><code>/internal/*</code></th><td>Session containers</td><td>The token of that container's own session.</td></tr>
+          <tr><th scope="row"><code>/webhooks/*</code></th><td>Forges, through Tailscale Funnel</td><td>A signature: HMAC for GitHub, a secret header token for GitLab. It is the only public path.</td></tr>
+          <tr><th scope="row">The built screen</th><td>Whatever reaches the port</td><td>Nothing. It is client code and holds no data; every data call goes through <code>/api/*</code>.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="facts">
+        <p>The operator token is generated at the first boot that finds none, printed once in the boot log, stored as a hash, and never enters a container. Secrets are encrypted in the database with AES-256-GCM, under a master key kept in <code>server/.env</code>.</p>
+        <p>Node serves plain HTTP on port 8790. HTTPS comes from a Caddy front end on the tailnet, and the phone needs it: browsers only register a service worker, and so only allow the PWA and Web Push, on a secure origin.</p>
+        <p>Known limits: whoever holds the operator token is the operator. There are no accounts, no second factor, no rate limit on token checks, and a shell on the control plane machine gets past every guard.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="diagrams" class="band" aria-labelledby="diagrams-title">
+    <div class="wrap">
+      <h2 id="diagrams-title">Diagrams</h2>
+      <p class="lede">Each one zooms, searches and walks through guided views. They are generated from sources kept next to the code.</p>
+      <div class="tabs" role="tablist" aria-label="Diagram">
+        <button role="tab" id="tab-lifecycle" aria-controls="diagram-panel" aria-selected="true" data-src="diagrams/session-lifecycle.html" data-title="Session lifecycle">Session lifecycle</button>
+        <button role="tab" id="tab-workflow" aria-controls="diagram-panel" aria-selected="false" tabindex="-1" data-src="diagrams/task-workflow.html" data-title="Task workflow">Task workflow</button>
+        <button role="tab" id="tab-phone" aria-controls="diagram-panel" aria-selected="false" tabindex="-1" data-src="diagrams/phone-path.html" data-title="Phone path">Phone path</button>
+        <button role="tab" id="tab-architecture" aria-controls="diagram-panel" aria-selected="false" tabindex="-1" data-src="diagrams/architecture.html" data-title="Architecture">Architecture</button>
+      </div>
+      <div class="diagram" id="diagram-panel" role="tabpanel" aria-labelledby="tab-lifecycle">
+        <iframe src="diagrams/session-lifecycle.html" title="Session lifecycle diagram" loading="lazy"></iframe>
+      </div>
+      <p class="diagram__open"><a id="diagram-open" href="diagrams/session-lifecycle.html">Open this diagram on its own page</a></p>
+    </div>
+  </section>
+
+  <section id="scope" class="band band--sheet" aria-labelledby="scope-title">
+    <div class="wrap">
+      <h2 id="scope-title">Scope</h2>
+      <p class="lede">What works today, and what is planned or not finished.</p>
+      <table class="sheet-table sheet-table--scope">
+        <thead><tr><th scope="col">Area</th><th scope="col">Works</th><th scope="col">Planned or not finished</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Tasks</th><td>Kanban board per project, queue, scheduled tasks, dependencies between tasks, attachments on a brief, read-only tasks</td><td>Artifacts are never cleared when a task is archived</td></tr>
+          <tr><th scope="row">Sessions</th><td>One container per session, live trace, cost, diff, artifacts, pushes during the session, pause and resume</td><td>A session's log lives in the control plane: a container that dies takes what it had not reported yet</td></tr>
+          <tr><th scope="row">Inbox and gates</th><td>Approval gates enforced by the API, questions and rounds of questions, drafts saved as you type</td><td class="none"></td></tr>
+          <tr><th scope="row">Review</th><td>Line-by-line pre-review sent in one gesture; a pull request opened for any session that pushed code</td><td class="none"></td></tr>
+          <tr><th scope="row">Phone</th><td>Installable PWA, Web Push notifications, layouts for narrow screens</td><td>No offline mode, by choice</td></tr>
+          <tr><th scope="row">Discord</th><td>A second, bidirectional bridge: a question's buttons answer the inbox. Needs your own bot, <code>DISCORD_BOT_TOKEN</code> and <code>DISCORD_CHANNEL_ID</code></td><td class="none"></td></tr>
+          <tr><th scope="row">Chains and goals</th><td><code>feature</code> and <code>bugfix</code> chains; goals with guardrails on budget, duration and lack of progress</td><td>A goal's dollar budget only applies between two sessions</td></tr>
+          <tr><th scope="row">Grants</th><td>Repositories, folders, MCP servers, secrets, rules and skills, per agent or for the whole project</td><td>No screen to create a named agent (the API route exists)</td></tr>
+          <tr><th scope="row">Network isolation</th><td>An allowlist egress proxy when an agent is given a <code>limited</code> environment</td><td>Opt-in, off on every working agent; removing it was decided and is not done</td></tr>
+          <tr><th scope="row">Forges and providers</th><td>GitHub and GitLab: push, pull or merge request, inbound webhooks, OAuth or pasted token. Linear connection</td><td>Connections do not renew (a Linear connection dies after 24 hours). The Issues page reads only Linear</td></tr>
+          <tr><th scope="row">Claude credentials</th><td>API key or subscription token; several subscription accounts per project, with failover when one is exhausted</td><td class="none"></td></tr>
+          <tr><th scope="row">Machines</th><td>Runners over <code>ssh://</code>, probed every 30 seconds; server install with an update button</td><td>The server's own runner stays off by default</td></tr>
+          <tr><th scope="row">Operator access</th><td>Operator session or bearer token</td><td>No sign-out button, no token rotation on screen, no second factor</td></tr>
+          <tr><th scope="row">Concierge</th><td>Read-only questions about the control plane, reading traces and tasks</td><td>Its situation report does not refresh on its own</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="install" class="band close" aria-labelledby="install-title">
+    <div class="wrap close__grid">
+      <div>
+        <h2 id="install-title">Before you install</h2>
+        <table class="sheet-table sheet-table--compact">
+          <thead><tr><th scope="col">You need</th><th scope="col">Why</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">A tailnet (Tailscale or equivalent), with ACLs</th><td>It decides who reaches the port.</td></tr>
+            <tr><th scope="row">Node 22 or newer, and pnpm</th><td>The control plane and the screen.</td></tr>
+            <tr><th scope="row">Docker, running</th><td>One container per session. Legion checks it before every launch and refuses cleanly if it does not answer.</td></tr>
+            <tr><th scope="row">A Claude credential</th><td><code>CLAUDE_CODE_OAUTH_TOKEN</code> or <code>ANTHROPIC_API_KEY</code>. Without one, sessions run in mock mode and produce no code.</td></tr>
+            <tr><th scope="row">A domain and a Caddy front end, for the phone</th><td>HTTPS for the PWA and Web Push.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="close__docs">
+        <h2>Documentation</h2>
+        <ul class="doclinks">
+          <li><a href="https://github.com/ou-pas/legion#quickstart">Quickstart</a><span>One command to set up, one to run</span></li>
+          <li><a href="https://github.com/ou-pas/legion/tree/main/docs/wiki/produit">Product</a><span>What Legion is, its principles, its decisions and where it stands</span></li>
+          <li><a href="https://github.com/ou-pas/legion/tree/main/docs/wiki/concepts">Concepts</a><span>Agent, project, task, session, runner, forge</span></li>
+          <li><a href="https://github.com/ou-pas/legion/tree/main/docs/wiki/guides">Guides</a><span>Installing on a server, TLS, push notifications, webhooks, grants</span></li>
+          <li><a href="https://github.com/ou-pas/legion/tree/main/docs/wiki/reference">Reference</a><span>Statuses and troubleshooting</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot__row">
+    <span>Legion. Self-hosted, one operator, not yet at a stable release. MIT license.</span>
+    <a href="https://github.com/ou-pas/legion">github.com/ou-pas/legion</a>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
+  var panel = document.getElementById('diagram-panel');
+  var frame = panel.querySelector('iframe');
+  var open = document.getElementById('diagram-open');
+
+  function select(tab, focus) {
+    tabs.forEach(function (t) {
+      var on = t === tab;
+      t.setAttribute('aria-selected', String(on));
+      t.tabIndex = on ? 0 : -1;
+    });
+    panel.setAttribute('aria-labelledby', tab.id);
+    frame.src = tab.dataset.src;
+    frame.title = tab.dataset.title + ' diagram';
+    open.href = tab.dataset.src;
+    if (focus) tab.focus();
+  }
+
+  tabs.forEach(function (tab, i) {
+    tab.addEventListener('click', function () { select(tab, false); });
+    tab.addEventListener('keydown', function (e) {
+      var next = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : null;
+      if (next === null) return;
+      e.preventDefault();
+      select(tabs[(next + tabs.length) % tabs.length], true);
+    });
+  });
+
+  // The lane diagram draws itself once when it scrolls into view; without this script it is simply shown.
+  var lanes = document.querySelector('[data-reveal]');
+  if (!lanes || !('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  lanes.classList.add('is-waiting');
+  new IntersectionObserver(function (entries, observer) {
+    if (!entries[0].isIntersecting) return;
+    lanes.classList.remove('is-waiting');
+    lanes.classList.add('is-drawn');
+    observer.disconnect();
+  }, { threshold: 0.35 }).observe(lanes);
+})();
+</script>
+</body>
+</html>

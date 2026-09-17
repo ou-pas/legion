@@ -1,0 +1,56 @@
+/* Vertical rail of a chain run: a column of markers (hand-made SVG) and a column of cards. Grid,
+   not flex: the marker column stretches natively to the neighbouring card's height (9sexies: do
+   not fight the default stretch). */
+.dm-chain-rail {
+  list-style: none;
+  min-width: 0;
+}
+
+.dm-chain-row {
+  display: grid;
+  grid-template-columns: var(--sz-mark) minmax(0, 1fr);
+  column-gap: var(--sp-6);
+}
+
+.dm-chain-track {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.dm-chain-track-line {
+  stroke: var(--border-separator);
+  stroke-width: 1.5;
+}
+
+.dm-chain-track-dot {
+  stroke: var(--sheet);
+  stroke-width: 2;
+  fill: var(--ink-3);
+}
+
+.dm-chain-track[data-state="run"] .dm-chain-track-dot {
+  fill: var(--run);
+}
+.dm-chain-track[data-state="wait"] .dm-chain-track-dot {
+  fill: var(--wait);
+}
+.dm-chain-track[data-state="gate"] .dm-chain-track-dot {
+  fill: var(--gate);
+}
+.dm-chain-track[data-state="ok"] .dm-chain-track-dot {
+  fill: var(--ok);
+}
+.dm-chain-track[data-state="bad"] .dm-chain-track-dot {
+  fill: var(--bad);
+}
+
+.dm-chain-card {
+  display: block;
+  min-width: 0;
+}
+
+.dm-chain-title {
+  font-weight: var(--fw-semi);
+  min-width: 0;
+}

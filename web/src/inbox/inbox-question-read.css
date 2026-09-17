@@ -1,0 +1,61 @@
+/* Reading an answered round (07/09): a striped two-column table. Striped rather than ruled: over ten
+   rows of uneven height, rules alone leave you searching where an answer ends. */
+.inbox-read {
+  display: grid;
+  margin: 0;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-2);
+  overflow: hidden;
+  background: var(--sheet);
+}
+
+.inbox-read-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+  gap: var(--sp-4);
+  padding: var(--sp-3) var(--sp-4);
+}
+
+.inbox-read-row:nth-child(odd) {
+  background: var(--recess);
+}
+
+.inbox-read-row > dt {
+  display: flex;
+  gap: var(--sp-3);
+  min-width: 0;
+  color: var(--ink-2);
+  font-size: var(--fs-sm);
+  overflow-wrap: break-word;
+}
+
+.inbox-read-n {
+  flex: none;
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+  padding-top: 0.1em;
+}
+
+.inbox-read-row > dd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-2);
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+/* The "recommendation ruled out" line goes UNDER the answer, full width: beside it, it read as a
+   second answer. */
+.inbox-read-why {
+  flex-basis: 100%;
+}
+
+@media (max-width: 720px) {
+  .inbox-read-row {
+    grid-template-columns: 1fr;
+    row-gap: var(--sp-1);
+  }
+}

@@ -1,0 +1,136 @@
+/* Auto-fit columns: repos / folders / MCP / network / skills sit side by side when there is room,
+   stacked otherwise. */
+.ui-perm-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(var(--w-aside), 100%), 1fr));
+  gap: var(--sp-9);
+  min-width: 0;
+}
+
+.ui-perm-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+  padding-bottom: var(--sp-3);
+  border-bottom: 1px solid var(--border-separator);
+  font-family: var(--sans);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-semi);
+  text-transform: uppercase;
+  letter-spacing: var(--tr-caps);
+  color: var(--ink-3);
+}
+
+.ui-perm-items {
+  list-style: none;
+  min-width: 0;
+}
+
+.ui-perm {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-5);
+  padding: var(--sp-3) 0;
+  font-size: var(--fs-sm);
+  min-width: 0;
+}
+
+/* Mono acronym, fixed width, boxed. Two levels are never told apart by color alone: RW / R / —
+   and three icons of different shapes. */
+.ui-perm-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  flex-shrink: 0;
+  min-width: 6ch;
+  padding: 0 var(--sp-3);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-1);
+  background: var(--recess);
+  color: var(--ink-2);
+  font-family: var(--mono);
+  font-size: var(--fs-2xs);
+  line-height: var(--lh-loose);
+}
+
+.ui-perm-name {
+  /* `flex: 1 1 0` and `min-width: 0`: without both, the name refuses to shrink below its longest
+     word, and in a wrapping list it goes to the next line, leaving the level mark alone above
+     (seen on `a-philosophy-of-software-design`). */
+  flex: 1 1 0;
+  min-width: 0;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+/* A permission name fits on one line with its mark. A skill or rule id is not a sentence: splitting
+   it does not help, and the orphaned mark reads as a row of its own. Truncate; the tooltip gives
+   the full name, carried by `Ellipsis` (rules) or the description's tooltip (skills), never a
+   native `title`. */
+.ui-perm-name .ui-choice,
+.ui-perm-name .ui-choice-text {
+  min-width: 0;
+}
+
+.ui-perm-name .ui-choice {
+  display: flex;
+}
+
+/* Truncation when the caller does not use `Ellipsis`: skills, which already have a description
+   tooltip and do not want a second one. */
+.ui-perm-clip {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ui-perm-detail {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+.ui-perm[data-level="rw"] .ui-perm-mark {
+  border-color: var(--ok-line);
+  background: var(--ok-wash);
+  color: var(--ok);
+}
+
+.ui-perm[data-level="none"] .ui-perm-mark {
+  border-color: var(--bad-line);
+  background: var(--bad-wash);
+  color: var(--bad);
+}
+
+/* A refusal reads first through the strike-through; color only reinforces it. */
+.ui-perm[data-level="none"] .ui-perm-name {
+  color: var(--ink-3);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+/* Compact density: a narrow side column (job description margin). Same acronym and icon, less air
+   per row, and the detail goes back into the flow (right-aligned, it would overflow 280px with a
+   longish secret name). */
+.ui-perm-group[data-density="compact"] .ui-perm {
+  flex-wrap: wrap;
+  gap: var(--sp-4);
+  padding: var(--sp-2) 0;
+  font-size: var(--fs-xs);
+}
+
+/* `flex-basis: 100%` on an item in a wrapping flex row always puts it on its own line. Otherwise a
+   long enough detail competed with the name for width: `flex-shrink: 0` inherited from the
+   non-compact mark kept it from yielding, and the name was squeezed to one character wide
+   (measured on the Grants card, 280px column). */
+.ui-perm-group[data-density="compact"] .ui-perm-detail {
+  flex-basis: 100%;
+  margin-left: calc(6ch + var(--sp-3) * 2 + var(--sp-4));
+  white-space: normal;
+}

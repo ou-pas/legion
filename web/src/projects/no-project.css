@@ -1,0 +1,150 @@
+/* The no-project screen: a centred sheet, a preflight, a field, a side door. Geometry of the
+   `direction-double-nav.html` mock-up, "No project" variant. */
+
+.noproject {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-10);
+  max-width: var(--w-sheet);
+  margin: 0 auto;
+  padding: var(--sp-12) var(--sp-11) var(--sp-12);
+}
+
+.noproject-lede {
+  color: var(--ink-2);
+  font-size: var(--fs-lg);
+  line-height: var(--lh-body);
+  max-width: var(--measure-lede);
+}
+
+/* The preflight. One box, not three cards: the three conditions read at a glance, and the number
+   held decides the rest of the screen. */
+.noproject-preflight {
+  border: 1px solid var(--border-floating);
+  border-radius: var(--r-3);
+  background: var(--sheet);
+  overflow: hidden;
+}
+
+.noproject-preflight-head {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--sp-4) var(--sp-7);
+  border-bottom: 1px solid var(--border-separator);
+  font-family: var(--sans);
+  font-size: var(--fs-2xs);
+  letter-spacing: var(--tr-caps);
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.noproject-check {
+  display: grid;
+  grid-template-columns: var(--icon-row) 1fr auto;
+  gap: var(--sp-5);
+  align-items: start;
+  padding: var(--sp-5) var(--sp-7);
+  border-top: 1px solid var(--border-separator);
+}
+
+.noproject-check:first-of-type {
+  border-top: 0;
+}
+
+.noproject-check-state {
+  display: flex;
+  color: var(--ok);
+}
+.noproject-check-state[data-met="false"] {
+  color: var(--accent);
+}
+
+.noproject-check-title {
+  font-weight: var(--fw-semi);
+  font-size: var(--fs-md);
+}
+
+.noproject-check-detail {
+  margin-top: var(--sp-1);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-snug);
+  color: var(--ink-2);
+  max-width: var(--measure-note);
+}
+
+/* The observed value, on the right: the credential mask, the runners, the image name. It never
+   wraps: the only place on the screen where the exact detail matters. */
+.noproject-check-value {
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+  white-space: nowrap;
+  padding-top: var(--sp-1);
+}
+
+.noproject-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+.noproject-field-label {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semi);
+}
+.noproject-row {
+  display: flex;
+  gap: var(--sp-4);
+  align-items: center;
+}
+.noproject-row > :first-child {
+  flex: 1;
+}
+
+.noproject-derived {
+  font-family: var(--sans);
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+
+.noproject-blocked {
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  line-height: var(--lh-snug);
+}
+
+/* The side door, under a rule: not a second action of the field but another path. The rule says
+   the fork better than a heading. */
+.noproject-door {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-9);
+  border-top: 1px solid var(--border-separator);
+  padding-top: var(--sp-9);
+}
+
+.noproject-door-title {
+  display: block;
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semi);
+  margin-bottom: var(--sp-2);
+}
+.noproject-door p {
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  line-height: var(--lh-snug);
+  max-width: var(--measure-note);
+}
+
+@media (max-width: 640px) {
+  .noproject {
+    padding: var(--sp-9) var(--sp-7);
+  }
+  .noproject-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .noproject-door {
+    flex-direction: column;
+  }
+}

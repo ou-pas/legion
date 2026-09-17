@@ -1,0 +1,45 @@
+/* The trigger imposes no styling: a dot, chip or button provided by the caller. */
+.ui-popover-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: var(--h-control-sm);
+  border-radius: var(--r-2);
+  color: inherit;
+  font: inherit;
+}
+
+.ui-popover {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: var(--z-cmdp);
+  width: max-content;
+  /* Design cap (320px) combined with the window worst case computed by floating.ts. */
+  max-width: min(320px, var(--surface-max-w, 320px));
+  padding: var(--sp-6) var(--sp-7);
+  background: var(--sheet);
+  border: 1px solid var(--border-floating);
+  border-radius: var(--r-3);
+  box-shadow: var(--el-2);
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  line-height: var(--lh-snug);
+  visibility: hidden;
+}
+
+.ui-popover[data-placed="true"] {
+  visibility: visible;
+  animation: ui-popover-in var(--dur-2) var(--ease-out);
+}
+
+@keyframes ui-popover-in {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

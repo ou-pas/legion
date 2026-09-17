@@ -1,0 +1,242 @@
+{
+  "_": [
+    "LE CODE MORT, DÉCLARÉ (05/09). Chaque entrée est un fichier ou un export que knip ne voit",
+    "atteint depuis aucun point d'entrée, avec le nom du chantier qui doit le solder.",
+    "",
+    "Un finding non déclaré fait échouer `make deadcode` ; une entrée déclarée qui n'existe plus",
+    "le fait AUSSI — sinon la liste devient un cimetière et le nombre ne baisse jamais vraiment.",
+    "",
+    "`make deadcode-baseline` régénère ce fichier : à ne lancer QUE quand on laisse délibérément",
+    "du code sans appelant, et jamais pour faire taire un échec qu'on n'a pas lu."
+  ],
+  "findings": [
+    {
+      "kind": "duplicate export",
+      "file": "web/src/ui/button.tsx",
+      "symbol": "IconBtn / IconButton",
+      "chantier": "un seul nom pour le bouton à icône — IconBtn ou IconButton, pas les deux"
+    },
+    {
+      "kind": "export with no caller",
+      "file": "server/src/capabilities/agent/agent-enums.ts",
+      "symbol": "AGENT_EFFORTS",
+      "chantier": "tuples d'enum sans lecteur — le TYPE dérivé sert, la valeur non ; certains sont recopiés à l'identique côté web (AGENT_EFFORTS), un seul des deux doit rester"
+    },
+    {
+      "kind": "export with no caller",
+      "file": "server/src/capabilities/agent/agent-enums.ts",
+      "symbol": "AGENT_THINKINGS",
+      "chantier": "tuples d'enum sans lecteur — le TYPE dérivé sert, la valeur non ; certains sont recopiés à l'identique côté web (AGENT_EFFORTS), un seul des deux doit rester"
+    },
+    {
+      "kind": "export with no caller",
+      "file": "server/src/concierge/chat-enums.ts",
+      "symbol": "CHAT_ROLES",
+      "chantier": "tuples d'enum sans lecteur — le TYPE dérivé sert, la valeur non ; certains sont recopiés à l'identique côté web (AGENT_EFFORTS), un seul des deux doit rester"
+    },
+    {
+      "kind": "export with no caller",
+      "file": "server/src/goals/goal-status.ts",
+      "symbol": "GOAL_STATUSES",
+      "chantier": "tuples d'enum sans lecteur — le TYPE dérivé sert, la valeur non ; certains sont recopiés à l'identique côté web (AGENT_EFFORTS), un seul des deux doit rester"
+    },
+    {
+      "kind": "export with no caller",
+      "file": "server/src/goals/goal-status.ts",
+      "symbol": "LIVE_GOAL_STATUSES",
+      "chantier": "tuples d'enum sans lecteur — le TYPE dérivé sert, la valeur non ; certains sont recopiés à l'identique côté web (AGENT_EFFORTS), un seul des deux doit rester"
+    },
+    {
+      "kind": "export with no caller",
+      "file": "server/src/goals/goal-status.ts",
+      "symbol": "STOPPED_GOAL_STATUSES",
+      "chantier": "tuples d'enum sans lecteur — le TYPE dérivé sert, la valeur non ; certains sont recopiés à l'identique côté web (AGENT_EFFORTS), un seul des deux doit rester"
+    },
+    {
+      "kind": "export with no caller",
+      "file": "server/src/inbox/inbox-enums.ts",
+      "symbol": "INBOX_STATUSES",
+      "chantier": "tuples d'enum sans lecteur — le TYPE dérivé sert, la valeur non ; certains sont recopiés à l'identique côté web (AGENT_EFFORTS), un seul des deux doit rester"
+    },
+    {
+      "kind": "export with no caller",
+      "file": "server/src/infra/metrics/metrics-enums.ts",
+      "symbol": "METRIC_SOURCES",
+      "chantier": "tuples d'enum sans lecteur — le TYPE dérivé sert, la valeur non ; certains sont recopiés à l'identique côté web (AGENT_EFFORTS), un seul des deux doit rester"
+    },
+    {
+      "kind": "export with no caller",
+      "file": "server/src/models/model.ts",
+      "symbol": "DEFAULT_MODEL_ROUTING_JSON",
+      "chantier": "exports sans appelant, un par un — chacun est soit un oubli de suppression, soit une API en attente qu'il faut nommer"
+    },
+    {
+      "kind": "export with no caller",
+      "file": "server/src/models/models.ts",
+      "symbol": "clearModelCache",
+      "chantier": "réinitialiseurs de cache exportés pour des tests qui ne les appellent pas — les brancher dans le teardown, ou les retirer avec le cache global"
+    },
+    {
+      "kind": "export with no caller",
+      "file": "server/src/schedules/schedule-enums.ts",
+      "symbol": "SCHEDULE_OUTCOMES",
+      "chantier": "tuples d'enum sans lecteur — le TYPE dérivé sert, la valeur non ; certains sont recopiés à l'identique côté web (AGENT_EFFORTS), un seul des deux doit rester"
+    },
+    {
+      "kind": "export with no caller",
+      "file": "server/src/shared/enums.ts",
+      "symbol": "CONTROL_LEVELS",
+      "chantier": "tuples d'enum sans lecteur — le TYPE dérivé sert, la valeur non ; certains sont recopiés à l'identique côté web (AGENT_EFFORTS), un seul des deux doit rester"
+    },
+    {
+      "kind": "export with no caller",
+      "file": "server/src/tasks/activity-enums.ts",
+      "symbol": "ACTIVITY_FROMS",
+      "chantier": "tuples d'enum sans lecteur — le TYPE dérivé sert, la valeur non ; certains sont recopiés à l'identique côté web (AGENT_EFFORTS), un seul des deux doit rester"
+    },
+    {
+      "kind": "export with no caller",
+      "file": "web/src/api/sessions.ts",
+      "symbol": "ACTIVE_SESSION_STATUSES",
+      "chantier": "tuples d'enum sans lecteur — le TYPE dérivé sert, la valeur non ; certains sont recopiés à l'identique côté web (AGENT_EFFORTS), un seul des deux doit rester"
+    },
+    {
+      "kind": "export with no caller",
+      "file": "web/src/api/sessions.ts",
+      "symbol": "TERMINAL_SESSION_STATUSES",
+      "chantier": "tuples d'enum sans lecteur — le TYPE dérivé sert, la valeur non ; certains sont recopiés à l'identique côté web (AGENT_EFFORTS), un seul des deux doit rester"
+    },
+    {
+      "kind": "export with no caller",
+      "file": "web/src/integrations/issue-filters.ts",
+      "symbol": "clearFilters",
+      "chantier": "réinitialiseurs de cache exportés pour des tests qui ne les appellent pas — les brancher dans le teardown, ou les retirer avec le cache global"
+    },
+    {
+      "kind": "export with no caller",
+      "file": "web/src/schedules/schedule-format.ts",
+      "symbol": "CRON_FIELDS",
+      "chantier": "tuples d'enum sans lecteur — le TYPE dérivé sert, la valeur non ; certains sont recopiés à l'identique côté web (AGENT_EFFORTS), un seul des deux doit rester"
+    },
+    {
+      "kind": "export with no caller",
+      "file": "web/src/schedules/schedule-format.ts",
+      "symbol": "parseCron",
+      "chantier": "exports sans appelant, un par un — chacun est soit un oubli de suppression, soit une API en attente qu'il faut nommer"
+    },
+    {
+      "kind": "exported type with no caller",
+      "file": "server/src/concierge/concierge.ts",
+      "symbol": "ConciergeTurn",
+      "chantier": "types d'API sans consommateur — le client web les expose, aucun écran ne les nomme ; les retirer ou les faire porter la signature d'un appel"
+    },
+    {
+      "kind": "exported type with no caller",
+      "file": "server/src/integrations/github.ts",
+      "symbol": "DiffFile",
+      "chantier": "types d'API sans consommateur — le client web les expose, aucun écran ne les nomme ; les retirer ou les faire porter la signature d'un appel"
+    },
+    {
+      "kind": "exported type with no caller",
+      "file": "server/src/integrations/github.ts",
+      "symbol": "ForgeRepo",
+      "chantier": "types d'API sans consommateur — le client web les expose, aucun écran ne les nomme ; les retirer ou les faire porter la signature d'un appel"
+    },
+    {
+      "kind": "exported type with no caller",
+      "file": "server/src/integrations/github.ts",
+      "symbol": "OpenChangeRequest",
+      "chantier": "types d'API sans consommateur — le client web les expose, aucun écran ne les nomme ; les retirer ou les faire porter la signature d'un appel"
+    },
+    {
+      "kind": "exported type with no caller",
+      "file": "server/src/integrations/github.ts",
+      "symbol": "RepoDiff",
+      "chantier": "types d'API sans consommateur — le client web les expose, aucun écran ne les nomme ; les retirer ou les faire porter la signature d'un appel"
+    },
+    {
+      "kind": "exported type with no caller",
+      "file": "web/src/api/agents.ts",
+      "symbol": "AgentEffort",
+      "chantier": "types d'API sans consommateur — le client web les expose, aucun écran ne les nomme ; les retirer ou les faire porter la signature d'un appel"
+    },
+    {
+      "kind": "exported type with no caller",
+      "file": "web/src/api/agents.ts",
+      "symbol": "AgentThinking",
+      "chantier": "types d'API sans consommateur — le client web les expose, aucun écran ne les nomme ; les retirer ou les faire porter la signature d'un appel"
+    },
+    {
+      "kind": "exported type with no caller",
+      "file": "web/src/api/agents.ts",
+      "symbol": "RepoAccess",
+      "chantier": "types d'API sans consommateur — le client web les expose, aucun écran ne les nomme ; les retirer ou les faire porter la signature d'un appel"
+    },
+    {
+      "kind": "exported type with no caller",
+      "file": "web/src/api/agents.ts",
+      "symbol": "RuleStatus",
+      "chantier": "types d'API sans consommateur — le client web les expose, aucun écran ne les nomme ; les retirer ou les faire porter la signature d'un appel"
+    },
+    {
+      "kind": "exported type with no caller",
+      "file": "web/src/api/concierge.ts",
+      "symbol": "ChatRole",
+      "chantier": "types d'API sans consommateur — le client web les expose, aucun écran ne les nomme ; les retirer ou les faire porter la signature d'un appel"
+    },
+    {
+      "kind": "exported type with no caller",
+      "file": "web/src/api/environments.ts",
+      "symbol": "Networking",
+      "chantier": "types d'API sans consommateur — le client web les expose, aucun écran ne les nomme ; les retirer ou les faire porter la signature d'un appel"
+    },
+    {
+      "kind": "exported type with no caller",
+      "file": "web/src/api/inbox.ts",
+      "symbol": "OnAnswer",
+      "chantier": "types d'API sans consommateur — le client web les expose, aucun écran ne les nomme ; les retirer ou les faire porter la signature d'un appel"
+    },
+    {
+      "kind": "exported type with no caller",
+      "file": "web/src/api/infra.ts",
+      "symbol": "ControlLevel",
+      "chantier": "types d'API sans consommateur — le client web les expose, aucun écran ne les nomme ; les retirer ou les faire porter la signature d'un appel"
+    },
+    {
+      "kind": "exported type with no caller",
+      "file": "web/src/api/infra.ts",
+      "symbol": "LiveSession",
+      "chantier": "types d'API sans consommateur — le client web les expose, aucun écran ne les nomme ; les retirer ou les faire porter la signature d'un appel"
+    },
+    {
+      "kind": "exported type with no caller",
+      "file": "web/src/api/review.ts",
+      "symbol": "ReviewCommentStatus",
+      "chantier": "types d'API sans consommateur — le client web les expose, aucun écran ne les nomme ; les retirer ou les faire porter la signature d'un appel"
+    },
+    {
+      "kind": "exported type with no caller",
+      "file": "web/src/api/schedules.ts",
+      "symbol": "ScheduleOutcome",
+      "chantier": "types d'API sans consommateur — le client web les expose, aucun écran ne les nomme ; les retirer ou les faire porter la signature d'un appel"
+    },
+    {
+      "kind": "exported type with no caller",
+      "file": "web/src/api/sessions.ts",
+      "symbol": "RunnerKind",
+      "chantier": "types d'API sans consommateur — le client web les expose, aucun écran ne les nomme ; les retirer ou les faire porter la signature d'un appel"
+    },
+    {
+      "kind": "exported type with no caller",
+      "file": "web/src/api/tasks.ts",
+      "symbol": "ActivityFrom",
+      "chantier": "types d'API sans consommateur — le client web les expose, aucun écran ne les nomme ; les retirer ou les faire porter la signature d'un appel"
+    },
+    {
+      "kind": "exported type with no caller",
+      "file": "web/src/ui/graph.tsx",
+      "symbol": "GraphNodeState",
+      "chantier": "types d'API sans consommateur — le client web les expose, aucun écran ne les nomme ; les retirer ou les faire porter la signature d'un appel"
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+/* The panel itself is a design system `SidePanel` (ui/side-panel.css): none of its geometry lives
+   here. This file keeps the two-column page and two runtime details. The height runs through both
+   columns, same flex constraint as `.tsk-view` (task-page.css). */
+.tsk-body {
+  display: flex;
+  gap: var(--sp-8);
+  flex: 1;
+  min-height: 0;
+}
+
+.tsk-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Under 1100px the panel moves BELOW the view (the SidePanel stretches by itself). */
+@media (max-width: 1100px) {
+  .tsk-body {
+    flex-direction: column;
+  }
+
+  /* The fixed-height model is disarmed with it (13/09). In two columns the page fills the content
+   * area and the VIEW scrolls. Stacked, the same rules backfire: `.tsk-main` claims `flex: 1` of a
+   * height the panel already took, and `min-height: 0` lets it reach zero. Measured at 393px:
+   * `.tsk-main` was 0px while its head was 767px, and its content overflowed on top of the panel.
+   * In a column the page is an ordinary stack again and `.ui-main` scrolls, as everywhere else. */
+  .tsk-page {
+    height: auto;
+  }
+
+  .tsk-main,
+  .tsk-view {
+    flex: none;
+    min-height: auto;
+  }
+
+  .tsk-view {
+    overflow-y: visible;
+  }
+}
+
+.tsk-runtime .ui-kv {
+  border-bottom: 1px solid var(--border-separator);
+}
+
+.tsk-runtime .ui-kv:last-child {
+  border-bottom: 0;
+}
+
+.tsk-inspector-push {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+/* A long literal (the branch) truncates with an ellipsis instead of overflowing the panel; the
+   full name stays on hover. Descendant rather than direct child: a `Tag` with `title` is wrapped
+   by its tooltip. */
+.tsk-runtime .ui-kv-val {
+  overflow: hidden;
+}
+
+.tsk-runtime .ui-kv-val .ui-tag {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
+/* The panel in a drawer (14/09), at the phone breakpoint only.
+ *
+ * `.ui-sidepanel` has NEGATIVE margins so that, as a column, it overflows the page gutters and
+ * sits against the content area edge. In a drawer they pull it out of its frame: its header sat
+ * at zero pixels from the edge while its cards kept theirs. That was the reported defect, and it
+ * was in these margins, not in the drawer. It also loses its fixed width and left rule: in a
+ * drawer it IS the surface. */
+.tsk-inspector-drawer .ui-sidepanel {
+  width: 100%;
+  margin: 0;
+  /* Gutters come back, and this is the real fix. Under 1100px `side-panel.css` sets horizontal
+     padding to zero, because as a band under the conversation the PAGE gutters hold it off the
+     edges. A drawer has none: measured, the panel ran from 1 to 375px on a 375px screen. */
+  padding: var(--sp-8) var(--sp-8) var(--sp-7);
+  border-left: 0;
+  /* The top rule separated the band from the content above. A drawer has nothing above: the panel
+     header does the separating. */
+  border-top: 0;
+}

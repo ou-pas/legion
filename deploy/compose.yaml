@@ -1,0 +1,93 @@
+# Legion on a server: one service, one port.
+#
+#   cd ~/legion && ./deploy/up.sh
+#
+# Do not call `docker compose` directly (01/09, slice 08). The script computes the version to stamp
+# into the image and the two host paths the container cannot guess. Without it the image still
+# starts and the server says it does not know what it runs, but the update button cannot exist.
+#
+# The full guide is docs/wiki/guides/installer-sur-un-serveur.md. This file only explains lines.
+name: legion
+
+services:
+  control-plane:
+    build:
+      # The whole repository: the image builds the server and the screen together.
+      context: ..
+      dockerfile: deploy/Dockerfile
+      # The running version: computed by `deploy/up.sh`, stamped by the Dockerfile, read by
+      # `server/src/updates/stamp.ts`. Empty when built without the script, and the server says so.
+      args:
+        GIT_DESCRIBE: ${GIT_DESCRIBE:-}
+        GIT_SHA: ${GIT_SHA:-}
+        GIT_BRANCH: ${GIT_BRANCH:-}
+        GIT_ORIGIN: ${GIT_ORIGIN:-}
+    image: legion-control-plane:latest
+    restart: unless-stopped
+
+    # Host networking on purpose: the control plane must answer on the machine's tailnet address,
+    # the one the operator's browser and the remote runners' containers use to call back. Bridge
+    # networking would need a published port and address translation for nothing.
+    # Linux only: on macOS `network_mode: host` silently does not do what it says.
+    network_mode: host
+
+    # A real PID 1. Node does not reap the processes reparented to it: every orphan of a docker
+    # command killed on budget became a zombie forever. One night of probes against two sleeping
+    # Macs (01→02/09) piled up nine thousand: PID table full, `pthread_create failed`, the control
+    # plane unable to run the command that would have fixed it. `init: true` puts tini, which
+    # reaps, in front of node.
+    init: true
+
+    # Credentials and secrets stay in the operator's file, never in the image or this versioned
+    # file: `LEGION_MASTER_KEY` (without it encrypted secrets are unreadable), the Claude token, the
+    # Discord bridge. `cp server/.env.example server/.env`, then fill it in. The file must exist or
+    # `docker compose up` refuses to start, which is the right side of the error: a server without
+    # its master key cannot decrypt anything.
+    env_file:
+      - ../server/.env
+
+    environment:
+      PORT: "8790"
+
+      # What the container cannot guess from inside, needed by the update button. The ephemeral
+      # rebuild container must mount the clone at the same absolute path as on the host, otherwise
+      # Docker resolves this file's relative mounts (`../server/data`) against host paths that do
+      # not exist and the control plane comes back with an empty database. Set by `deploy/up.sh`;
+      # empty without it, and the update refuses and says why instead of guessing.
+      LEGION_HOST_REPO: ${LEGION_HOST_REPO:-}
+      LEGION_HOST_HOME: ${LEGION_HOST_HOME:-}
+
+      # The host's time zone, set by `up.sh`: the times the server writes (a quota pause's wake-up,
+      # notifications) are read by the operator, not by a UTC log.
+      TZ: ${TZ:-}
+
+    volumes:
+      # All the state, database included. The host directory is the clone's `server/data` (ignored
+      # by git) so paths match development: migrating from the laptop is a plain `scp`.
+      - ../server/data:/data
+
+      # The key that opens the runners. `docker -H ssh://…` runs a real `ssh`, which looks for its key
+      # in the container's HOME, and the container runs as root. Read-only: nothing here modifies
+      # it. A missing key does not break startup; remote runners become unreachable and the probe
+      # says so.
+      - ${HOME}/.ssh/id_ed25519:/root/.ssh/id_ed25519:ro
+      # Host fingerprints, so `ssh` recognises what answers instead of trusting the first comer.
+      # Filled once on the host, with `ssh-keyscan` or a first manual connection: the only moment a
+      # human can check.
+      - ${HOME}/.ssh/known_hosts:/root/.ssh/known_hosts:ro
+
+      # The host's Docker socket (01/09, slice 08). Root-equivalent on this server; accepted in
+      # docs/wiki/produit/decisions.md, "The Docker socket enters the control plane's container":
+      # the machine is dedicated to the control plane, runs no session, and already drives remote
+      # daemons over ssh.
+      #
+      # Its only use is starting the ephemeral container that updates Legion: the process applying
+      # an update cannot be the one being replaced, so a detached container outlives this one.
+      # Sessions still do not run here; the local runner seeded on first boot stays out of play.
+      - /var/run/docker.sock:/var/run/docker.sock
+
+      # The host clone is not mounted here (01/09, a correction to slice 08). A container started
+      # through this socket does not see its launcher's mounts: its `-v` paths are resolved by the
+      # daemon, on the host. The ephemeral container mounts the clone itself; what it needs from
+      # here is a path, `LEGION_HOST_REPO`, not a directory. The displayed version is stamped into
+      # the image, so a mounted clone would serve nothing.

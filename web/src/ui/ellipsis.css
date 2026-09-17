@@ -1,0 +1,29 @@
+/* `min-width: 0` is the key: without it a flex child refuses to shrink below its content width and
+   the text overflows instead of truncating. */
+.ui-ellipsis {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.ui-ellipsis[data-lines="1"] {
+  display: block;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ui-ellipsis[data-lines="2"],
+.ui-ellipsis[data-lines="3"] {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow-wrap: break-word;
+}
+
+.ui-ellipsis[data-lines="2"] {
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.ui-ellipsis[data-lines="3"] {
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}

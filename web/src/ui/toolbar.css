@@ -1,0 +1,57 @@
+/* Overflow is handled, never hidden: the bar either wraps or scrolls (base.css's thin scrollbar is
+   the "there is more" cue). */
+.ui-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  min-width: 0;
+}
+
+.ui-toolbar[data-align="end"] {
+  justify-content: flex-end;
+}
+
+.ui-toolbar[data-align="between"] {
+  justify-content: space-between;
+}
+
+.ui-toolbar[data-overflow="wrap"] {
+  flex-wrap: wrap;
+  row-gap: var(--sp-4);
+}
+
+/* Horizontal scroll: actions keep their size, the line does not break. `scroll-padding` keeps a
+   button from staying half under the edge after keyboard focus. */
+.ui-toolbar[data-overflow="scroll"] {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-padding-inline: var(--sp-4);
+  padding-bottom: var(--sp-3);
+}
+
+.ui-toolbar[data-overflow="scroll"] > * {
+  flex-shrink: 0;
+}
+
+.ui-toolbar-end {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-4);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* A line under the bar separates the actions from the content they govern. */
+.ui-toolbar[data-variant="ruled"] {
+  padding-bottom: var(--sp-5);
+  border-bottom: 1px solid var(--border-separator);
+}
+
+/* Bar on a recess: header of a scroll area, an artifact preview. */
+.ui-toolbar[data-variant="bar"] {
+  padding: var(--sp-4) var(--sp-6);
+  background: var(--recess);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-2);
+}

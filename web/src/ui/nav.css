@@ -1,0 +1,161 @@
+/* The active entry is never marked by a thick border. Sub-page indentation is a 1px guide. */
+.ui-nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+  width: 100%;
+  min-height: var(--h-control-md);
+  padding: var(--sp-3) var(--sp-5);
+  border-radius: var(--r-2);
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  text-align: left;
+  text-decoration: none;
+  transition:
+    background var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease);
+}
+
+.ui-nav-item > svg {
+  color: var(--ink-3);
+}
+
+.ui-nav-item:hover {
+  background: var(--row-hover);
+  color: var(--ink);
+}
+
+.ui-nav-item:hover > svg {
+  color: var(--ink-2);
+}
+
+/* Active entry (flat and Stitch mockups, 05/09): a faint ink wash and faint line, a short accent
+   bar on the left and accent corners on the right. A solid accent wash read as a button; all grey,
+   the current entry no longer stood out (operator feedback). Several marks that do not rely on
+   color alone, since a wash was too close to hover in dark theme. */
+.ui-nav-item.is-active {
+  position: relative;
+  background: color-mix(in srgb, var(--ink) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  padding: calc(var(--sp-3) - 1px) calc(var(--sp-5) - 1px);
+  color: var(--ink);
+  font-weight: var(--fw-semi);
+  overflow: visible;
+}
+
+/* Short (60% of the height), 2px, centered. Full height was tried and refused (operator, 05/09). */
+.ui-nav-item.is-active::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -1px;
+  width: 2px;
+  height: 60%;
+  translate: 0 -50%;
+  border-radius: 0 var(--r-pill) var(--r-pill) 0;
+  background: var(--accent);
+}
+
+/* An accent right edge whose middle is masked: a clean cut, no fade, a wide gap between the two
+   arcs (operator feedback). */
+.ui-nav-item.is-active::after {
+  content: "";
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  bottom: -1px;
+  width: var(--sp-3);
+  border: 1px solid var(--accent);
+  border-left: 0;
+  border-radius: 0 var(--r-2) var(--r-2) 0;
+  pointer-events: none;
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0,
+    #000 20%,
+    transparent 20%,
+    transparent 80%,
+    #000 80%,
+    #000 100%
+  );
+}
+
+.ui-nav-item.is-active > svg {
+  color: var(--accent);
+}
+
+.ui-nav-item.is-active:hover {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--ink);
+}
+
+.ui-nav-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A count is something waiting (questions, reviews), not decoration. */
+.ui-nav-count {
+  flex-shrink: 0;
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-semi);
+  line-height: 1;
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--r-pill);
+  background: var(--wait-wash);
+  color: var(--wait);
+}
+
+.ui-nav-chevron {
+  flex-shrink: 0;
+  transition: transform var(--dur-1) var(--ease);
+}
+
+[aria-expanded="true"] > .ui-nav-chevron {
+  transform: rotate(90deg);
+}
+
+.ui-nav-sub {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  margin: var(--sp-1) 0 var(--sp-2) var(--sp-8);
+  padding-left: var(--sp-5);
+  border-left: 1px solid var(--border-separator);
+}
+
+/* `hidden` must beat the collapsed group's display. */
+.ui-nav-sub[hidden] {
+  display: none;
+}
+
+.ui-nav-item-sub {
+  min-height: var(--h-control-sm);
+  padding: var(--sp-2) var(--sp-4);
+  font-size: var(--fs-xs);
+  /* ink-3 at 12px on a rail is readable but tiring for a list you scan; ink-2 stays secondary and
+     still holds up next to the active entry. */
+  color: var(--ink-2);
+}
+
+.ui-nav-item-sub:hover {
+  color: var(--ink);
+}
+
+/* An active sub-page stays dense: marker and line are enough, the padding must not jump from its
+   neighbours'. */
+.ui-nav-item-sub.is-active {
+  padding: calc(var(--sp-2) - 1px) calc(var(--sp-4) - 1px);
+}
+
+.ui-nav-section-label {
+  padding: var(--sp-5) var(--sp-5) var(--sp-2);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--tr-caps);
+  color: var(--ink-3);
+}

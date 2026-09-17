@@ -1,0 +1,243 @@
+/* Session verdict: a sheet speaking the same tonal language as .ui-banner (wash + line on all four
+   edges, icon in the tone's ink, no left stripe). Taller than a banner: it carries a verdict title,
+   facts and gestures. */
+.ui-verdict {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  min-width: 0;
+  padding: var(--sp-6) var(--sp-7);
+  background: var(--sheet);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-3);
+}
+
+.ui-verdict-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+.ui-verdict-icon {
+  display: flex;
+  align-self: center;
+  color: var(--ink-2);
+}
+
+.ui-verdict-icon > svg {
+  width: var(--icon-head);
+  height: var(--icon-head);
+}
+
+.ui-verdict-title {
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-semi);
+  letter-spacing: var(--tr-tight);
+  line-height: var(--lh-snug);
+  color: var(--ink);
+}
+
+.ui-verdict-meta {
+  margin-left: auto;
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-4);
+  font-size: var(--fs-sm);
+  color: var(--ink-3);
+}
+
+.ui-verdict-facts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.ui-verdict-fact {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  min-width: 0;
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  line-height: var(--lh-snug);
+}
+
+.ui-verdict-fact-icon {
+  display: flex;
+  color: var(--ink-3);
+}
+
+.ui-verdict-fact-icon > svg {
+  width: var(--icon-control-sm);
+  height: var(--icon-control-sm);
+}
+
+.ui-verdict-fact-text {
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+
+.ui-verdict-fact-end {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.ui-verdict-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+  border-top: 1px solid var(--border-separator);
+  padding-top: var(--sp-5);
+}
+
+/* One line (04/09). A finished session has nothing left to decide: verdict, facts and measures side
+   by side, on a line that wraps when narrow. The title steps down, no longer alone on its line.
+   `[data-compact]`, not a class: the state is component data, like the tone. */
+.ui-verdict[data-compact] {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-4) var(--sp-7);
+  padding: var(--sp-5) var(--sp-7);
+}
+
+.ui-verdict[data-compact] .ui-verdict-head {
+  flex: none;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.ui-verdict[data-compact] .ui-verdict-title {
+  font-size: var(--fs-md);
+}
+
+.ui-verdict[data-compact] .ui-verdict-facts {
+  flex: 1;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--sp-3) var(--sp-6);
+  min-width: 0;
+}
+
+/* Facts do not wrap: the BRANCH yields (below). Measured at 1440 px with the right panel open: the
+   line is 740 px, and wrapping stacked branch, commit and PR. */
+.ui-verdict[data-compact] .ui-verdict-fact,
+.ui-verdict[data-compact] .ui-verdict-fact-text {
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.ui-verdict[data-compact] .ui-verdict-fact[data-shrink],
+.ui-verdict[data-compact] .ui-verdict-fact[data-shrink] > .ui-verdict-fact-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Other facts (identity, PR) keep their width: the fact marked `shrink` yields. Nothing overflows
+   onto the measures: once "#115" sat on top of "$15.33". */
+.ui-verdict[data-compact] .ui-verdict-fact:not([data-shrink]) {
+  flex: none;
+}
+
+.ui-verdict[data-compact] .ui-verdict-facts {
+  overflow: hidden;
+}
+
+/* A long branch name truncates with an ellipsis instead of breaking the line: recognised, not read;
+   the full title stays on hover. It SHRINKS before everything else (`flex-shrink`), down to eight
+   characters. */
+.ui-verdict[data-compact] .ui-verdict-fact-text > .ui-tag {
+  flex: 0 1 auto;
+  min-width: 8ch;
+  max-width: 32ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .ui-verdict[data-compact] .ui-verdict-facts {
+    flex-wrap: wrap;
+  }
+}
+
+.ui-verdict[data-compact] .ui-verdict-meta {
+  margin-left: auto;
+  flex: none;
+}
+
+.ui-verdict[data-compact] .ui-verdict-actions {
+  flex-basis: 100%;
+}
+
+/* Tones: title and icon take the tone's ink. */
+.ui-verdict[data-tone="ok"] {
+  background: var(--ok-wash);
+  border-color: var(--ok-line);
+}
+.ui-verdict[data-tone="ok"] .ui-verdict-icon,
+.ui-verdict[data-tone="ok"] .ui-verdict-title {
+  color: var(--ok);
+}
+
+.ui-verdict[data-tone="bad"] {
+  background: var(--bad-wash);
+  border-color: var(--bad-line);
+}
+.ui-verdict[data-tone="bad"] .ui-verdict-icon,
+.ui-verdict[data-tone="bad"] .ui-verdict-title {
+  color: var(--bad);
+}
+
+.ui-verdict[data-tone="run"] {
+  background: var(--run-wash);
+  border-color: var(--run-line);
+}
+.ui-verdict[data-tone="run"] .ui-verdict-icon,
+.ui-verdict[data-tone="run"] .ui-verdict-title {
+  color: var(--run);
+}
+
+.ui-verdict[data-tone="wait"] {
+  background: var(--wait-wash);
+  border-color: var(--wait-line);
+}
+.ui-verdict[data-tone="wait"] .ui-verdict-icon,
+.ui-verdict[data-tone="wait"] .ui-verdict-title {
+  color: var(--wait);
+}
+
+/* `neutral` stays on the sheet: a session closed without a clear verdict does not shout. */
+
+/* The `run` tone icon spins: the component's only motion, at the standard beat, off for those who
+   prefer reduced motion. */
+.ui-verdict[data-tone="run"] .ui-verdict-icon > svg {
+  animation: ui-verdict-spin var(--dur-pulse) linear infinite;
+}
+
+@keyframes ui-verdict-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-verdict[data-tone="run"] .ui-verdict-icon > svg {
+    animation: none;
+  }
+}
+
+/* Below 640px the measures go under the title rather than crushing it. */
+@media (max-width: 640px) {
+  .ui-verdict-meta {
+    margin-left: calc(var(--icon-head) + var(--sp-4));
+    flex-basis: 100%;
+  }
+}

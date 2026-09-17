@@ -1,0 +1,139 @@
+/* A sheet on the board: surface line, no shadow (a resting surface is flat since 04/09; only
+   what overlays gets elevation). */
+.ui-connect-tile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  padding: var(--sp-7);
+  background: var(--sheet);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-3);
+  transition:
+    background var(--dur-1) var(--ease),
+    border-color var(--dur-1) var(--ease);
+}
+
+/* Hover lightens the sheet but does not strengthen the line. A tile is not a control: DESIGN.md
+   reserves `--border-strong` for hovering a button or field, and borrowing it promised the whole
+   tile was clickable when only its button is. */
+.ui-connect-tile:hover {
+  background: var(--sheet-hi);
+}
+
+/* `margin-top: auto` pushes the foot down, so the second gesture sits on the same row in all
+   three tiles whatever precedes it. Without it, a one-line reason for GitLab and a three-line
+   one for Linear misaligned everything. */
+.ui-connect-foot {
+  margin-top: auto;
+}
+
+/* The mark's box, not its drawing or color (round 3). Tinting by state made a connected GitLab
+   green; state is read once, in the badge.
+
+   The background is constant (`--brand-plate`, round 4) and does not follow the theme. On dark
+   `--recess`, Linear fell to 2.87:1 while GitLab held 4.71:1. A brand has one color; the
+   background stays stable instead. */
+.ui-connect-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--sz-connect-mark-box);
+  height: var(--sz-connect-mark-box);
+  padding: var(--sp-2);
+  background: var(--brand-plate);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-2);
+}
+
+/* Size comes from the slot, not the call site (rule 13): whatever is placed fills the box. */
+.ui-connect-mark > * {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* What is missing for the gesture to exist: an inset, not a sentence under a dead button. `wait`
+   tone: not a failure, a setting not made yet. */
+.ui-connect-blocked {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-4);
+  background: var(--wait-wash);
+  border: 1px solid var(--wait-line);
+  border-radius: var(--r-2);
+}
+
+.ui-connect-blocked-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
+/* To be copied, so mono on its own line: a variable name is read character by character. */
+.ui-connect-blocked-code {
+  font-family: var(--mono);
+  font-size: var(--fs-sm);
+  color: var(--wait);
+  overflow-wrap: anywhere;
+}
+
+.ui-connect-blocked-link {
+  flex: none;
+  font-size: var(--fs-xs);
+  color: var(--wait);
+  white-space: nowrap;
+}
+
+/* The code the operator reads here and types elsewhere by hand, the key moment of the screen.
+   Large, mono, no ligatures, letter-spaced (`--tr-caps`: these codes are uppercase, RFC 8628).
+   `user-select: all` takes it whole in one click. */
+.ui-connect-code {
+  display: block;
+  padding: var(--sp-5) var(--sp-4);
+  font-family: var(--mono);
+  font-size: var(--fs-3xl);
+  font-weight: var(--fw-medium);
+  font-variant-ligatures: none;
+  letter-spacing: var(--tr-caps);
+  text-align: center;
+  color: var(--ink);
+  background: var(--recess);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-2);
+  user-select: all;
+  animation: ui-connect-code-in var(--dur-2) var(--ease-out) both;
+}
+
+/* It arrives rather than popping in: the movement says the tile just changed state, where the
+   eye must land. */
+@keyframes ui-connect-code-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--sp-2));
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* An anchor, not a button: it leads elsewhere, so it keeps middle-click and open in new tab
+   (same reasoning as `render` in `ui/nav.tsx` and `ui/link.tsx`). It borrows `.ui-btn` for its
+   look; only the browser's underline is removed here. */
+.ui-connect-open {
+  text-decoration: none;
+}
+
+/* `ui/base.css` already cuts durations for everyone. Restated for the one movement that is not a
+   transition: a cut entrance must not leave the code at zero opacity. */
+@media (prefers-reduced-motion: reduce) {
+  .ui-connect-code {
+    animation: none;
+    opacity: 1;
+  }
+}

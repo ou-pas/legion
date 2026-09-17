@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- `viewport-fit=cover` lets the page run under the notch and home bar; screens that must avoid
+         them use `env(safe-area-inset-*)`. Without it an installed app keeps two empty bands. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- An installed app's status bar colour, so the edge between system and screen does not show.
+         One per theme: a single value put a paper-coloured band above a night-blue app. -->
+    <meta name="theme-color" content="#f4f0e8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#2e3440" media="(prefers-color-scheme: dark)" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <!-- iOS ignores manifest icons for the home screen: it takes this link, and needs a PNG. -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <title>Legion</title>
+    <!-- The theme before first paint. Otherwise an app following a dark device opens light while
+         React mounts, and the flash shows. This script sets the same attribute as `ui/theme.tsx`
+         with the same reading: it decides nothing more, only earlier. "nord" and "atelier" are the
+         old stored values. -->
+    <script>
+      try {
+        var p = localStorage.getItem("legion.theme");
+        if (p === "nord") p = "dark";
+        if (p === "atelier") p = "light";
+        document.documentElement.dataset.theme =
+          p === "light" || p === "dark"
+            ? p
+            : matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light";
+      } catch (e) {
+        document.documentElement.dataset.theme = "light";
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

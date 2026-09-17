@@ -1,0 +1,258 @@
+/* The bar button: icon + count + dot, like sessions and Docker, FRAMELESS since 02/09 (operator
+   request: it was the corner's only framed icon). It lives IN the status group, before Docker, and must
+   read as a group item: the reset neutralises native <button> styling (as `.topbar-docker-trigger`).
+   It keeps its hover affordance: the colour rises, like bar links. */
+.pending-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-height: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  border-radius: 0;
+  appearance: none;
+  font-size: var(--fs-sm);
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: color var(--dur-1) var(--ease);
+}
+
+.pending-button:hover {
+  color: var(--ink);
+}
+
+/* Inbox icon, same style as topbar-status-icon */
+.pending-button-icon {
+  width: 1em;
+  height: 1em;
+  flex: none;
+  color: var(--ink-2);
+}
+
+/* Counter: visible mono figure */
+.pending-button-count {
+  flex: none;
+  font-family: var(--mono);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-medium);
+}
+
+/* Status dot: pulsing --wait when count > 0 */
+.pending-button-indicator {
+  width: var(--sp-3);
+  height: var(--sp-3);
+  flex: none;
+  border-radius: var(--r-round);
+  background: var(--ink-3);
+}
+
+.pending-button-indicator[data-on="true"] {
+  background: var(--wait);
+  animation: pending-pulse-wait var(--dur-pulse) ease-in-out infinite;
+}
+
+@keyframes pending-pulse-wait {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pending-button-indicator[data-on="true"] {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* The surface: the panel pads per row, so the popover must add none around it, or rules stop before
+   the edge. Two classes to beat `.ui-popover` (capped at 320px); otherwise import order would decide. */
+.ui-popover.pending-pop {
+  width: var(--w-pending-panel);
+  max-width: min(var(--w-pending-panel), calc(100vw - var(--sp-9)));
+  padding: 0;
+  overflow: hidden;
+}
+
+/* The waiting panel (direction-double-nav mockup). Rows go edge to edge: padding is PER row, not on the
+   surface, or separators stop before the edge and the panel reads as a card instead of a list. */
+.pending-panel {
+  display: flex;
+  flex-direction: column;
+  width: var(--w-pending-panel);
+  max-width: 100%;
+}
+
+.pending-panel-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-5);
+  padding: var(--sp-4) var(--sp-6) var(--sp-5);
+  border-bottom: 1px solid var(--border-separator);
+}
+
+.pending-panel-head b {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semi);
+  color: var(--ink);
+}
+
+.pending-panel-head span {
+  font-family: var(--sans);
+  font-size: var(--fs-2xs);
+  color: var(--ink-3);
+}
+
+/* Compact view (02/09): per-project counts (mark, name, number), the hover glance; the oldest decisions
+   follow below. */
+.pending-panel-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3) var(--sp-6);
+  padding: var(--sp-4) var(--sp-6);
+  border-bottom: 1px solid var(--border-separator);
+}
+
+.pending-panel-count {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+}
+
+.pending-panel-count b {
+  font-family: var(--mono);
+  font-weight: var(--fw-medium);
+  color: var(--ink);
+}
+
+/* "See all": a full-width accented row, the threshold between glance and full surface. */
+.pending-panel-more {
+  appearance: none;
+  border: none;
+  background: none;
+  padding: var(--sp-4) var(--sp-6);
+  border-top: 1px solid var(--border-separator);
+  font-size: var(--fs-xs);
+  font-family: inherit;
+  color: var(--accent-deep);
+  text-align: left;
+  cursor: pointer;
+}
+
+.pending-panel-more:hover {
+  background: var(--recess);
+}
+
+/* Nothing stopped: the panel does not close on a silent void, it says what is true. */
+.pending-panel-quiet {
+  margin: 0;
+  padding: var(--sp-6);
+  font-size: var(--fs-sm);
+  color: var(--ink-3);
+}
+
+.pending-panel-quiet b {
+  display: block;
+  color: var(--ink-2);
+  font-weight: var(--fw-semi);
+}
+
+.pending-panel-group {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin: 0;
+  padding: var(--sp-4) var(--sp-6) var(--sp-2);
+  font-family: var(--sans);
+  font-size: var(--fs-3xs);
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--tr-caps);
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+/* The separation between what stops and what informs. A rule, not a bigger title: notices are not a
+   second category of decision. */
+.pending-panel-group[data-separated="true"] {
+  margin-top: var(--sp-1);
+  padding-top: var(--sp-5);
+  border-top: 1px solid var(--border-control);
+}
+
+.pending-panel-item {
+  display: flex;
+  gap: var(--sp-4);
+  width: 100%;
+  padding: var(--sp-4) var(--sp-6);
+  border: 0;
+  border-top: 1px solid var(--border-separator);
+  background: transparent;
+  font: inherit;
+  color: var(--ink);
+  text-align: left;
+  text-decoration: none;
+  transition: background var(--dur-1) var(--ease);
+}
+
+a.pending-panel-item,
+button.pending-panel-item {
+  cursor: pointer;
+}
+
+a.pending-panel-item:hover,
+button.pending-panel-item:hover {
+  background: var(--row-hover);
+}
+
+/* What waits for nobody reads quieter but stays readable: a nuance of rank, not a discard. */
+.pending-panel-item[data-quiet="true"] {
+  color: var(--ink-2);
+}
+
+/* The gesture, written (07/09): Resume on a started round, Answer on a blank question, Approve on a
+   gate. The row was clickable without saying what it would do. `aria-hidden`: the row's accessible
+   name already carries it (`entryLabel`), and announcing it twice would read it twice. */
+.pending-panel-go {
+  flex: none;
+  align-self: center;
+  color: var(--accent);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+}
+
+.pending-panel-icon {
+  display: flex;
+  flex: none;
+  margin-top: var(--sp-1);
+  color: var(--ink-3);
+}
+
+.pending-panel-icon svg {
+  width: var(--icon-row);
+  height: var(--icon-row);
+}
+
+.pending-panel-text {
+  min-width: 0;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-snug);
+}
+
+.pending-panel-text em {
+  display: block;
+  margin-top: var(--sp-1);
+  font-family: var(--sans);
+  font-size: var(--fs-2xs);
+  font-style: normal;
+  color: var(--ink-3);
+}

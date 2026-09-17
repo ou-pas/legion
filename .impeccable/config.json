@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "codex-grid-background",
+        "value": "*",
+        "files": [
+          "docs/directions/direction-pr-diff.html"
+        ],
+        "createdAt": "2026-09-05T11:17:53.689Z",
+        "reason": "Monde Atelier: la trame de planche a dessin est la signature du fond paper (tokens.css 'paper = fond d application (porte la trame)'), reprise telle quelle de docs/directions/direction-canaux.html"
+      }
+    ]
+  }
+}

@@ -1,0 +1,89 @@
+/* What goes into the crate: one object, six variations (operator feedback, 26/08). Five rows used
+ * to be bare text and the sixth a `Hatch` with its border and background, so one row looked like
+ * an object and the others like nothing. All rows now share the box, gutter and number column; the
+ * secrets row differs by tone (gate hatching and wash), not by kind. */
+
+.cr-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-3);
+  overflow: hidden;
+}
+
+/* The grid keeps the number column aligned across rows. Without it the count floated at the right
+   edge of the card, far from its label. */
+.cr-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--sp-6);
+  padding: var(--sp-4) var(--sp-6);
+  background: var(--sheet);
+  transition: background var(--dur-1) var(--ease);
+}
+
+.cr-row + .cr-row,
+.cr-foot {
+  border-top: 1px solid var(--border-separator);
+}
+
+.cr-row:hover {
+  background: var(--recess);
+}
+
+/* The row that asks for a decision. Same geometry, another tone: gate hatching on the gate wash,
+   as everywhere else in the product (Hatch, approval banners). */
+.cr-row[data-tone="gate"] {
+  background:
+    repeating-linear-gradient(45deg, var(--gate-hatch) 0 6px, transparent 6px 12px),
+    var(--gate-wash);
+}
+.cr-row[data-tone="gate"]:hover {
+  background:
+    repeating-linear-gradient(45deg, var(--gate-hatch) 0 6px, transparent 6px 12px),
+    var(--wait-wash);
+}
+.cr-row[data-tone="gate"] .cr-label {
+  color: var(--gate);
+  font-weight: var(--fw-semi);
+}
+
+.cr-label {
+  min-width: 0;
+}
+
+/* The footer carries the total and the secrets state: two facts about the selection, not a seventh
+   row to tick. Hence the inset, which takes it out of the list without detaching it. */
+.cr-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-6);
+  padding: var(--sp-3) var(--sp-6);
+  background: var(--recess-2);
+}
+
+/* A value you read but cannot edit: project name, file name. The dashed border says "not a field",
+   the fitted width says "not an input line". Stretched across the card, both suggested input. */
+.cr-plaque {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-4);
+  min-height: var(--h-control-sm);
+  max-width: 100%;
+  padding: 0 var(--sp-5);
+  border: 1px dashed var(--rule-2);
+  border-radius: var(--r-2);
+  color: var(--ink-2);
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  word-break: break-all;
+}
+
+/* A plate's complement: a project's slug next to its name, the extension next to the file.
+   Present, readable, clearly secondary. */
+.cr-plaque i {
+  color: var(--ink-3);
+  font-style: normal;
+}

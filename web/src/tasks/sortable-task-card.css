@@ -1,0 +1,100 @@
+/* The WHOLE card is the pointer drag surface (decision 23/08). `position: relative` anchors the
+   keyboard handle (absolute) and the `DropIndicator` during a drag. `cursor: grab` marks the card as
+   grabbable; `:active` switches to `grabbing` while pressed. */
+.ui-sortable-card {
+  position: relative;
+  cursor: grab;
+  /* No `touch-action: none` since 14/09. It existed for the `PointerSensor`, which treated mouse
+     and finger alike, so the browser could not be allowed to scroll during the six-pixel threshold.
+     The cost: on a phone the board only scrolled from the eight-pixel gaps between cards. The touch
+     sensor now needs a 250ms press (`use-kanban-dnd`): moving before that cancels the drag, so the
+     scrolling finger always wins, and once a drag starts dnd-kit blocks scrolling, not CSS. */
+}
+
+.ui-sortable-card:active {
+  cursor: grabbing;
+}
+
+.ui-sortable-card-content {
+  min-width: 0;
+}
+
+/* The link (`.ui-link`, ui/link.css) covers the whole card. Without this line its anchor cursor
+   ("auto", which browsers resolve to pointer on an `href`) would override the container's `grab`
+   everywhere: `inherit` brings back the explicit value set above (grab at rest, grabbing while
+   pressed, since `:active` also bubbles to the ancestor). */
+.ui-sortable-card-content .ui-link {
+  cursor: inherit;
+}
+
+.ui-sortable-card[data-dragging="true"] .ui-sortable-card-content {
+  visibility: hidden;
+}
+
+/* Anchor of the `DropIndicator` template (position: absolute; inset: 0): it covers the whole card,
+   not just the hidden content, because the card will land at this width. */
+.ui-sortable-card[data-dragging="true"] {
+  position: relative;
+}
+
+/* Keyboard handle, the only KEYBOARD drag target (Space then arrows). At rest it follows the
+   `.ui-sr` recipe (base.css), shrunk to 1px and clipped, not `.ui-skip` (shell.css): that
+   off-screen `translateY` assumes an ancestor pinned to the top of the viewport, while here the
+   ancestor is a card in a scrolling column and the handle would cover the previous card.
+   `:focus-visible` restores the box as a pill overlaid on the card corner, never in flow. */
+.ui-sortable-card-handle {
+  position: absolute;
+  top: var(--sp-2);
+  right: var(--sp-2);
+  z-index: var(--z-drag);
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  border: 1px solid var(--border-floating);
+  border-radius: var(--r-2);
+  background: var(--sheet);
+  box-shadow: var(--el-2);
+  color: var(--ink-2);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  cursor: grab;
+}
+
+/* Revealed on keyboard FOCUS only. An "on hover too" attempt (23/08) was withdrawn within the hour:
+   what the operator wanted told apart on hover was the CLICK (the title underlines like a link,
+   see task-card.css), not the drag, which the grab cursor already signals. */
+.ui-sortable-card-handle:focus-visible {
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: var(--sp-2) var(--sp-4);
+  overflow: visible;
+  clip-path: none;
+  white-space: normal;
+}
+
+/* During a drag the content is hidden and the floating clone has taken over: the pill has nothing
+   to name on a ghost. */
+.ui-sortable-card[data-dragging="true"] .ui-sortable-card-handle {
+  visibility: hidden;
+}
+
+.ui-sortable-card-handle:active {
+  cursor: grabbing;
+}
+
+/* Floating clone (`DragOverlay`): the real card lifted, with a heavier shadow than at rest
+   (`--el-2` against `--el-1`). */
+.ui-sortable-card-overlay {
+  box-shadow: var(--el-2);
+  border-radius: var(--r-3);
+  cursor: grabbing;
+  z-index: var(--z-drag);
+}

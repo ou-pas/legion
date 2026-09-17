@@ -1,0 +1,149 @@
+/* Time · icon · kind · body. Three aligned columns so the eye goes down the trace reading one column
+   at a time. */
+.ui-timeline {
+  list-style: none;
+  min-width: 0;
+}
+
+.ui-tl-item {
+  display: grid;
+  grid-template-columns: max-content max-content minmax(0, 1fr);
+  align-items: start;
+  gap: var(--sp-5);
+  padding: var(--sp-4) var(--sp-8);
+  border-bottom: 1px solid var(--border-separator);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-snug);
+}
+
+.ui-tl-item:last-child {
+  border-bottom: none;
+}
+
+.ui-tl-time {
+  font-family: var(--mono);
+  font-size: var(--fs-2xs);
+  color: var(--ink-3);
+  padding-top: var(--sp-1);
+  white-space: nowrap;
+}
+
+.ui-tl-icon {
+  color: var(--ink-3);
+  margin-top: var(--sp-1);
+}
+
+.ui-tl-body {
+  min-width: 0;
+}
+
+/* Non-foldable line: a fold's chevron sits at the end of the line (see .ui-tl-caret), so the body
+   column starts at the same x with or without a fold, no dedicated gutter. */
+.ui-tl-line {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-4);
+}
+
+/* The kind is data (the runner's event name): mono, width in ch so the body column starts at the same
+   place across the trace. */
+.ui-tl-kind {
+  display: inline-block;
+  min-width: 12ch;
+  font-family: var(--mono);
+  font-size: var(--fs-2xs);
+  color: var(--ink-3);
+  flex-shrink: 0;
+}
+
+.ui-tl-summary {
+  min-width: 0;
+  color: var(--ink-2);
+  overflow-wrap: anywhere;
+}
+
+/* A text event is the agent's prose: full ink, no "data" treatment. */
+.ui-tl-item[data-kind="text"] .ui-tl-summary {
+  color: var(--ink);
+  max-width: var(--measure);
+}
+
+.ui-tl-fold-head {
+  /* Contract target floor (24px): the row measured 20-21px. */
+  min-height: var(--h-control-sm);
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-4);
+  cursor: pointer;
+  list-style: none;
+}
+
+.ui-tl-fold-head::-webkit-details-marker {
+  display: none;
+}
+
+.ui-tl-fold-head:hover .ui-tl-summary {
+  color: var(--ink);
+}
+
+/* At the end of the line, pushed by the auto margin: reading goes from kind to summary, the state
+   chevron comes last instead of sitting before the text. */
+.ui-tl-caret {
+  margin-left: auto;
+  flex-shrink: 0;
+  color: var(--ink-3);
+  transition: transform var(--dur-1) var(--ease);
+}
+
+.ui-tl-fold[open] > .ui-tl-fold-head .ui-tl-caret {
+  transform: rotate(90deg);
+}
+
+.ui-tl-detail {
+  margin-top: var(--sp-4);
+  padding-left: var(--sp-8);
+  min-width: 0;
+}
+
+/* Emphasis for security and failure: hatching plus a 1px left line. The pattern carries the alert
+   without relying on color: a write refusal stays visible in black and white. */
+.ui-tl-item[data-emphasis] {
+  background-image: repeating-linear-gradient(
+    var(--hatch-angle),
+    var(--bad-hatch) 0 var(--hatch-step),
+    transparent var(--hatch-step) var(--hatch-gap)
+  );
+}
+
+.ui-tl-item[data-emphasis="security"] {
+  background-image: repeating-linear-gradient(
+    var(--hatch-angle),
+    var(--gate-hatch) 0 var(--hatch-step),
+    transparent var(--hatch-step) var(--hatch-gap)
+  );
+  box-shadow: inset 1px 0 0 var(--gate);
+}
+
+.ui-tl-item[data-emphasis="security"] .ui-tl-icon,
+.ui-tl-item[data-emphasis="security"] .ui-tl-summary {
+  color: var(--gate);
+}
+
+.ui-tl-item[data-emphasis="error"] {
+  box-shadow: inset 1px 0 0 var(--bad);
+}
+
+.ui-tl-item[data-emphasis="error"] .ui-tl-icon,
+.ui-tl-item[data-emphasis="error"] .ui-tl-summary {
+  color: var(--bad);
+}
+
+@media (max-width: 560px) {
+  .ui-tl-item {
+    grid-template-columns: max-content minmax(0, 1fr);
+  }
+
+  .ui-tl-icon {
+    display: none;
+  }
+}

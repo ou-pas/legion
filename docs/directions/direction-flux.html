@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Legion — direction FLUX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   FLUX — console d'exploitation Legion
+   Un seul flux d'événements, filtrable. Pas de pages.
+   ============================================================ */
+
+:root{
+  --bg:        #0A0B0C;
+  --bg-2:      #0D0F11;
+  --panel:     #111316;
+  --panel-2:   #15181B;
+  --panel-3:   #1A1E22;
+  --line:      #23272C;
+  --line-soft: #191C20;
+
+  --txt:       #E8EBEE;
+  --txt-2:     #A7AFB8;
+  --txt-3:     #838C95;
+
+  --sig:       #3FC7E0;
+  --sig-txt:   #7FDDEE;
+  --sig-bg:    rgba(63,199,224,.13);
+  --sig-line:  rgba(63,199,224,.34);
+
+  --ok:        #55C98A;
+  --warn:      #E8A33D;
+  --err:       #F2606A;
+
+  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, 'DejaVu Sans Mono', Menlo, monospace;
+  --sans: 'Archivo', 'Helvetica Neue', Helvetica, 'DejaVu Sans', Arial, sans-serif;
+
+  --r: 3px;
+  --ease: cubic-bezier(.16,1,.3,1);
+}
+
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--txt);
+  font-family:var(--sans);
+  font-size:13px;
+  line-height:1.45;
+  font-variant-numeric:tabular-nums;
+  -webkit-font-smoothing:antialiased;
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
+}
+
+/* ---------- surfaces the browser owns ---------- */
+::selection{background:rgba(63,199,224,.28);color:#FFF}
+input,textarea{caret-color:var(--sig)}
+*{scrollbar-width:thin;scrollbar-color:#2C3238 transparent}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#2C3238;border:3px solid transparent;background-clip:padding-box;border-radius:6px}
+::-webkit-scrollbar-thumb:hover{background:#3D454D;border:3px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-corner{background:transparent}
+:focus{outline:none}
+:focus-visible{outline:2px solid var(--sig);outline-offset:2px;border-radius:2px}
+a{color:var(--sig-txt);text-underline-offset:3px;text-decoration-thickness:1px}
+
+.mono{font-family:var(--mono);font-size:11.5px;letter-spacing:-.01em}
+code{font-family:var(--mono);font-size:11.5px;color:var(--txt-2);background:rgba(255,255,255,.045);
+     padding:1px 4px;border-radius:2px;letter-spacing:-.01em}
+.num{font-variant-numeric:tabular-nums}
+
+svg.ic{width:14px;height:14px;flex:none;stroke:currentColor;fill:none;
+  stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;display:block}
+svg.ic.s16{width:16px;height:16px}
+svg.ic.s12{width:12px;height:12px;stroke-width:1.8}
+.spin{animation:sp 900ms linear infinite;transform-origin:50% 50%}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ============================================================
+   1. Bande de décision
+   ============================================================ */
+.brief{
+  border-bottom:1px solid var(--line);
+  background:var(--bg-2);
+  padding:13px 22px 12px;
+  flex:none;
+}
+.brief-top{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.brief h1{
+  margin:0;font-size:19px;font-weight:700;letter-spacing:-.02em;line-height:1;
+}
+.brief-meta{font-size:10.5px;color:var(--txt-3);letter-spacing:.05em;text-transform:uppercase;font-weight:600}
+.brief-thesis{
+  margin:6px 0 0;max-width:74ch;font-size:13.5px;line-height:1.45;color:var(--txt);
+}
+.brief-thesis em{font-style:normal;color:var(--sig-txt)}
+.brief-cons{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 24px;
+  margin-top:10px;padding-top:9px;border-top:1px solid var(--line-soft);
+}
+.brief-cons li{
+  list-style:none;font-size:11.5px;line-height:1.45;color:var(--txt-2);
+  padding-left:14px;position:relative;
+}
+.brief-cons li::before{
+  content:"";position:absolute;left:0;top:8px;width:8px;height:1px;background:var(--sig);opacity:.85;
+}
+.brief-cons b{color:var(--txt);font-weight:600}
+.brief-cons ul{margin:0;padding:0}
+
+/* ============================================================
+   2. Onglets de la maquette
+   ============================================================ */
+.tabs{
+  display:flex;align-items:stretch;gap:0;flex:none;
+  border-bottom:1px solid var(--line);background:var(--bg-2);padding:0 22px;
+}
+.tab{
+  appearance:none;background:none;border:0;border-bottom:2px solid transparent;
+  color:var(--txt-3);font-family:inherit;font-size:12px;font-weight:600;letter-spacing:.02em;
+  padding:11px 14px;cursor:pointer;display:flex;align-items:center;gap:7px;
+  transition:color .12s linear;margin-bottom:-1px;
+}
+.tab:hover{color:var(--txt)}
+.tab[aria-selected="true"]{color:var(--txt);border-bottom-color:var(--sig)}
+.tab .k{font-family:var(--mono);font-size:10px;color:var(--txt-3);
+  border:1px solid var(--line);border-radius:2px;padding:0 4px;line-height:14px}
+.tab[aria-selected="true"] .k{color:var(--sig-txt);border-color:var(--sig-line)}
+
+/* ============================================================
+   3. Cadre applicatif
+   ============================================================ */
+.app{flex:1;min-height:0;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.screen{flex:1;min-height:0;display:none;flex-direction:column;position:relative}
+.screen.on{display:flex}
+
+/* ---------- barre système ---------- */
+.sysbar{
+  flex:none;display:flex;align-items:center;gap:0;height:42px;padding:0 16px;
+  border-bottom:1px solid var(--line);background:var(--panel);
+}
+.mark{display:flex;align-items:center;gap:8px;padding-right:14px;margin-right:14px;
+  border-right:1px solid var(--line);height:100%;}
+.mark-sq{width:15px;height:15px;border:1.5px solid var(--sig);border-radius:2px;position:relative}
+.mark-sq::after{content:"";position:absolute;inset:3px;background:var(--sig);border-radius:1px}
+.mark b{font-size:12.5px;font-weight:700;letter-spacing:-.01em}
+.mark span{font-size:11px;color:var(--txt-3)}
+
+.sysbar .grow{flex:1;min-width:0}
+.gauges{display:flex;align-items:center;gap:0;height:100%}
+.gauge{
+  display:flex;align-items:center;gap:7px;padding:0 14px;height:100%;
+  border-left:1px solid var(--line-soft);font-size:11.5px;color:var(--txt-2);white-space:nowrap;
+}
+.gauge b{color:var(--txt);font-weight:600;font-variant-numeric:tabular-nums}
+.gauge.attn b{color:var(--warn)}
+.meter{width:52px;height:3px;background:#242A2F;border-radius:2px;overflow:hidden;flex:none}
+.meter i{display:block;height:100%;background:var(--sig)}
+.meter.warn i{background:var(--warn)}
+
+.dot{width:6px;height:6px;border-radius:50%;flex:none;background:var(--txt-3)}
+.dot.live{background:var(--ok);animation:pulse 2.4s ease-in-out infinite}
+.dot.warn{background:var(--warn)}
+.dot.err{background:var(--err)}
+.dot.sig{background:var(--sig)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.32}}
+@media (prefers-reduced-motion:reduce){.dot.live{animation:none}.spin{animation-duration:2s}}
+
+/* ---------- barre de filtres ---------- */
+.filterbar{
+  flex:none;background:var(--panel-2);border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:14px;padding:7px 16px;flex-wrap:wrap;row-gap:7px;
+}
+.fgroup{display:flex;align-items:center;gap:5px;min-width:0}
+.flabel{
+  font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--txt-3);margin-right:3px;white-space:nowrap;
+}
+.chip{
+  appearance:none;font-family:inherit;font-size:11.5px;font-weight:500;color:var(--txt-2);
+  background:transparent;border:1px solid var(--line);border-radius:var(--r);
+  padding:3px 8px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:5px;
+  transition:background .1s linear,color .1s linear,border-color .1s linear;
+}
+.chip:hover{background:var(--panel-3);color:var(--txt);border-color:#31373D}
+.chip[aria-pressed="true"]{background:var(--sig-bg);border-color:var(--sig-line);color:var(--sig-txt)}
+.chip .n{font-family:var(--mono);font-size:10px;color:var(--txt-3)}
+.chip[aria-pressed="true"] .n{color:var(--sig-txt);opacity:.75}
+.chip:disabled{opacity:.38;cursor:not-allowed}
+.chip:disabled:hover{background:transparent;color:var(--txt-2);border-color:var(--line)}
+
+.sw{
+  display:flex;align-items:center;gap:7px;cursor:pointer;font-size:11.5px;color:var(--txt-2);
+  border:1px solid var(--line);border-radius:var(--r);padding:2px 9px 2px 7px;user-select:none;
+  transition:background .1s linear,border-color .1s linear,color .1s linear;
+}
+.sw:hover{background:var(--panel-3);color:var(--txt)}
+.sw i{width:22px;height:12px;border-radius:7px;background:#2A3036;position:relative;flex:none;
+  transition:background .16s linear}
+.sw i::after{content:"";position:absolute;top:2px;left:2px;width:8px;height:8px;border-radius:50%;
+  background:var(--txt-2);transition:transform .16s var(--ease),background .16s linear}
+.sw[aria-pressed="true"]{background:var(--sig-bg);border-color:var(--sig-line);color:var(--sig-txt)}
+.sw[aria-pressed="true"] i{background:rgba(63,199,224,.4)}
+.sw[aria-pressed="true"] i::after{transform:translateX(10px);background:var(--sig)}
+
+.query{
+  display:flex;align-items:center;gap:8px;margin-left:auto;min-width:0;
+  border:1px solid var(--line);border-radius:var(--r);background:var(--bg);padding:3px 8px;max-width:min(46ch,100%);
+}
+.query svg{color:var(--txt-3)}
+.query input{
+  font-family:var(--mono);font-size:11px;color:var(--sig-txt);background:none;border:0;
+  width:100%;min-width:0;text-overflow:ellipsis;letter-spacing:-.01em;
+}
+.query .hint{font-size:10px;color:var(--txt-3);white-space:nowrap;letter-spacing:.04em;text-transform:uppercase;font-weight:600}
+
+/* ============================================================
+   4. Le flux
+   ============================================================ */
+.streamwrap{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;background:var(--bg)}
+
+.pinned{border-bottom:1px solid var(--line);background:#121215}
+.pinned-head{
+  display:flex;align-items:center;gap:9px;padding:8px 16px;border-bottom:1px solid var(--line-soft);
+  font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--warn);
+}
+.pinned-head.calm{color:var(--txt-3)}
+.pinned-head .sub{
+  letter-spacing:0;text-transform:none;font-weight:400;color:var(--txt-3);font-size:11.5px;
+}
+.pinned-head .sub b{color:var(--txt-2);font-weight:500}
+.blk{padding:9px 16px 10px;border-bottom:1px solid var(--line-soft)}
+.blk:last-child{border-bottom:0}
+.blk-top{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-bottom:2px}
+.blk-top .push{flex:1;min-width:16px}
+.blk-kind{
+  font-family:var(--mono);font-size:10px;letter-spacing:.02em;padding:1px 5px;border-radius:2px;
+  border:1px solid var(--line);color:var(--txt-2);
+}
+.blk-kind.gate{color:var(--warn);border-color:rgba(232,163,61,.4);background:rgba(232,163,61,.1)}
+.blk-kind.ask{color:var(--sig-txt);border-color:var(--sig-line);background:var(--sig-bg)}
+.blk-t{font-family:var(--mono);font-size:11px;color:var(--txt-3)}
+.blk-q{font-size:13.5px;line-height:1.45;color:var(--txt);max-width:84ch;margin:1px 0 7px}
+.blk-sub{font-size:11.5px;color:var(--txt-3)}
+.blk-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+
+.btn{
+  appearance:none;font-family:inherit;font-size:11.5px;font-weight:600;letter-spacing:.01em;
+  border-radius:var(--r);border:1px solid var(--line);background:var(--panel-3);color:var(--txt);
+  padding:5px 11px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
+  transition:background .1s linear,border-color .1s linear,color .1s linear;
+}
+.btn:hover{background:#232930;border-color:#343B42}
+.btn.primary{background:var(--sig);border-color:var(--sig);color:#04191E}
+.btn.primary:hover{background:#5BD5EA;border-color:#5BD5EA}
+.btn.ghost{background:transparent;color:var(--txt-2)}
+.btn.ghost:hover{background:var(--panel-3);color:var(--txt)}
+.btn.danger{background:transparent;border-color:rgba(242,96,106,.42);color:#F4818A}
+.btn.danger:hover{background:rgba(242,96,106,.12);border-color:rgba(242,96,106,.65);color:#F79AA1}
+.btn.sm{font-size:11px;padding:3px 8px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn:disabled:hover{background:var(--panel-3);border-color:var(--line);color:var(--txt)}
+.btn.primary:disabled:hover{background:var(--sig);border-color:var(--sig)}
+
+.reply{
+  display:flex;align-items:center;gap:0;border:1px solid var(--line);border-radius:var(--r);
+  background:var(--bg);min-width:230px;flex:1;max-width:460px;
+}
+.reply:focus-within{border-color:var(--sig-line)}
+.reply input{
+  flex:1;min-width:0;background:none;border:0;color:var(--txt);font-family:inherit;font-size:12px;
+  padding:5px 9px;
+}
+.reply input::placeholder{color:#8B949D}
+.reply button{
+  appearance:none;background:none;border:0;border-left:1px solid var(--line);color:var(--txt-3);
+  padding:5px 9px;cursor:pointer;display:flex;align-items:center;transition:color .1s linear}
+.reply button:hover{color:var(--sig)}
+
+.resolved{
+  display:flex;align-items:center;gap:9px;padding:9px 16px;border-bottom:1px solid var(--line-soft);
+  font-size:12px;color:var(--txt-3);
+}
+.resolved .txt{flex:1;min-width:0}
+.resolved b{color:var(--ok);font-weight:600}
+.resolved b.who{color:var(--txt-2)}
+.empty{
+  padding:26px 16px 28px;text-align:left;color:var(--txt-3);font-size:12.5px;max-width:64ch;
+}
+.empty b{display:block;color:var(--txt-2);font-size:13px;font-weight:600;margin-bottom:3px}
+.empty .btn{margin-top:11px}
+
+/* ---------- lignes du flux ---------- */
+.stream{display:block}
+.row{
+  display:grid;
+  grid-template-columns:64px 16px 112px 92px minmax(0,1fr) auto;
+  align-items:baseline;gap:11px;
+  padding:5px 16px;border-bottom:1px solid var(--line-soft);
+  transition:background .08s linear;position:relative;
+}
+.row:hover{background:#101215}
+.row.clickable{cursor:pointer}
+.row.err-row{background:rgba(242,96,106,.055)}
+.row.err-row:hover{background:rgba(242,96,106,.09)}
+.row.hl{background:var(--sig-bg)}
+.r-t{font-family:var(--mono);font-size:11px;color:var(--txt-3);letter-spacing:-.02em}
+.r-i{align-self:center;color:var(--txt-3);display:flex}
+.r-i.ok{color:var(--ok)} .r-i.warn{color:var(--warn)} .r-i.err{color:var(--err)} .r-i.sig{color:var(--sig)}
+.r-a{
+  font-size:11.5px;font-weight:600;color:var(--txt-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.a-spec{color:#C7A8E6} .a-writer{color:#9BC9A6} .a-rc{color:#E0BB8E}
+.r-e{font-family:var(--mono);font-size:10.5px;color:var(--txt-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r-m{min-width:0;font-size:12.5px;color:var(--txt-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.r-m b{color:var(--txt);font-weight:500}
+.r-m .task{color:var(--txt);font-weight:500}
+.r-r{font-family:var(--mono);font-size:11px;color:var(--txt-3);white-space:nowrap;text-align:right;letter-spacing:-.02em}
+.r-r.cost{color:var(--txt-2)}
+.r-x{align-self:center;color:var(--txt-3);display:flex;transition:transform .14s var(--ease)}
+.row[aria-expanded="true"] .r-x{transform:rotate(90deg);color:var(--sig)}
+.payload{
+  grid-column:1/-1;margin:5px 0 3px;padding:8px 11px;background:#0E1114;border:1px solid var(--line-soft);
+  border-radius:var(--r);font-family:var(--mono);font-size:11px;color:var(--txt-2);
+  white-space:pre-wrap;word-break:break-word;line-height:1.65;
+}
+.payload .k{color:#8FB8C5} .payload .s{color:#B7D69B} .payload .n{color:#E0B98A}
+.payload .cmt{color:var(--txt-3)}
+.row.err-row .payload{border-color:rgba(242,96,106,.22);background:rgba(242,96,106,.05)}
+.err-hint{color:#F4818A}
+
+.stream-head{
+  position:sticky;top:0;z-index:3;background:var(--bg);
+  display:grid;grid-template-columns:64px 16px 112px 92px minmax(0,1fr) auto;gap:11px;
+  padding:6px 16px;border-bottom:1px solid var(--line);
+  font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--txt-3);
+}
+.stream-head span:last-child{text-align:right}
+
+/* ============================================================
+   5. Panneau de focus
+   ============================================================ */
+.scrim{position:absolute;inset:0;background:rgba(6,7,8,.66);z-index:8}
+.panel{
+  position:absolute;top:0;right:0;bottom:0;width:min(660px,52vw);min-width:430px;z-index:9;
+  background:var(--panel);border-left:1px solid var(--line);
+  box-shadow:-30px 0 60px -18px rgba(0,0,0,.8);
+  display:flex;flex-direction:column;
+}
+.panel.enter{animation:slidein .42s var(--ease) both}
+.scrim.enter{animation:fadein .42s var(--ease) both}
+@keyframes slidein{from{transform:translateX(34px);opacity:0}to{transform:none;opacity:1}}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.panel.enter,.scrim.enter{animation:none}}
+
+.p-head{flex:none;border-bottom:1px solid var(--line);padding:11px 14px 10px}
+.p-head-1{display:flex;align-items:flex-start;gap:10px}
+.p-title{font-size:14.5px;font-weight:600;letter-spacing:-.01em;line-height:1.32;flex:1;min-width:0}
+.p-close{appearance:none;background:none;border:1px solid transparent;color:var(--txt-3);cursor:pointer;
+  padding:3px;border-radius:2px;display:flex;transition:color .1s linear,border-color .1s linear}
+.p-close:hover{color:var(--txt);border-color:var(--line)}
+.p-facts{display:flex;align-items:center;gap:0;margin-top:9px;flex-wrap:wrap}
+.fact{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--txt-3);
+  padding-right:10px;margin-right:10px;border-right:1px solid var(--line-soft);white-space:nowrap}
+.fact:last-child{border-right:0;margin-right:0;padding-right:0}
+.fact b{color:var(--txt-2);font-weight:500}
+.fact .mono{color:var(--txt-2)}
+
+.hud{
+  flex:none;padding:11px 14px;background:var(--panel-2);border-bottom:1px solid var(--line);
+}
+.hud-l1{display:flex;align-items:center;gap:9px;font-size:10px;font-weight:600;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--txt-3);margin-bottom:5px}
+.hud-l2{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.hud-now{font-size:15px;font-weight:600;letter-spacing:-.01em;color:var(--txt)}
+.hud-now .p{font-family:var(--mono);font-size:12.5px;color:var(--sig-txt);font-weight:400}
+.hud-l3{margin-top:6px;font-size:11.5px;color:var(--txt-3);display:flex;gap:0;flex-wrap:wrap}
+.hud-l3 .fact{border-right-color:#20252A}
+
+.steer{flex:none;padding:9px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:9px}
+.steer .lbl{font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--txt-3);white-space:nowrap}
+.steer .reply{max-width:none}
+
+.p-tabs{flex:none;display:flex;border-bottom:1px solid var(--line);background:var(--panel);padding:0 8px}
+.ptab{
+  appearance:none;background:none;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;
+  color:var(--txt-3);font-family:inherit;font-size:11.5px;font-weight:600;padding:8px 11px;cursor:pointer;
+  display:flex;align-items:center;gap:6px;transition:color .1s linear;
+}
+.ptab:hover{color:var(--txt)}
+.ptab[aria-selected="true"]{color:var(--txt);border-bottom-color:var(--sig)}
+.ptab .n{font-family:var(--mono);font-size:10px;color:var(--txt-3)}
+.p-body{flex:1;min-height:0;overflow-y:auto}
+.ppane{display:none}
+.ppane.on{display:block}
+
+/* timeline repliable */
+.tl-row{
+  display:grid;grid-template-columns:60px 16px 92px minmax(0,1fr) auto;gap:10px;align-items:baseline;
+  padding:5px 14px;border-bottom:1px solid var(--line-soft);transition:background .08s linear;
+}
+.tl-row:hover{background:#0F1215}
+.tl-row.clickable{cursor:pointer}
+.tl-row.steered{background:var(--sig-bg)}
+.tl-sec{
+  padding:7px 14px 6px;font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--txt-3);border-bottom:1px solid var(--line-soft);background:var(--bg-2);
+}
+
+/* terminal / diff / artifacts */
+.term{padding:11px 14px;font-family:var(--mono);font-size:11.5px;line-height:1.75;color:var(--txt-2)}
+.term .pr{color:var(--sig)}
+.term .dim{color:var(--txt-3)}
+.term .ok{color:var(--ok)}
+.term .er{color:#F4818A}
+.diff{font-family:var(--mono);font-size:11.5px;line-height:1.7}
+.diff .fh{padding:7px 14px;background:var(--panel-2);border-bottom:1px solid var(--line);
+  color:var(--txt-2);display:flex;justify-content:space-between;gap:12px}
+.diff .fh .st{color:var(--txt-3)}
+.diff .hunk{padding:2px 14px;color:var(--txt-3);background:#0E1114;border-bottom:1px solid var(--line-soft);border-top:1px solid var(--line-soft)}
+.diff .ln{padding:0 14px;display:block;white-space:pre-wrap;word-break:break-word;color:var(--txt-2)}
+.diff .add{background:rgba(85,201,138,.09);color:#A8DCBE}
+.diff .del{background:rgba(242,96,106,.09);color:#EAA6AB}
+.art-row{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--line-soft)}
+.art-row:hover{background:#0F1215}
+.art-n{flex:1;min-width:0;font-family:var(--mono);font-size:11.5px;color:var(--txt);overflow:hidden;text-overflow:ellipsis}
+.art-d{font-size:11.5px;color:var(--txt-3);white-space:nowrap}
+.art-miss .art-n{color:#F4818A}
+.badge{
+  font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:1px 5px;
+  border-radius:2px;border:1px solid var(--line);color:var(--txt-3);white-space:nowrap
+}
+.badge.req{color:var(--warn);border-color:rgba(232,163,61,.38)}
+.badge.err{color:#F4818A;border-color:rgba(242,96,106,.38)}
+.badge.ok{color:var(--ok);border-color:rgba(85,201,138,.34)}
+.badge.sig{color:var(--sig-txt);border-color:var(--sig-line)}
+
+/* ============================================================
+   6. Board — vue enregistrée
+   ============================================================ */
+.viewbar{
+  flex:none;display:flex;align-items:center;gap:14px;padding:8px 16px;flex-wrap:wrap;row-gap:8px;
+  background:var(--panel-2);border-bottom:1px solid var(--line);
+}
+.note{
+  flex:none;display:flex;align-items:center;gap:9px;padding:7px 16px;
+  border-bottom:1px solid var(--line);background:#0F1215;font-size:11.5px;color:var(--txt-3);
+}
+.note b{color:var(--txt-2);font-weight:500}
+.note svg{color:var(--sig)}
+.cols{
+  flex:1;min-height:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:0;overflow:hidden;
+}
+.col{min-width:0;display:flex;flex-direction:column;border-right:1px solid var(--line)}
+.col:last-child{border-right:0}
+.col-h{
+  flex:none;display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--line);
+  font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txt-2);
+  background:var(--panel);
+}
+.col-h .c{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--txt-3);letter-spacing:0}
+.col-b{flex:1;min-height:0;overflow-y:auto}
+.card{
+  display:block;width:100%;text-align:left;appearance:none;background:none;font-family:inherit;
+  border:0;border-bottom:1px solid var(--line-soft);padding:9px 12px;cursor:pointer;
+  transition:background .08s linear;
+}
+.card:hover{background:#101317}
+.card[aria-pressed="true"]{background:var(--sig-bg)}
+.card-t{font-size:12.5px;font-weight:500;color:var(--txt);line-height:1.4;margin-bottom:5px}
+.card-m{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:11px;color:var(--txt-3)}
+.card-m .ag{color:var(--txt-2);font-weight:600}
+.card-last{
+  margin-top:6px;font-family:var(--mono);font-size:10.5px;color:var(--txt-3);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-.02em;
+  line-height:1.7;padding-bottom:1px;
+}
+.col-f{
+  flex:none;display:flex;align-items:center;gap:8px;padding:7px 12px;
+  border-top:1px solid var(--line);background:var(--panel);
+  font-family:var(--mono);font-size:10.5px;color:var(--txt-3);letter-spacing:-.02em;
+}
+.col-f b{color:var(--txt-2);font-weight:500}
+.boardflux{flex:none;border-top:1px solid var(--line);background:var(--bg)}
+.bf-h{
+  display:flex;align-items:center;gap:9px;padding:7px 16px;border-bottom:1px solid var(--line);
+  background:var(--panel);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txt-2);
+}
+.bf-h svg{color:var(--sig)}
+.bf-h .c{font-weight:400;letter-spacing:0;text-transform:none;font-size:11.5px;color:var(--txt-3)}
+.pri{font-family:var(--mono);font-size:10px;padding:0 4px;border:1px solid var(--line);border-radius:2px;color:var(--txt-3)}
+.pri.high{color:var(--warn);border-color:rgba(232,163,61,.36)}
+.card-open{
+  margin-top:8px;padding-top:8px;border-top:1px solid var(--line-soft);
+}
+.card-open .oh{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--txt-3);margin-bottom:5px;display:flex;align-items:center;gap:6px}
+.mini{display:grid;grid-template-columns:48px 66px minmax(0,1fr);gap:7px;font-family:var(--mono);
+  font-size:10.5px;color:var(--txt-3);padding:1px 0;letter-spacing:-.02em;line-height:1.7}
+.mini b{color:var(--txt-2);font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mini span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--sans);font-size:11px}
+
+/* ============================================================
+   7. Goal
+   ============================================================ */
+.goalwrap{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 336px;overflow:hidden}
+.goal-main{min-width:0;overflow-y:auto}
+.goal-side{min-width:0;overflow-y:auto;border-left:1px solid var(--line);background:var(--panel)}
+.sec{border-bottom:1px solid var(--line)}
+.sec-h{
+  display:flex;align-items:center;gap:9px;padding:9px 16px 8px;
+  font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txt-2);
+}
+.sec-h .c{font-family:var(--mono);font-size:11px;color:var(--txt-3);letter-spacing:0;font-weight:400}
+.sec-h .r{margin-left:auto;display:flex;gap:6px}
+.dod{display:flex;align-items:flex-start;gap:10px;padding:8px 16px;border-top:1px solid var(--line-soft);
+  cursor:pointer;transition:background .08s linear;width:100%;text-align:left;appearance:none;background:none;
+  border-left:0;border-right:0;border-bottom:0;font-family:inherit}
+.dod:hover{background:#101317}
+.box{width:14px;height:14px;border:1px solid #59636D;border-radius:2px;flex:none;margin-top:2px;
+  display:flex;align-items:center;justify-content:center;color:transparent;transition:all .12s linear}
+.dod[aria-pressed="true"] .box{background:var(--ok);border-color:var(--ok);color:#06180E}
+.dod .lab{font-size:13px;color:var(--txt);line-height:1.45}
+.dod[aria-pressed="true"] .lab{color:var(--txt-3);text-decoration:line-through;text-decoration-thickness:1px;text-underline-offset:2px}
+
+.step{display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:11px;align-items:center;
+  padding:8px 16px;border-top:1px solid var(--line-soft);transition:background .08s linear}
+.step:hover{background:#101317}
+.step .idx{font-family:var(--mono);font-size:11px;color:var(--txt-3)}
+.step .nm{font-size:12.5px;color:var(--txt)}
+.step.done .nm{color:var(--txt-3)}
+.step .ag{font-family:var(--mono);font-size:10.5px;color:var(--txt-2);border:1px solid var(--line);
+  border-radius:2px;padding:1px 5px}
+.step-state{font-size:11px;color:var(--txt-3);display:flex;align-items:center;gap:6px}
+
+.rail{padding:11px 16px;border-bottom:1px solid var(--line-soft)}
+.rail-1{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:6px}
+.rail-1 .k{font-size:11.5px;color:var(--txt-2)}
+.rail-1 .v{font-family:var(--mono);font-size:12px;color:var(--txt)}
+.rail-1 .v .max{color:var(--txt-3)}
+.bar{height:3px;background:#242A2F;border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--sig)}
+.bar.ok i{background:var(--ok)} .bar.warn i{background:var(--warn)}
+.rail .why{margin-top:6px;font-size:11px;color:var(--txt-3);line-height:1.5}
+
+.jrow{display:grid;grid-template-columns:64px 84px minmax(0,1fr);gap:11px;padding:4px 16px;
+  border-top:1px solid var(--line-soft);font-family:var(--mono);font-size:11px;align-items:baseline}
+.jrow:hover{background:#101317}
+.jrow .jt{color:var(--txt-3);letter-spacing:-.02em}
+.jrow .jk{color:var(--sig-txt)}
+.jrow .jv{color:var(--txt-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-.02em}
+.jrow.open .jv{white-space:pre-wrap;word-break:break-word}
+
+.killzone{padding:12px 16px;display:flex;flex-direction:column;gap:8px}
+.killzone p{margin:0;font-size:11.5px;color:var(--txt-3);line-height:1.5}
+.confirm{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+.stopped-note{display:flex;align-items:center;gap:9px;padding:9px 16px;background:rgba(242,96,106,.08);
+  border-bottom:1px solid rgba(242,96,106,.2);font-size:12px;color:#F4A0A6}
+
+/* ============================================================
+   8. Responsive
+   ============================================================ */
+.mobile-only{display:none}
+@media (max-width:1360px){
+  .brief-cons{grid-template-columns:repeat(3,minmax(0,1fr));gap:0 18px}
+  .row,.stream-head{grid-template-columns:60px 16px 104px 84px minmax(0,1fr) auto;gap:9px}
+  .panel{width:min(600px,56vw)}
+}
+@media (max-width:1180px){
+  .r-e{display:none}
+  .row,.stream-head{grid-template-columns:60px 16px 104px minmax(0,1fr) auto}
+  .brief-cons{grid-template-columns:1fr 1fr}
+  .brief-cons li:last-child{grid-column:1/-1;margin-top:8px}
+}
+@media (max-width:700px){
+  body{display:block;min-height:0}
+  .brief{padding:14px 14px 12px}
+  .brief-cons{grid-template-columns:1fr;gap:8px}
+  .brief-cons li:last-child{margin-top:0}
+  .tabs{padding:0 8px;overflow-x:auto}
+  .tab{padding:10px 9px;font-size:11.5px;white-space:nowrap}
+  .tab .k{display:none}
+  .gauges{flex-wrap:wrap;row-gap:4px}
+  .app{height:auto;overflow:visible}
+  .screen{min-height:0}
+  .screen.on{display:flex}
+  .desktop-only{display:none !important}
+  .mobile-only{display:block}
+  .mob-note{padding:22px 14px;color:var(--txt-3);font-size:12.5px;line-height:1.6;max-width:52ch}
+  .mob-note b{display:block;color:var(--txt-2);font-size:13px;margin-bottom:5px;font-weight:600}
+  .sysbar{height:auto;padding:6px 10px;flex-wrap:wrap;row-gap:6px}
+  .mark{border-right:0;margin-right:8px;padding-right:8px}
+  .gauge{border-left:0;padding:0 10px 0 0}
+  .filterbar{padding:6px 10px}
+  .query{display:none}
+  .streamwrap{overflow:visible}
+  .stream-head{display:none}
+  .row{grid-template-columns:52px 16px minmax(0,1fr);gap:8px;padding:6px 10px}
+  .r-a{display:none}.r-r{display:none}
+  .r-m{white-space:normal}
+  .blk{padding:10px}
+  .pinned-head{padding:8px 10px}
+  .pinned-head .sub{display:none}
+  .reply{max-width:none;min-width:0}
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== icônes ==================== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+<defs>
+<symbol id="i-live" viewBox="0 0 24 24"><path d="M2 12h3.2l2.4-7 4 14 2.4-7H18"/><path d="M20.5 12H22"/></symbol>
+<symbol id="i-ask" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6"/><path d="M9.5 9.4a2.6 2.6 0 1 1 3.2 2.5c-.6.2-.9.7-.9 1.3v.5"/><path d="M11.8 16.9h.01"/></symbol>
+<symbol id="i-gate" viewBox="0 0 24 24"><path d="M12 3.2 19 6v5.3c0 3.9-2.8 7.1-7 8.5-4.2-1.4-7-4.6-7-8.5V6z"/><path d="m9 11.8 2.2 2.2 4.2-4.4"/></symbol>
+<symbol id="i-err" viewBox="0 0 24 24"><path d="M12 4.4 21 19.6H3z"/><path d="M12 10v4.1"/><path d="M12 17.1h.01"/></symbol>
+<symbol id="i-push" viewBox="0 0 24 24"><path d="M12 20.2V7.6"/><path d="M7.2 12.4 12 7.6l4.8 4.8"/><path d="M4.5 4h15"/></symbol>
+<symbol id="i-tool" viewBox="0 0 24 24"><path d="m9.2 8-4 4 4 4"/><path d="m14.8 8 4 4-4 4"/></symbol>
+<symbol id="i-fs" viewBox="0 0 24 24"><path d="M3.2 6.6A1.4 1.4 0 0 1 4.6 5.2h4.2l2 2.6h8.6a1.4 1.4 0 0 1 1.4 1.4v8.4a1.4 1.4 0 0 1-1.4 1.4H4.6a1.4 1.4 0 0 1-1.4-1.4z"/></symbol>
+<symbol id="i-deny" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="m6.6 6.6 10.8 10.8"/></symbol>
+<symbol id="i-text" viewBox="0 0 24 24"><path d="M4 6.2h16"/><path d="M4 10.4h16"/><path d="M4 14.6h11"/><path d="M4 18.8h7"/></symbol>
+<symbol id="i-goal" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><circle cx="12" cy="12" r="3.9"/><circle cx="12" cy="12" r=".9" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-gauge" viewBox="0 0 24 24"><path d="M3.6 17.6a8.6 8.6 0 1 1 16.8 0"/><path d="m12 17.2 4.4-5.2"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="m5.2 12.6 4.6 4.6L19 6.8"/></symbol>
+<symbol id="i-chev" viewBox="0 0 24 24"><path d="m9.4 6.2 6 5.8-6 5.8"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="m6.4 6.4 11.2 11.2M17.6 6.4 6.4 17.6"/></symbol>
+<symbol id="i-send" viewBox="0 0 24 24"><path d="M4.6 12h13"/><path d="m12.2 6.6 5.4 5.4-5.4 5.4"/></symbol>
+<symbol id="i-stop" viewBox="0 0 24 24"><rect x="6.6" y="6.6" width="10.8" height="10.8" rx="1"/></symbol>
+<symbol id="i-pin" viewBox="0 0 24 24"><path d="M14.6 3.6 20.4 9.4"/><path d="M13.4 4.9 9.2 7.3 7.4 11l5.6 5.6 3.7-1.8 2.4-4.2z"/><path d="m7.2 16.8-3.6 3.6"/></symbol>
+<symbol id="i-filter" viewBox="0 0 24 24"><path d="M4 6.2h16l-6.2 7.1v5.9l-3.6-1.9v-4z"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.4"/><path d="m15.8 15.8 4.2 4.2"/></symbol>
+<symbol id="i-term" viewBox="0 0 24 24"><rect x="3.2" y="4.6" width="17.6" height="14.8" rx="1.5"/><path d="m7.4 10 2.4 2.4-2.4 2.4"/><path d="M12.6 15.2h4"/></symbol>
+<symbol id="i-diff" viewBox="0 0 24 24"><path d="M6.6 4.2v6.2M3.5 7.3h6.2"/><path d="M14.3 16.8h6.2"/><path d="M3.6 20.4 20.4 3.6"/></symbol>
+<symbol id="i-file" viewBox="0 0 24 24"><path d="M13.6 3.4H7a1.5 1.5 0 0 0-1.5 1.5v14.2A1.5 1.5 0 0 0 7 20.6h10a1.5 1.5 0 0 0 1.5-1.5V8.3z"/><path d="M13.6 3.4v4.9h4.9"/></symbol>
+<symbol id="i-power" viewBox="0 0 24 24"><path d="M12 3.4v8.2"/><path d="M17.3 6.6a7.5 7.5 0 1 1-10.6 0"/></symbol>
+<symbol id="i-pause" viewBox="0 0 24 24"><path d="M9.6 5.6v12.8"/><path d="M14.4 5.6v12.8"/></symbol>
+<symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3.2 20.4 7.6v8.8L12 20.8 3.6 16.4V7.6z"/><path d="M3.6 7.6 12 12l8.4-4.4M12 12v8.8"/></symbol>
+<symbol id="i-branch" viewBox="0 0 24 24"><circle cx="6.6" cy="5.6" r="2.2"/><circle cx="6.6" cy="18.4" r="2.2"/><circle cx="17.4" cy="8.8" r="2.2"/><path d="M6.6 7.8v8.4"/><path d="M17.4 11c0 3.2-2.6 4.5-5.6 5"/></symbol>
+<symbol id="i-grid" viewBox="0 0 24 24"><rect x="3.4" y="4.2" width="6" height="15.6" rx="1"/><rect x="14.6" y="4.2" width="6" height="15.6" rx="1"/></symbol>
+<symbol id="i-spin" viewBox="0 0 24 24"><path class="spin" d="M12 3.6a8.4 8.4 0 1 1-8.4 8.4"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="M12 7.4V12l3 1.8"/></symbol>
+<symbol id="i-link" viewBox="0 0 24 24"><path d="M10.4 13.6a3.6 3.6 0 0 0 5.1 0l2.9-2.9a3.6 3.6 0 0 0-5.1-5.1L11.7 7.2"/><path d="M13.6 10.4a3.6 3.6 0 0 0-5.1 0l-2.9 2.9a3.6 3.6 0 0 0 5.1 5.1l1.6-1.6"/></symbol>
+<symbol id="i-arrowr" viewBox="0 0 24 24"><path d="M4.6 12h14.2"/><path d="m13.4 6.6 5.4 5.4-5.4 5.4"/></symbol>
+</defs>
+</svg>
+
+<!-- ==================== bande de décision ==================== -->
+<header class="brief">
+  <div class="brief-top">
+    <h1>FLUX</h1>
+    <span class="brief-meta">Direction UI/UX · Legion · console d'exploitation</span>
+  </div>
+  <p class="brief-thesis">Il n'y a plus de pages : Legion est <em>un seul flux d'événements que l'on filtre</em>, et où l'on traite en ligne ce qui bloque — sans jamais changer d'écran.</p>
+  <ul class="brief-cons">
+    <li><b>Le routeur est à refaire.</b> L'URL n'adresse plus un écran mais une requête de filtre (<code>?project=demo&amp;type=décision&amp;waiting=1</code>). Tous les liens profonds existants cassent, et l'état de filtre doit être sérialisable et partageable.</li>
+    <li><b>Un flux SSE global remplace les polls par écran.</b> Un canal multiplexé pour tous les projets, reprise par curseur après reconnexion, et backpressure côté client : à 40 événements/s le DOM sature sans fenêtrage virtuel.</li>
+    <li><b>Chaque écran devient une vue enregistrée.</b> Board, inbox et dashboard perdent leur code propre — mais il faut un modèle d'événement unifié côté serveur et une migration des timelines historiques vers ce modèle.</li>
+  </ul>
+</header>
+
+<!-- ==================== onglets ==================== -->
+<nav class="tabs" role="tablist" aria-label="Écrans de la direction">
+  <button class="tab" role="tab" id="t-flux" aria-selected="true" aria-controls="s-flux"><svg class="ic"><use href="#i-live"/></svg>Flux<span class="k">1</span></button>
+  <button class="tab" role="tab" id="t-focus" aria-selected="false" aria-controls="s-focus"><svg class="ic"><use href="#i-box"/></svg>Focus tâche<span class="k">2</span></button>
+  <button class="tab" role="tab" id="t-board" aria-selected="false" aria-controls="s-board"><svg class="ic"><use href="#i-grid"/></svg>Board — vue enregistrée<span class="k">3</span></button>
+  <button class="tab" role="tab" id="t-goal" aria-selected="false" aria-controls="s-goal"><svg class="ic"><use href="#i-goal"/></svg>Goal<span class="k">4</span></button>
+</nav>
+
+<main class="app">
+
+<!-- ============================================================
+     ÉCRAN 1 — FLUX
+     ============================================================ -->
+<section class="screen on" id="s-flux" role="tabpanel" aria-labelledby="t-flux">
+  <div class="sysbar">
+    <div class="mark"><span class="mark-sq"></span><b>Legion</b></div>
+    <div class="gauge" style="border-left:0;padding-left:0"><span class="dot live"></span>Projet <b>Démo (mock)</b> <code>HNQJKv0RnO</code></div>
+    <div class="grow"></div>
+    <div class="gauges">
+      <div class="gauge"><span class="dot live"></span><b class="num" id="g-active">3</b> sessions actives</div>
+      <div class="gauge"><span class="dot err"></span><b class="num">1</b> échouée</div>
+      <div class="gauge attn"><svg class="ic"><use href="#i-pin"/></svg><b class="num" id="g-wait">3</b> vous attendent</div>
+      <div class="gauge">Coût du jour <b class="num">$3.08</b></div>
+      <div class="gauge">Quota 5&nbsp;h <b class="num">72 %</b><span class="meter warn"><i style="width:72%"></i></span></div>
+    </div>
+  </div>
+
+  <div class="filterbar" id="fbar">
+    <div class="fgroup">
+      <span class="flabel">Projet</span>
+      <button class="chip" data-f="project" data-v="demo" aria-pressed="true">Démo (mock)</button>
+      <button class="chip" data-f="project" data-v="default" aria-pressed="false">Default <span class="n">0</span></button>
+    </div>
+    <div class="fgroup">
+      <span class="flabel">Agent</span>
+      <button class="chip" data-f="agent" data-v="senior-dev" aria-pressed="false">senior-dev</button>
+      <button class="chip" data-f="agent" data-v="spec" aria-pressed="false">spec</button>
+      <button class="chip" data-f="agent" data-v="review-coordinator" aria-pressed="false">review-coordinator</button>
+      <button class="chip" data-f="agent" data-v="writer" aria-pressed="false">writer</button>
+    </div>
+    <div class="fgroup">
+      <span class="flabel">Type</span>
+      <button class="chip" data-f="cat" data-v="session" aria-pressed="false">sessions</button>
+      <button class="chip" data-f="cat" data-v="outil" aria-pressed="false">outils</button>
+      <button class="chip" data-f="cat" data-v="depot" aria-pressed="false">dépôt</button>
+      <button class="chip" data-f="cat" data-v="decision" aria-pressed="false">décisions</button>
+      <button class="chip" data-f="cat" data-v="erreur" aria-pressed="false">erreurs</button>
+      <button class="chip" data-f="cat" data-v="goal" aria-pressed="false">goals</button>
+    </div>
+    <button class="sw" id="sw-wait" aria-pressed="false"><i></i>Seulement ce qui m'attend</button>
+    <div class="query desktop-only">
+      <svg class="ic s12"><use href="#i-link"/></svg>
+      <input id="q-url" value="legion://demo/flux" readonly aria-label="Requête de filtre courante">
+      <span class="hint">URL</span>
+    </div>
+  </div>
+
+  <div class="streamwrap" id="wrap-flux">
+    <section class="pinned" id="pinned" aria-label="Éléments bloquants"></section>
+    <div class="stream-head desktop-only">
+      <span>heure</span><span></span><span>agent</span><span class="desktop-only">événement</span><span>contenu</span><span>mesure</span>
+    </div>
+    <div class="stream" id="stream"></div>
+  </div>
+</section>
+
+<!-- ============================================================
+     ÉCRAN 2 — FOCUS
+     ============================================================ -->
+<section class="screen" id="s-focus" role="tabpanel" aria-labelledby="t-focus">
+  <div class="mobile-only mob-note"><b>Mobile = triage seulement.</b> Le panneau de focus demande une timeline, un terminal et un diff côte à côte : sous 700 px on ne peut pas le rendre honnêtement. Décision assumée — sur téléphone, seul l'écran Flux est fourni, pour répondre et approuver.</div>
+
+  <div class="desktop-only" style="display:flex;flex-direction:column;flex:1;min-height:0">
+  <div class="sysbar">
+    <div class="mark"><span class="mark-sq"></span><b>Legion</b></div>
+    <div class="gauge" style="border-left:0;padding-left:0"><span class="dot live"></span>Projet <b>Démo (mock)</b></div>
+    <div class="grow"></div>
+    <div class="gauges">
+      <div class="gauge"><span class="dot live"></span><b class="num">3</b> sessions actives</div>
+      <div class="gauge attn"><svg class="ic"><use href="#i-pin"/></svg><b class="num">3</b> vous attendent</div>
+      <div class="gauge">Coût du jour <b class="num">$3.08</b></div>
+    </div>
+  </div>
+  <div class="filterbar">
+    <div class="fgroup">
+      <span class="flabel">Filtre</span>
+      <button class="chip" aria-pressed="true">tâche : Refonte du tunnel de paiement</button>
+      <button class="chip" id="clear-focus-filter">retirer le filtre</button>
+    </div>
+    <button class="btn sm ghost" id="reopen-panel" hidden><svg class="ic s12"><use href="#i-box"/></svg>Rouvrir le panneau de focus</button>
+    <div class="query desktop-only">
+      <svg class="ic s12"><use href="#i-link"/></svg>
+      <input value="legion://demo/flux?task=refonte-tunnel&amp;focus=sess_7f3c" readonly aria-label="Requête de filtre courante">
+      <span class="hint">URL</span>
+    </div>
+  </div>
+
+  <div style="flex:1;min-height:0;position:relative;display:flex;flex-direction:column">
+    <div class="streamwrap" id="wrap-focus">
+      <div class="stream-head"><span>heure</span><span></span><span>agent</span><span>événement</span><span>contenu</span><span>mesure</span></div>
+      <div class="stream" id="stream-bg"></div>
+    </div>
+
+    <div class="scrim enter" id="scrim"></div>
+    <aside class="panel enter" id="panel" aria-label="Panneau de focus">
+      <div class="p-head">
+        <div class="p-head-1">
+          <div class="p-title">Refonte du tunnel de paiement Stripe Checkout</div>
+          <button class="btn sm danger"><svg class="ic s12"><use href="#i-stop"/></svg>Stop</button>
+          <button class="p-close" id="close-panel" aria-label="Fermer le panneau de focus"><svg class="ic s16"><use href="#i-x"/></svg></button>
+        </div>
+        <div class="p-facts">
+          <span class="fact"><span class="dot live"></span>session <b>running</b></span>
+          <span class="fact">tâche <span class="badge sig">review</span></span>
+          <span class="fact"><svg class="ic s12"><use href="#i-branch"/></svg><span class="mono">legion/checkout</span></span>
+          <span class="fact"><b>senior-dev</b></span>
+          <span class="fact">coût <b class="num mono">$2.87</b></span>
+        </div>
+      </div>
+
+      <div class="hud">
+        <div class="hud-l1"><span class="dot live"></span>En train de</div>
+        <div class="hud-l2">
+          <div class="hud-now">Lit <span class="p">/repos/front/src/checkout/PaymentForm.tsx</span></div>
+        </div>
+        <div class="hud-l3">
+          <span class="fact">outil <b class="mono">Read</b></span>
+          <span class="fact">depuis <b class="num mono" id="hud-el">00:03.8</b></span>
+          <span class="fact">étape <b class="num">12/14</b></span>
+          <span class="fact"><b class="mono">claude-sonnet-4-5</b></span>
+          <span class="fact">réseau <b>limité</b></span>
+          <span class="fact">container <b class="mono">legion-7f3c</b></span>
+        </div>
+      </div>
+
+      <div class="steer">
+        <span class="lbl">Consigne</span>
+        <label class="reply">
+          <input id="steer-in" placeholder="Infléchir sans interrompre — ex. « garde le paiement par carte en repli »" aria-label="Envoyer une consigne à la session en cours">
+          <button id="steer-go" aria-label="Envoyer la consigne"><svg class="ic"><use href="#i-send"/></svg></button>
+        </label>
+      </div>
+
+      <div class="p-tabs" role="tablist" aria-label="Vues de la session">
+        <button class="ptab" role="tab" aria-selected="true" data-p="tl"><svg class="ic s12"><use href="#i-live"/></svg>Timeline<span class="n">14</span></button>
+        <button class="ptab" role="tab" aria-selected="false" data-p="term"><svg class="ic s12"><use href="#i-term"/></svg>Terminal</button>
+        <button class="ptab" role="tab" aria-selected="false" data-p="diff"><svg class="ic s12"><use href="#i-diff"/></svg>Diff<span class="n">7</span></button>
+        <button class="ptab" role="tab" aria-selected="false" data-p="art"><svg class="ic s12"><use href="#i-file"/></svg>Artifacts<span class="n">4</span></button>
+      </div>
+
+      <div class="p-body">
+        <div class="ppane on" id="p-tl"></div>
+
+        <div class="ppane" id="p-term">
+          <div class="term">
+<span class="dim">legion-7f3c ~ session sess_7f3c · senior-dev · réseau limité</span>
+<span class="pr">$</span> pnpm install --frozen-lockfile
+<span class="dim">Lockfile is up to date, resolution step is skipped · done in 8.4s</span>
+<span class="pr">$</span> pnpm vitest run src/checkout
+<span class="dim"> RUN  v2.1.4 /repos/front</span>
+<span class="ok"> ✓ </span>src/checkout/PaymentForm.test.tsx <span class="dim">(9 tests) 1 284 ms</span>
+<span class="ok"> ✓ </span>src/checkout/session.test.ts <span class="dim">(4 tests) 402 ms</span>
+<span class="dim"> Test Files  2 passed (2) · Tests  13 passed (13) · Duration  12.48s</span>
+<span class="pr">$</span> git commit -m "checkout: passer par la session Stripe hébergée"
+<span class="dim">[legion/checkout 5f0be31] 7 files changed, 148 insertions(+), 96 deletions(-)</span>
+<span class="pr">$</span> cat /repos/front/package.json
+<span class="er">refusé · fs_denied · write hors des dossiers accordés</span>
+<span class="pr">$</span> <span class="dim">▍</span>
+          </div>
+        </div>
+
+        <div class="ppane" id="p-diff">
+          <div class="diff">
+            <div class="fh"><span>src/checkout/PaymentForm.tsx</span><span class="st"><span style="color:#A8DCBE">+62</span> <span style="color:#EAA6AB">−41</span></span></div>
+            <div class="hunk">@@ -18,11 +18,14 @@ export function PaymentForm({ cart }: Props)</div>
+            <span class="ln del">-  const [card, setCard] = useState&lt;CardState&gt;(emptyCard)</span>
+            <span class="ln del">-  const submit = async () =&gt; {</span>
+            <span class="ln del">-    await api.post('/orders', { cart, card })</span>
+            <span class="ln add">+  const submit = async () =&gt; {</span>
+            <span class="ln add">+    const { url } = await api.post('/checkout/session', { cart })</span>
+            <span class="ln add">+    window.location.assign(url)   // Checkout hébergé — plus de PAN côté client</span>
+            <span class="ln">   }</span>
+            <div class="fh" style="border-top:1px solid var(--line)"><span>src/api/orders.ts</span><span class="st"><span style="color:#A8DCBE">+31</span> <span style="color:#EAA6AB">−28</span></span></div>
+            <div class="hunk">@@ -44,9 +44,12 @@ export async function confirmOrder(evt: StripeEvent)</div>
+            <span class="ln del">-  await db.orders.insert(order)</span>
+            <span class="ln add">+  // idempotence : la commande n'est confirmée qu'au webhook, une seule fois</span>
+            <span class="ln add">+  await db.orders.upsert(order, { onConflict: 'stripe_session_id' })</span>
+            <div class="art-row" style="border-top:1px solid var(--line)">
+              <span class="art-d">5 autres fichiers · commit <span class="mono" style="color:var(--txt-2)">5f0be31</span></span>
+              <span style="flex:1"></span>
+              <button class="btn sm ghost">Tout déplier</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="ppane" id="p-art">
+          <div class="tl-sec">Artifacts de session — obligatoires</div>
+          <div class="art-row"><svg class="ic" style="color:var(--txt-3)"><use href="#i-file"/></svg><span class="art-n">checkout-migration.md</span><span class="badge req">requis</span><span class="art-d num">6.2 ko</span></div>
+          <div class="art-row"><svg class="ic" style="color:var(--txt-3)"><use href="#i-file"/></svg><span class="art-n">diff-5f0be31.patch</span><span class="badge req">requis</span><span class="art-d num">18.4 ko</span></div>
+          <div class="art-row art-miss"><svg class="ic" style="color:var(--err)"><use href="#i-err"/></svg><span class="art-n">rapport-de-session.md</span><span class="badge err">manquant</span><span class="art-d">bloque la clôture</span></div>
+          <div class="tl-sec">Produits par les outils</div>
+          <div class="art-row"><svg class="ic" style="color:var(--txt-3)"><use href="#i-file"/></svg><span class="art-n">vitest-report.json</span><span class="badge ok">13 tests</span><span class="art-d num">41.7 ko</span></div>
+          <div class="art-row"><svg class="ic" style="color:var(--txt-3)"><use href="#i-file"/></svg><span class="art-n">checkout-flow.png</span><span class="art-d num">128 ko</span></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     ÉCRAN 3 — BOARD
+     ============================================================ -->
+<section class="screen" id="s-board" role="tabpanel" aria-labelledby="t-board">
+  <div class="mobile-only mob-note"><b>Mobile = triage seulement.</b> Quatre colonnes de tâches ne tiennent pas sous 700 px, et les réduire en accordéon donnerait une liste qui n'est plus un board. Sur téléphone, utilisez l'onglet Flux avec « seulement ce qui m'attend ».</div>
+
+  <div class="desktop-only" style="display:flex;flex-direction:column;flex:1;min-height:0">
+  <div class="sysbar">
+    <div class="mark"><span class="mark-sq"></span><b>Legion</b></div>
+    <div class="gauge" style="border-left:0;padding-left:0"><span class="dot live"></span>Projet <b>Démo (mock)</b></div>
+    <div class="grow"></div>
+    <div class="gauges">
+      <div class="gauge"><b class="num">12</b> tâches</div>
+      <div class="gauge"><span class="dot live"></span><b class="num">3</b> sessions actives</div>
+      <div class="gauge attn"><svg class="ic"><use href="#i-pin"/></svg><b class="num">3</b> vous attendent</div>
+      <div class="gauge">Coût du jour <b class="num">$3.08</b></div>
+    </div>
+  </div>
+
+  <div class="viewbar">
+    <div class="fgroup">
+      <span class="flabel">Vue enregistrée</span>
+      <button class="chip" data-view="task" aria-pressed="true"><svg class="ic s12"><use href="#i-grid"/></svg>Board · statut de tâche</button>
+      <button class="chip" data-view="session" aria-pressed="false"><svg class="ic s12"><use href="#i-box"/></svg>Board · statut de session</button>
+      <button class="chip" id="v-flux"><svg class="ic s12"><use href="#i-live"/></svg>Flux brut<svg class="ic s12"><use href="#i-arrowr"/></svg></button>
+      <button class="chip" id="v-wait"><svg class="ic s12"><use href="#i-pin"/></svg>Ce qui m'attend<svg class="ic s12"><use href="#i-arrowr"/></svg></button>
+      <button class="chip" disabled title="Aucun événement de coût sur ce projet aujourd'hui">Coûts par agent</button>
+    </div>
+    <div class="query desktop-only">
+      <svg class="ic s12"><use href="#i-link"/></svg>
+      <input id="q-board" value="legion://demo/flux?group=task.status&amp;sort=priority" readonly aria-label="Requête de filtre de la vue">
+      <span class="hint">URL</span>
+    </div>
+  </div>
+
+  <div class="note">
+    <svg class="ic s12"><use href="#i-live"/></svg>
+    <span>Le board n'est pas un écran : c'est <b>le même flux</b>, groupé par <b id="grp-lbl">statut de tâche</b>. Chaque carte est l'objet dont vous lisez les événements dans le Flux — cliquez-en une pour voir ses trois derniers.</span>
+  </div>
+
+  <div class="cols" id="cols"></div>
+
+  <div class="boardflux">
+    <div class="bf-h">
+      <svg class="ic s12"><use href="#i-live"/></svg>
+      Le même flux, non groupé
+      <span class="c" id="bf-c">6 derniers événements du projet</span>
+      <span style="flex:1"></span>
+      <button class="btn sm ghost" id="bf-open"><svg class="ic s12"><use href="#i-arrowr"/></svg>Ouvrir le flux complet</button>
+    </div>
+    <div id="board-mini"></div>
+  </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     ÉCRAN 4 — GOAL
+     ============================================================ -->
+<section class="screen" id="s-goal" role="tabpanel" aria-labelledby="t-goal">
+  <div class="mobile-only mob-note"><b>Mobile = triage seulement.</b> Un goal se pilote avec sa DoD, ses rails et le journal de l'orchestrateur en vis-à-vis ; empilés sur un écran de téléphone, ils cessent d'être comparables. Sur téléphone, utilisez l'onglet Flux.</div>
+
+  <div class="desktop-only" style="display:flex;flex-direction:column;flex:1;min-height:0">
+  <div class="sysbar">
+    <div class="mark"><span class="mark-sq"></span><b>Legion</b></div>
+    <div class="gauge" style="border-left:0;padding-left:0"><svg class="ic"><use href="#i-goal"/></svg><b>Fiabiliser le tunnel de paiement</b></div>
+    <div class="gauge"><span class="dot live" id="goal-dot"></span><span id="goal-state">active</span></div>
+    <div class="grow"></div>
+    <div class="gauges">
+      <div class="gauge">DoD <b class="num" id="dod-count">2</b>/4</div>
+      <div class="gauge">Budget <b class="num">$6.42</b> / $25</div>
+      <div class="gauge">Durée <b class="num">2 145</b> min</div>
+      <div class="gauge"><button class="btn sm ghost"><svg class="ic s12"><use href="#i-pause"/></svg>Mettre en pause</button></div>
+    </div>
+  </div>
+
+  <div class="filterbar">
+    <div class="fgroup">
+      <span class="flabel">Filtre</span>
+      <button class="chip" aria-pressed="true">goal : Fiabiliser le tunnel de paiement</button>
+      <button class="chip">2 tâches liées</button>
+      <button class="chip">4 itérations</button>
+    </div>
+    <div class="query desktop-only">
+      <svg class="ic s12"><use href="#i-link"/></svg>
+      <input value="legion://demo/flux?goal=fiabiliser-tunnel&amp;view=goal" readonly aria-label="Requête de filtre courante">
+      <span class="hint">URL</span>
+    </div>
+  </div>
+
+  <div class="stopped-note" id="stopped-note" hidden>
+    <svg class="ic"><use href="#i-power"/></svg>
+    <span>Goal arrêté par l'opérateur. Les sessions en cours ont reçu un signal d'arrêt ; les containers sont détruits après écriture des artifacts.</span>
+  </div>
+
+  <div class="goalwrap">
+    <div class="goal-main">
+      <div class="sec">
+        <div class="sec-h">Definition of Done <span class="c" id="dod-c2">2/4</span>
+          <span class="r"><button class="btn sm" id="goal-validate" disabled title="Les 4 critères doivent être cochés">Clore le goal</button></span>
+        </div>
+        <div id="dod-list"></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-h">Plan prévisionnel <span class="c">4 étapes</span></div>
+        <div class="step done"><span class="idx">1</span><span class="nm">Auditer le flux de paiement existant</span><span class="step-state"><svg class="ic s12" style="color:var(--ok)"><use href="#i-check"/></svg><span class="ag">spec</span></span></div>
+        <div class="step done"><span class="idx">2</span><span class="nm">Rendre le webhook idempotent</span><span class="step-state"><svg class="ic s12" style="color:var(--ok)"><use href="#i-check"/></svg><span class="ag">senior-dev</span></span></div>
+        <div class="step"><span class="idx">3</span><span class="nm">Migrer vers Checkout hébergé</span><span class="step-state"><span class="dot live"></span>en review<span class="ag">senior-dev</span></span></div>
+        <div class="step"><span class="idx">4</span><span class="nm">Review consolidée</span><span class="step-state"><span class="dot"></span>en file<span class="ag">review-coordinator</span></span></div>
+        <div style="padding:8px 16px;border-top:1px solid var(--line-soft);font-size:11.5px;color:var(--txt-3);max-width:74ch">
+          Prévision approuvée avec la DoD. L'orchestrateur peut dévier du plan : chaque écart est écrit dans le journal ci-dessous avec sa raison.
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-h">Tâches du goal <span class="c">2</span></div>
+        <div class="step"><span class="idx"></span><span class="nm">Refonte du tunnel de paiement Stripe Checkout</span><span class="step-state"><span class="badge sig">review</span><span class="ag">senior-dev</span></span></div>
+        <div class="step"><span class="idx"></span><span class="nm">Corriger le webhook Stripe qui doublonnait les commandes</span><span class="step-state"><span class="badge ok">done</span><span class="ag">senior-dev</span></span></div>
+      </div>
+
+      <div class="sec" style="border-bottom:0">
+        <div class="sec-h">Journal de l'orchestrateur <span class="c">7 entrées</span>
+          <span class="r"><button class="btn sm ghost" id="j-toggle">Déplier les payloads</button></span>
+        </div>
+        <div id="journal"></div>
+      </div>
+    </div>
+
+    <div class="goal-side">
+      <div class="sec-h" style="border-bottom:1px solid var(--line)">Rails</div>
+      <div class="rail">
+        <div class="rail-1"><span class="k">Budget consommé</span><span class="v num">$6.42 <span class="max">/ $25.00</span></span></div>
+        <div class="bar"><i style="width:25.7%"></i></div>
+        <div class="why">Arrêt automatique à $25. Reste 4 sessions au coût moyen observé.</div>
+      </div>
+      <div class="rail">
+        <div class="rail-1"><span class="k">Itérations sans progrès</span><span class="v num">0 <span class="max">/ 3</span></span></div>
+        <div class="bar ok"><i style="width:4%"></i></div>
+        <div class="why">Une itération sans item de DoD coché incrémente ce compteur. À 3, le goal passe en <span class="mono">stopped-stuck</span>.</div>
+      </div>
+      <div class="rail">
+        <div class="rail-1"><span class="k">Durée</span><span class="v num">2 145 <span class="max">min</span></span></div>
+        <div class="bar warn"><i style="width:59%"></i></div>
+        <div class="why">Ouvert depuis le 17 août. Pas de plafond de durée configuré sur ce goal.</div>
+      </div>
+      <div class="rail">
+        <div class="rail-1"><span class="k">Intention</span></div>
+        <div class="why" style="color:var(--txt-2);font-size:11.5px">« Plus aucune commande fantôme ni double débit sur le tunnel de paiement. »</div>
+      </div>
+
+      <div class="sec-h" style="border-top:1px solid var(--line);border-bottom:1px solid var(--line)">Kill switch</div>
+      <div class="killzone">
+        <p id="kill-p">Arrête le goal et toutes ses sessions. Les containers sont détruits après écriture des artifacts ; les branches poussées restent.</p>
+        <div class="confirm" id="kill-1">
+          <button class="btn danger" id="kill-btn"><svg class="ic s12"><use href="#i-power"/></svg>Arrêter le goal</button>
+        </div>
+        <div class="confirm" id="kill-2" hidden>
+          <span style="font-size:11.5px;color:#F4A0A6">Arrêter maintenant ? 1 session en cours.</span>
+          <button class="btn danger" id="kill-yes">Oui, arrêter</button>
+          <button class="btn ghost" id="kill-no">Annuler</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+'use strict';
+/* ============================================================
+   Données — projet démo Legion (aucune persistance : mémoire JS)
+   ============================================================ */
+const T = {
+  tva:'Corriger le calcul de TVA sur les commandes UE',
+  vitest:'Migrer les tests front vers Vitest',
+  warn:'Nettoyer les warnings de build',
+  pdf:'Export PDF des rapports mensuels',
+  search:'Ajouter la recherche par référence de commande',
+  checkout:'Refonte du tunnel de paiement Stripe Checkout',
+  specnotif:'Spec : notifications de livraison',
+  webhook:'Corriger le webhook Stripe qui doublonnait les commandes',
+  deps:'Mettre à jour les dépendances de sécurité',
+  invoices:'Générer les factures PDF en masse',
+  fidspec:'Spécifier · Programme de fidélité',
+  fidimpl:'Implémenter · Programme de fidélité'
+};
+
+const ICON = {
+  session:'i-box', status:'i-live', init:'i-box', capabilities:'i-gauge',
+  tool:'i-tool', fs_op:'i-fs', fs_denied:'i-deny', text:'i-text',
+  repo_ready:'i-branch', repo_push:'i-push', throttle:'i-gauge',
+  task_status:'i-check', run_error:'i-err', result:'i-check',
+  goal:'i-goal', steer:'i-send', session_end:'i-box'
+};
+
+// t, ev(nom de production), cat, agent, task, msg(HTML), right, payload, tone, live, loading
+const EV = [
+ {t:'14:38:20',ev:'session_start',cat:'session',agent:'senior-dev',task:T.tva,loading:true,
+  msg:'Démarrage du container <code>legion-9b2e</code> — image node20-slim, réseau limité',right:'…'},
+ {t:'14:38:02',ev:'tool_start',cat:'outil',agent:'senior-dev',task:T.search,live:true,tone:'sig',
+  msg:'<b>Grep</b> <code>orderRef</code> dans <code>/repos/api/src</code>',right:'en cours',
+  payload:'{"tool":"Grep","input":"orderRef · /repos/api/src"}'},
+ {t:'14:37:55',ev:'status',cat:'session',agent:'senior-dev',task:T.search,
+  msg:'Session <b>running</b> — réseau limité, modèle <code>claude-sonnet-4-5</code>',right:'$0.11',
+  payload:'{"status":"running","network":"limited","model":"claude-haiku-4-5"}'},
+ {t:'14:37:41',ev:'tool_end',cat:'outil',agent:'senior-dev',task:T.checkout,
+  msg:'<b>Read</b> <code>/repos/front/src/checkout/PaymentForm.tsx</code>',right:'3 821 ms',
+  payload:'{"tool":"Read","input":"/repos/front/src/checkout/PaymentForm.tsx"}\n{"durationMs":3821}'},
+ {t:'14:35:03',ev:'repo_push',cat:'depot',agent:'senior-dev',task:T.checkout,tone:'ok',
+  msg:'Poussé sur <code>front</code> · branche <code>legion/checkout</code>',right:'7 fichiers · 5f0be31',
+  payload:'{"repo":"front","changes":7,"commit":"5f0be31"}'},
+ {t:'14:34:47',ev:'fs_denied',cat:'outil',agent:'writer',task:T.deps,tone:'warn',
+  msg:'Écriture refusée sur <code>/repos/front/package.json</code> — hors des dossiers accordés',right:'refusé',
+  payload:'{"op":"write","path":"/repos/front/package.json","reason":"hors des dossiers accordés"}'},
+ {t:'14:33:10',ev:'throttle',cat:'session',agent:'senior-dev',task:T.search,tone:'warn',
+  msg:'Limite de débit 5 h à <b>72 %</b> — autorisé avec avertissement, reset à 13:29 mer.',right:'72 %',
+  payload:'{"kind":"rate_limit","status":"allowed_warning","rateLimitType":"5h","utilization":0.72,"resetsAt":1787146141}'},
+ {t:'14:29:36',ev:'run_error',cat:'erreur',agent:'senior-dev',task:T.invoices,tone:'err',err:true,
+  msg:'<b>Timeout after 600s — heap out of memory at 512 invoices</b>',right:'échouée · $0.35',
+  payload:'{"message":"Timeout after 600s — heap out of memory at 512 invoices"}\n<span class="cmt">session sess_3a19 · container legion-3a19 détruit · dernier outil Bash « node scripts/bulk-invoices.js »\nreprise possible par lots de 128 — la tâche reste en review, aucun artifact écrit</span>'},
+ {t:'14:28:59',ev:'task_status',cat:'session',agent:'senior-dev',task:T.invoices,
+  msg:'Tâche passée en <b>review</b>',right:'review',payload:'{"status":"review"}'},
+ {t:'14:22:14',ev:'result',cat:'session',agent:'spec',task:T.specnotif,tone:'ok',
+  msg:'Session terminée — <b>success</b>',right:'$0.96',payload:'{"subtype":"success","costUsd":0.96}'},
+ {t:'14:21:30',ev:'fs_op',cat:'outil',agent:'spec',task:T.specnotif,
+  msg:'Écriture <code>/agents/spec/spec.md</code>',right:'4.1 ko',
+  payload:'{"op":"write","path":"/agents/spec/spec.md"}'},
+ {t:'14:19:02',ev:'text',cat:'session',agent:'spec',task:T.specnotif,
+  msg:'« Spec rédigée : 3 déclencheurs de notification, 2 canaux, matrice de repli si l\'email échoue. »',right:'—'},
+ {t:'14:16:44',ev:'goal_dod',cat:'goal',agent:'senior-dev',task:T.webhook,tone:'ok',
+  msg:'DoD cochée — <b>Une commande n\'est confirmée qu\'après le webhook</b> · Fiabiliser le tunnel de paiement',right:'2/4',
+  payload:'{"id":"d2","done":true}'},
+ {t:'14:08:31',ev:'session_start',cat:'session',agent:'senior-dev',task:T.pdf,
+  msg:'Session ouverte dans <code>legion-7f3c</code> — modèle <code>claude-sonnet-4-5</code>',right:'$0.42'},
+ {t:'14:05:10',ev:'capabilities',cat:'session',agent:'senior-dev',task:T.pdf,
+  msg:'Capacités accordées — skill <code>pdf-export</code>, MCP <code>linear</code>',right:'2',
+  payload:'{"skills":["pdf-export"],"mcpServers":["linear"]}'},
+ {t:'13:58:22',ev:'init',cat:'session',agent:'senior-dev',task:T.pdf,
+  msg:'Initialisation — <code>claude-sonnet-4-5</code>, clé API héritée du projet',right:'—',
+  payload:'{"model":"claude-sonnet-4-5","apiKeySource":"none"}'},
+ {t:'13:52:09',ev:'repo_ready',cat:'depot',agent:'senior-dev',task:T.checkout,
+  msg:'Dépôt <code>front</code> prêt dans <code>./repos/front</code> · branche <code>legion/checkout</code>',right:'clone 4.2 s',
+  payload:'{"repo":"front","dir":"./repos/front","branch":"legion/checkout"}'},
+ {t:'13:47:55',ev:'tool_end',cat:'outil',agent:'senior-dev',task:T.checkout,tone:'ok',
+  msg:'<b>Bash</b> <code>pnpm vitest run src/checkout</code> — 13 tests passés',right:'12 480 ms',
+  payload:'{"tool":"Bash","input":"pnpm vitest run src/checkout"}\n{"durationMs":12480,"exitCode":0}'},
+ {t:'13:41:02',ev:'text',cat:'session',agent:'writer',task:T.deps,
+  msg:'« Mise à jour des dépendances avec correctifs de sécurité, aucun breaking change. »',right:'—'},
+ {t:'13:33:18',ev:'result',cat:'session',agent:'writer',task:T.deps,tone:'ok',
+  msg:'Session terminée — <b>success</b>',right:'$0.04',payload:'{"subtype":"success","costUsd":0.04}'},
+ {t:'13:30:44',ev:'session_end',cat:'session',agent:'writer',task:T.deps,
+  msg:'Container détruit — <code>destroyed</code>, artifacts écrits',right:'6 min'},
+ {t:'12:58:03',ev:'task_status',cat:'session',agent:'senior-dev',task:T.checkout,
+  msg:'Tâche passée en <b>review</b> — gate d\'approbation armée',right:'review',payload:'{"status":"review"}'},
+ {t:'12:41:19',ev:'result',cat:'session',agent:'senior-dev',task:T.checkout,tone:'ok',
+  msg:'Session terminée — <b>success</b>',right:'$2.87',payload:'{"subtype":"success","costUsd":2.87}'},
+ {t:'12:38:50',ev:'repo_push',cat:'depot',agent:'senior-dev',task:T.checkout,
+  msg:'Poussé sur <code>front</code> — première passe Checkout hébergé',right:'3 fichiers · a1c9d02',
+  payload:'{"repo":"front","changes":3,"commit":"a1c9d02"}'},
+ {t:'11:52:37',ev:'goal_step',cat:'goal',agent:'senior-dev',task:T.checkout,
+  msg:'Étape 3 lancée — <b>Migrer vers Checkout hébergé</b> · Fiabiliser le tunnel de paiement',right:'étape 3/4',
+  payload:'{"agentName":"senior-dev","why":"Le webhook est idempotent, on peut migrer le tunnel","task":"Migrer vers Checkout hébergé"}'},
+ {t:'11:20:04',ev:'result',cat:'session',agent:'spec',task:T.fidspec,tone:'ok',
+  msg:'Session terminée — <b>success</b>',right:'$0.78',payload:'{"subtype":"success","costUsd":0.78}'},
+ {t:'10:58:12',ev:'session_end',cat:'session',agent:'spec',task:T.fidspec,
+  msg:'Container détruit — <code>destroyed</code>, spec approuvée par gate',right:'22 min'},
+ {t:'10:12:44',ev:'task_status',cat:'session',agent:'senior-dev',task:T.webhook,tone:'ok',
+  msg:'Tâche passée en <b>done</b>',right:'done',payload:'{"status":"done"}'},
+ {t:'09:47:21',ev:'result',cat:'session',agent:'senior-dev',task:T.webhook,tone:'ok',
+  msg:'Session terminée — <b>success</b>',right:'$1.24',payload:'{"subtype":"success","costUsd":1.24}'},
+ {t:'09:31:08',ev:'goal_dod',cat:'goal',agent:'senior-dev',task:T.webhook,tone:'ok',
+  msg:'DoD cochée — <b>Le webhook Stripe est idempotent (test d\'intégration)</b>',right:'1/4',
+  payload:'{"id":"d1","done":true}'},
+ {t:'09:04:55',ev:'init',cat:'session',agent:'senior-dev',task:T.webhook,
+  msg:'Initialisation — <code>claude-sonnet-4-5</code>',right:'—',
+  payload:'{"model":"claude-sonnet-4-5","apiKeySource":"none"}'}
+];
+
+const BLOCKING = [
+ {id:'b1',kind:'gate',t:'14:36:12',agent:'senior-dev',task:T.checkout,cat:'decision',
+  q:'Fusionner <code>legion/checkout</code> dans <code>main</code> — le tunnel passe désormais par Stripe Checkout hébergé.',
+  sub:'7 fichiers · commit <span class="mono">5f0be31</span> · 13 tests passés · la session est détruite, la branche reste'},
+ {id:'b2',kind:'ask',t:'14:31:48',agent:'senior-dev',task:T.pdf,cat:'decision',
+  q:'Pagination du PDF d\'export : une page par commande (plus lisible, fichier plus lourd) ou un tableau continu (compact) ?',
+  choices:['Une page par commande','Tableau continu'],
+  sub:'session en attente depuis 6 min · inbox_ask'},
+ {id:'b3',kind:'ask',t:'14:12:05',agent:'spec',task:T.specnotif,cat:'decision',
+  q:'Pour les notifications de livraison : on notifie aussi par SMS, ou email seulement pour la v1 ?',
+  sub:'session en attente depuis 26 min · inbox_ask · réponse libre'}
+];
+
+const TASKS = [
+ {n:T.tva,      st:'todo',   ss:'starting',  ag:'senior-dev', pri:'high', cx:'high', c:0},
+ {n:T.vitest,   st:'todo',   ss:null,        ag:'senior-dev', pri:'med',  cx:'med',  c:0},
+ {n:T.warn,     st:'todo',   ss:null,        ag:'writer',     pri:'low',  cx:'low',  c:0},
+ {n:T.fidimpl,  st:'todo',   ss:null,        ag:'senior-dev', pri:'med',  cx:'med',  c:0},
+ {n:T.pdf,      st:'doing',  ss:'waiting-inbox', ag:'senior-dev', pri:'high', cx:'high', gate:true, c:0.42},
+ {n:T.search,   st:'doing',  ss:'running',   ag:'senior-dev', pri:'med',  cx:'med',  c:0.11},
+ {n:T.checkout, st:'review', ss:'destroyed', ag:'senior-dev', pri:'high', cx:'high', gate:true, c:2.87},
+ {n:T.specnotif,st:'review', ss:'committing',ag:'spec',       pri:'med',  cx:'med',  c:0.96},
+ {n:T.invoices, st:'review', ss:'failed',    ag:'senior-dev', pri:'med',  cx:'med',  c:0.35},
+ {n:T.webhook,  st:'done',   ss:'destroyed', ag:'senior-dev', pri:'high', cx:'high', c:1.24},
+ {n:T.deps,     st:'done',   ss:'destroyed', ag:'writer',     pri:'low',  cx:'low',  c:0.04},
+ {n:T.fidspec,  st:'done',   ss:'destroyed', ag:'spec',       pri:'med',  cx:'med',  gate:true, c:0.78}
+];
+
+const DOD = [
+ {id:'d1', lab:"Le webhook Stripe est idempotent (test d'intégration)", done:true},
+ {id:'d2', lab:"Une commande n'est confirmée qu'après le webhook", done:true},
+ {id:'d3', lab:"Le tunnel passe par Stripe Checkout hébergé", done:false},
+ {id:'d4', lab:"Aucune régression sur la suite de tests", done:false}
+];
+
+const JOURNAL = [
+ {t:'14:16:44',k:'dod',      v:'{"id":"d2","done":true}'},
+ {t:'12:41:19',k:'task_done',v:'{"task":"Refonte du tunnel de paiement Stripe Checkout","costUsd":2.87}'},
+ {t:'11:52:37',k:'decision', v:'{"agentName":"senior-dev","why":"Le webhook est idempotent, on peut migrer le tunnel","task":"Migrer vers Checkout hébergé"}'},
+ {t:'10:12:44',k:'task_done',v:'{"task":"Webhook idempotent","costUsd":1.24}'},
+ {t:'09:31:08',k:'dod',      v:'{"id":"d1","done":true}'},
+ {t:'08:29:01',k:'decision', v:'{"agentName":"spec","why":"Cartographier le flux avant modification","task":"Audit du tunnel de paiement"}'},
+ {t:'05:29:01',k:'status',   v:'active'}
+];
+
+const TIMELINE = [
+ {sec:'Session sess_7f3c · senior-dev · legion/checkout'},
+ {t:'14:37:41',ev:'tool_start',ic:'i-tool',live:true,msg:'<b>Read</b> <code>PaymentForm.tsx</code>',r:'en cours',
+  p:'{"tool":"Read","input":"/repos/front/src/checkout/PaymentForm.tsx"}'},
+ {t:'14:35:03',ev:'repo_push',ic:'i-push',tone:'ok',msg:'Poussé sur <code>front</code>',r:'7 fichiers · 5f0be31',
+  p:'{"repo":"front","changes":7,"commit":"5f0be31"}'},
+ {t:'13:47:55',ev:'tool_end',ic:'i-tool',tone:'ok',msg:'<b>Bash</b> <code>pnpm vitest run src/checkout</code>',r:'12 480 ms',
+  p:'{"tool":"Bash","input":"pnpm vitest run src/checkout"}\n{"durationMs":12480,"exitCode":0}\n<span class="cmt">Test Files 2 passed (2) · Tests 13 passed (13)</span>'},
+ {t:'13:44:12',ev:'fs_op',ic:'i-fs',msg:'Écriture <code>src/api/orders.ts</code>',r:'+31 −28',
+  p:'{"op":"write","path":"/repos/front/src/api/orders.ts"}'},
+ {t:'13:41:40',ev:'fs_denied',ic:'i-deny',tone:'warn',msg:'Écriture refusée <code>package.json</code>',r:'refusé',
+  p:'{"op":"write","path":"/repos/front/package.json","reason":"hors des dossiers accordés"}'},
+ {t:'13:38:02',ev:'tool_end',ic:'i-tool',msg:'<b>Edit</b> <code>PaymentForm.tsx</code>',r:'1 204 ms',
+  p:'{"tool":"Edit","input":"/repos/front/src/checkout/PaymentForm.tsx"}\n{"durationMs":1204}'},
+ {t:'13:52:09',ev:'repo_ready',ic:'i-branch',msg:'Dépôt <code>front</code> prêt · <code>legion/checkout</code>',r:'4.2 s',
+  p:'{"repo":"front","dir":"./repos/front","branch":"legion/checkout"}'},
+ {t:'13:31:55',ev:'capabilities',ic:'i-gauge',msg:'skill <code>pdf-export</code> · MCP <code>linear</code>',r:'2',
+  p:'{"skills":["pdf-export"],"mcpServers":["linear"]}'},
+ {t:'13:30:18',ev:'status',ic:'i-live',msg:'Session <b>running</b> — réseau limité',r:'—',
+  p:'{"status":"running","network":"limited","model":"claude-haiku-4-5"}'},
+ {t:'13:29:44',ev:'init',ic:'i-box',msg:'Initialisation <code>claude-sonnet-4-5</code>',r:'—',
+  p:'{"model":"claude-sonnet-4-5","apiKeySource":"none"}'},
+ {sec:'Session précédente sess_2b71 · terminée'},
+ {t:'12:41:19',ev:'result',ic:'i-check',tone:'ok',msg:'Terminée — <b>success</b>',r:'$2.87',
+  p:'{"subtype":"success","costUsd":2.87}'},
+ {t:'12:38:50',ev:'repo_push',ic:'i-push',msg:'Poussé sur <code>front</code>',r:'3 fichiers · a1c9d02',
+  p:'{"repo":"front","changes":3,"commit":"a1c9d02"}'},
+ {t:'11:52:37',ev:'task_status',ic:'i-check',msg:'Tâche prise par l\'orchestrateur — étape 3/4',r:'doing',
+  p:'{"status":"doing"}'}
+];
+
+/* ============================================================
+   Utilitaires
+   ============================================================ */
+const $  = (s,r)=> (r||document).querySelector(s);
+const $$ = (s,r)=> Array.from((r||document).querySelectorAll(s));
+const agentCls = a => a==='spec'?'a-spec':a==='writer'?'a-writer':a==='review-coordinator'?'a-rc':'';
+const hl = s => s
+  .replace(/"([a-zA-Z_]+)":/g,'"<span class="k">$1</span>":')
+  .replace(/:( ?)"([^"]*)"/g,':$1"<span class="s">$2</span>"')
+  .replace(/:( ?)(-?\d+\.?\d*)/g,':$1<span class="n">$2</span>');
+
+/* ============================================================
+   Onglets de la maquette
+   ============================================================ */
+const SCREENS = ['flux','focus','board','goal'];
+function showScreen(name){
+  SCREENS.forEach(s=>{
+    $('#s-'+s).classList.toggle('on', s===name);
+    $('#t-'+s).setAttribute('aria-selected', String(s===name));
+  });
+  if(name==='focus'){ $('#panel').classList.remove('enter'); void $('#panel').offsetWidth; $('#panel').classList.add('enter');
+    $('#scrim').classList.remove('enter'); void $('#scrim').offsetWidth; $('#scrim').classList.add('enter'); }
+}
+SCREENS.forEach(s=> $('#t-'+s).addEventListener('click',()=>showScreen(s)));
+$('.tabs').addEventListener('keydown',e=>{
+  if(e.key!=='ArrowRight' && e.key!=='ArrowLeft') return;
+  const i = SCREENS.findIndex(s=> $('#t-'+s).getAttribute('aria-selected')==='true');
+  const j = (i + (e.key==='ArrowRight'?1:SCREENS.length-1)) % SCREENS.length;
+  showScreen(SCREENS[j]); $('#t-'+SCREENS[j]).focus(); e.preventDefault();
+});
+
+/* ============================================================
+   ÉCRAN 1 — filtres + flux
+   ============================================================ */
+const state = { project:'demo', agent:null, cat:null, waiting:false, resolved:{}, expanded:{} };
+
+function matches(e){
+  if(state.project!=='demo') return false;
+  if(state.agent && e.agent!==state.agent) return false;
+  if(state.cat && e.cat!==state.cat) return false;
+  if(state.waiting) return false;
+  return true;
+}
+
+function rowHTML(e,i,prefix){
+  const key = prefix+i;
+  const open = !!state.expanded[key];
+  const cls = ['row', e.payload?'clickable':'', e.err?'err-row':''].filter(Boolean).join(' ');
+  const icon = e.loading
+    ? '<svg class="ic"><use href="#i-spin"/></svg>'
+    : '<svg class="ic"><use href="#i-'+(ICON[e.ev]||ICON[e.ev.replace(/_.*/,'')]||'i-live').replace(/^i-/,'')+'"/></svg>';
+  const ic = e.loading ? '<svg class="ic"><use href="#i-spin"/></svg>'
+    : '<svg class="ic"><use href="#'+(ICON[e.ev] || (e.ev.startsWith('tool')?'i-tool':e.ev.startsWith('goal')?'i-goal':e.ev.startsWith('session')?'i-box':'i-live'))+'"/></svg>';
+  const tone = e.tone? ' '+e.tone : (e.live?' sig':'');
+  return '<div class="'+cls+'" data-k="'+key+'"'+(e.payload?' role="button" tabindex="0" aria-expanded="'+open+'"':'')+'>'
+    + '<time class="r-t">'+e.t+'</time>'
+    + '<span class="r-i'+tone+'">'+ic+'</span>'
+    + '<span class="r-a '+agentCls(e.agent)+'">'+e.agent+'</span>'
+    + '<span class="r-e">'+e.ev+'</span>'
+    + '<span class="r-m">'+e.msg+' <span style="color:var(--txt-3)">· '+e.task+'</span></span>'
+    + '<span class="r-r'+(String(e.right).startsWith('$')?' cost':'')+'">'+e.right+(e.payload?' <svg class="ic s12 r-x" style="display:inline-block;vertical-align:-2px"><use href="#i-chev"/></svg>':'')+'</span>'
+    + (open && e.payload ? '<div class="payload">'+hl(e.payload)+'</div>' : '')
+    + '</div>';
+}
+
+function renderStream(){
+  const list = EV.filter(matches);
+  const el = $('#stream');
+  if(!list.length){
+    el.innerHTML = '<div class="empty"><b>Aucun événement ne correspond à ce filtre.</b>'
+      + (state.waiting
+        ? 'Le filtre « seulement ce qui m\'attend » ne garde que les décisions bloquantes, remontées en haut du flux.'
+        : 'Le flux ne contient pas encore d\'événement pour cette combinaison de projet, d\'agent et de type.')
+      + '<br><button class="btn sm" id="reset-f">Réinitialiser les filtres</button></div>';
+    $('#reset-f').addEventListener('click',resetFilters);
+  } else {
+    el.innerHTML = list.map((e,i)=>rowHTML(e,EV.indexOf(e),'f')).join('');
+  }
+  $('#stream-bg').innerHTML = EV.slice(0,16).map((e,i)=>rowHTML(e,i,'g')).join('');
+  bindRows();
+}
+
+function bindRows(){
+  $$('.row.clickable').forEach(r=>{
+    const toggle = ()=>{ const k=r.dataset.k; state.expanded[k]=!state.expanded[k]; renderStream(); renderPinned(); };
+    r.addEventListener('click',toggle);
+    r.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();} });
+  });
+}
+
+function renderPinned(){
+  const open = BLOCKING.filter(b=>!state.resolved[b.id]);
+  const done = BLOCKING.filter(b=>state.resolved[b.id]);
+  const wait = open.length;
+  $('#g-wait').textContent = wait;
+  $('#g-wait').closest('.gauge').classList.toggle('attn', wait>0);
+  let h = '';
+  h += '<div class="pinned-head'+(wait?'':' calm')+'"><svg class="ic"><use href="#i-pin"/></svg>'
+     + (wait? wait+' élément'+(wait>1?'s':'')+' vous attend'+(wait>1?'ent':'') : 'plus rien ne vous attend')
+     + (wait? '<span class="sub">remonté'+(wait>1?'s':'')+' du flux — <b>traitables ici</b>, sans changer d\'écran</span>' : '')
+     + '</div>';
+
+  if(!wait){
+    h += '<div class="empty"><b>Le flux coule tout seul.</b>Les '+BLOCKING.length+' décisions traitées sont reparties dans le flux, à leur horodatage. Elles reviendront ici si un agent redemande quelque chose.</div>';
+  }
+
+  open.forEach(b=>{
+    h += '<div class="blk" data-b="'+b.id+'">'
+      + '<div class="blk-top">'
+      + '<span class="blk-kind '+(b.kind==='gate'?'gate':'ask')+'">'+(b.kind==='gate'?'gate':'inbox_ask')+'</span>'
+      + '<span class="blk-t">'+b.t+'</span>'
+      + '<span class="r-a '+agentCls(b.agent)+'" style="font-size:11.5px">'+b.agent+'</span>'
+      + '<span class="blk-sub">'+b.task+'</span>'
+      + '<span class="push"></span>'
+      + '<span class="blk-sub desktop-only">'+b.sub+'</span>'
+      + '</div>'
+      + '<div class="blk-q">'+b.q+'</div>'
+      + '<div class="blk-actions">';
+    if(b.kind==='gate'){
+      h += '<button class="btn primary" data-act="ok" data-b="'+b.id+'"><svg class="ic s12"><use href="#i-check"/></svg>Approuver et fusionner</button>'
+        +  '<button class="btn ghost" data-act="no" data-b="'+b.id+'">Refuser</button>'
+        +  '<button class="btn ghost" data-act="diff"><svg class="ic s12"><use href="#i-diff"/></svg>Ouvrir le diff</button>';
+    } else {
+      (b.choices||[]).forEach(c=>{
+        h += '<button class="btn" data-act="ok" data-b="'+b.id+'">'+c+'</button>';
+      });
+      h += '<label class="reply"><input placeholder="'+(b.choices?'Ou répondre en texte libre…':'Votre réponse — elle repart directement dans la session…')+'" aria-label="Répondre à '+b.agent+'">'
+        +  '<button data-act="ok" data-b="'+b.id+'" aria-label="Envoyer la réponse"><svg class="ic"><use href="#i-send"/></svg></button></label>';
+    }
+    h += '</div></div>';
+  });
+
+  done.forEach(b=>{
+    h += '<div class="resolved"><svg class="ic" style="color:var(--ok)"><use href="#i-check"/></svg>'
+      + '<span class="txt"><b>traité</b> · 14:41:0'+(BLOCKING.indexOf(b)+2)+' · '
+      + (b.kind==='gate' ? 'gate approuvée, fusion de <code>legion/checkout</code> lancée' : 'réponse envoyée à <b class="who">'+b.agent+'</b>, la session repart')
+      + ' — '+b.task+'</span>'
+      + '<button class="btn sm ghost" data-act="undo" data-b="'+b.id+'">Annuler</button></div>';
+  });
+
+  $('#pinned').innerHTML = h;
+  $$('#pinned [data-act]').forEach(btn=>{
+    btn.addEventListener('click',ev=>{
+      ev.preventDefault();
+      const id = btn.dataset.b, act = btn.dataset.act;
+      if(act==='diff'){ showScreen('focus'); selectPTab('diff'); return; }
+      if(act==='undo'){ delete state.resolved[id]; }
+      else { state.resolved[id] = true; }
+      renderPinned();
+    });
+  });
+}
+
+function syncQuery(){
+  let q = 'legion://demo/flux';
+  const p = [];
+  if(state.agent) p.push('agent='+state.agent);
+  if(state.cat) p.push('type='+state.cat);
+  if(state.waiting) p.push('waiting=1');
+  if(state.project!=='demo') p.push('project='+state.project);
+  if(p.length) q += '?'+p.join('&');
+  $('#q-url').value = q;
+}
+
+function resetFilters(){
+  state.agent=null; state.cat=null; state.waiting=false; state.project='demo';
+  $$('#fbar .chip').forEach(c=> c.setAttribute('aria-pressed', String(c.dataset.v==='demo')));
+  $('#sw-wait').setAttribute('aria-pressed','false');
+  renderAll();
+}
+
+$$('#fbar .chip').forEach(c=>{
+  c.addEventListener('click',()=>{
+    const f=c.dataset.f, v=c.dataset.v;
+    if(f==='project'){ state.project = v; $$('#fbar .chip[data-f="project"]').forEach(x=>x.setAttribute('aria-pressed',String(x===c))); }
+    else{
+      const on = state[f]===v;
+      state[f] = on? null : v;
+      $$('#fbar .chip[data-f="'+f+'"]').forEach(x=>x.setAttribute('aria-pressed',String(!on && x===c)));
+    }
+    renderAll();
+  });
+});
+$('#sw-wait').addEventListener('click',()=>{
+  state.waiting = !state.waiting;
+  $('#sw-wait').setAttribute('aria-pressed',String(state.waiting));
+  renderAll();
+});
+
+function renderAll(){ renderPinned(); renderStream(); syncQuery(); }
+
+/* ============================================================
+   ÉCRAN 2 — panneau de focus
+   ============================================================ */
+function renderTimeline(){
+  let h='';
+  TIMELINE.forEach((e,i)=>{
+    if(e.sec){ h+='<div class="tl-sec">'+e.sec+'</div>'; return; }
+    const k='t'+i, open=!!state.expanded[k];
+    h += '<div class="tl-row clickable" data-tk="'+k+'" role="button" tabindex="0" aria-expanded="'+open+'">'
+      + '<time class="r-t">'+e.t+'</time>'
+      + '<span class="r-i'+(e.tone?' '+e.tone:(e.live?' sig':''))+'" style="align-self:center;display:flex">'
+      + (e.live?'<svg class="ic"><use href="#i-spin"/></svg>':'<svg class="ic"><use href="#'+e.ic+'"/></svg>')+'</span>'
+      + '<span class="r-e">'+e.ev+'</span>'
+      + '<span class="r-m">'+e.msg+'</span>'
+      + '<span class="r-r">'+e.r+' <svg class="ic s12 r-x" style="display:inline-block;vertical-align:-2px"><use href="#i-chev"/></svg></span>'
+      + (open? '<div class="payload" style="grid-column:1/-1">'+hl(e.p)+'</div>':'')
+      + '</div>';
+  });
+  $('#p-tl').innerHTML = h;
+  $$('#p-tl .tl-row').forEach(r=>{
+    const tg=()=>{ state.expanded[r.dataset.tk]=!state.expanded[r.dataset.tk]; renderTimeline(); };
+    r.addEventListener('click',tg);
+    r.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();tg();}});
+  });
+}
+
+function selectPTab(p){
+  $$('.ptab').forEach(b=> b.setAttribute('aria-selected', String(b.dataset.p===p)));
+  ['tl','term','diff','art'].forEach(x=> $('#p-'+x).classList.toggle('on', x===p));
+}
+$$('.ptab').forEach(b=> b.addEventListener('click',()=>selectPTab(b.dataset.p)));
+
+$('#close-panel').addEventListener('click',()=>{
+  $('#panel').hidden=true; $('#scrim').hidden=true; $('#reopen-panel').hidden=false; $('#reopen-panel').focus();
+});
+$('#reopen-panel').addEventListener('click',()=>{
+  $('#panel').hidden=false; $('#scrim').hidden=false; $('#reopen-panel').hidden=true;
+  $('#panel').classList.remove('enter'); void $('#panel').offsetWidth; $('#panel').classList.add('enter');
+  $('#scrim').classList.remove('enter'); void $('#scrim').offsetWidth; $('#scrim').classList.add('enter');
+});
+$('#scrim').addEventListener('click',()=>$('#close-panel').click());
+
+let steerN = 0;
+function sendSteer(){
+  const v = $('#steer-in').value.trim();
+  if(!v) return;
+  steerN++;
+  TIMELINE.splice(1,0,{t:'14:38:'+String(10+steerN*3).padStart(2,'0'),ev:'steer',ic:'i-send',tone:'sig',
+    msg:'Consigne reçue — « '+v.replace(/[<>]/g,'')+' »',r:'sans interruption',
+    p:'{"kind":"steer","delivery":"next_turn","interrupt":false,"text":"'+v.replace(/["<>]/g,'')+'"}'});
+  $('#steer-in').value='';
+  renderTimeline(); selectPTab('tl');
+}
+$('#steer-go').addEventListener('click',sendSteer);
+$('#steer-in').addEventListener('keydown',e=>{ if(e.key==='Enter') sendSteer(); });
+$('#clear-focus-filter').addEventListener('click',()=>showScreen('flux'));
+
+// compteur d'élapsed du HUD (donnée, pas décor)
+let el = 3.8;
+setInterval(()=>{ el += 0.1; const m=Math.floor(el/60), s=el%60;
+  $('#hud-el').textContent = String(m).padStart(2,'0')+':'+s.toFixed(1).padStart(4,'0'); }, 100);
+
+/* ============================================================
+   ÉCRAN 3 — board
+   ============================================================ */
+let boardGroup = 'task';
+let openCard = null;
+const COLS = {
+  task:[['todo','todo'],['doing','doing'],['review','review'],['done','done']],
+  session:[['running','running'],['committing','committing'],['waiting-inbox','waiting-inbox'],['destroyed','destroyed / autres']]
+};
+const SS_DOT = {running:'live',committing:'sig','waiting-inbox':'warn',failed:'err',destroyed:'',starting:'sig'};
+
+function lastEvents(taskName,n){
+  return EV.filter(e=>e.task===taskName).slice(0,n);
+}
+
+function renderBoard(){
+  const groups = COLS[boardGroup];
+  let h='';
+  groups.forEach(([key,label])=>{
+    let items;
+    if(boardGroup==='task') items = TASKS.filter(t=>t.st===key);
+    else if(key==='destroyed') items = TASKS.filter(t=>!t.ss || t.ss==='destroyed' || t.ss==='failed' || t.ss==='starting');
+    else items = TASKS.filter(t=>t.ss===key);
+
+    h += '<div class="col"><div class="col-h">'+label+'<span class="c">'+items.length+'</span></div><div class="col-b">';
+    if(!items.length){
+      h += '<div class="empty" style="padding:18px 12px"><b>Vide</b>Aucune tâche dans cet état.</div>';
+    }
+    items.forEach(t=>{
+      const last = lastEvents(t.n,1)[0];
+      const isOpen = openCard===t.n;
+      h += '<button class="card" data-t="'+t.n.replace(/"/g,'&quot;')+'" aria-pressed="'+isOpen+'">'
+        + '<div class="card-t">'+t.n+'</div>'
+        + '<div class="card-m">'
+        + '<span class="dot '+(SS_DOT[t.ss]||'')+'"></span>'
+        + '<span class="ag '+agentCls(t.ag)+'">'+t.ag+'</span>'
+        + '<span class="pri '+(t.pri==='high'?'high':'')+'">'+t.pri+'</span>'
+        + (t.gate?'<span class="badge req">gate</span>':'')
+        + (t.ss==='failed'?'<span class="badge err">échouée</span>':'')
+        + (t.ss==='waiting-inbox'?'<span class="badge req">vous attend</span>':'')
+        + (t.ss==='starting'?'<span class="badge sig">démarrage</span>':'')
+        + '</div>';
+      if(last) h += '<div class="card-last">'+last.t+'  '+last.ev+'</div>';
+      if(isOpen){
+        const evs = lastEvents(t.n,3);
+        h += '<div class="card-open"><div class="oh"><svg class="ic s12"><use href="#i-live"/></svg>'
+          + (evs.length? 'mêmes objets que dans le flux' : 'aucun événement pour cette tâche')+'</div>';
+        evs.forEach(e=>{
+          h += '<div class="mini"><span>'+e.t+'</span><b>'+e.ev+'</b><span>'+e.msg.replace(/<[^>]+>/g,'')+'</span></div>';
+        });
+        h += '<div style="margin-top:8px"><span class="btn sm ghost" data-goflux="'+t.n.replace(/"/g,'&quot;')+'">'
+          + '<svg class="ic s12"><use href="#i-arrowr"/></svg>Voir dans le flux</span></div></div>';
+      }
+      h += '</button>';
+    });
+    const cost = items.reduce((s,t)=>s+t.c,0);
+    const sess = items.filter(t=>t.ss).length;
+    h += '</div><div class="col-f"><b>'+items.length+'</b> tâches · <b>'+sess+'</b> sessions · <b>$'
+       + cost.toFixed(2)+'</b></div></div>';
+  });
+  $('#cols').innerHTML = h;
+  $$('#cols .card').forEach(c=>{
+    c.addEventListener('click',e=>{
+      const go = e.target.closest('[data-goflux]');
+      if(go){
+        const name = go.dataset.goflux;
+        const ag = (TASKS.find(t=>t.n===name)||{}).ag;
+        state.agent = ag; state.cat=null; state.waiting=false;
+        $$('#fbar .chip').forEach(x=>x.setAttribute('aria-pressed', String(x.dataset.v===ag || x.dataset.v==='demo')));
+        renderAll(); showScreen('flux');
+        return;
+      }
+      openCard = (openCard===c.dataset.t)? null : c.dataset.t;
+      renderBoard();
+    });
+  });
+  renderBoardMini();
+  $('#grp-lbl').textContent = boardGroup==='task'? 'statut de tâche' : 'statut de session';
+  $('#q-board').value = boardGroup==='task'
+    ? 'legion://demo/flux?group=task.status&sort=priority'
+    : 'legion://demo/flux?group=session.status&sort=started_at';
+}
+function renderBoardMini(){
+  const rows = EV.slice(0,6).map((e,i)=>{
+    const flat = Object.assign({},e); delete flat.payload;
+    const on = openCard && e.task===openCard;
+    return rowHTML(flat,i,'m').replace('class="row','class="row'+(on?' hl':''));
+  }).join('');
+  $('#board-mini').innerHTML = rows;
+  $('#bf-c').textContent = openCard
+    ? 'surlignés : les événements de la carte ouverte — même objet, même flux'
+    : '6 derniers événements du projet · cliquez une carte pour les repérer ici';
+}
+$('#bf-open').addEventListener('click',()=>{ resetFilters(); showScreen('flux'); });
+
+$$('[data-view]').forEach(b=> b.addEventListener('click',()=>{
+  boardGroup = b.dataset.view; openCard=null;
+  $$('[data-view]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+  renderBoard();
+}));
+$('#v-flux').addEventListener('click',()=>{ resetFilters(); showScreen('flux'); });
+$('#v-wait').addEventListener('click',()=>{
+  state.waiting=true; state.agent=null; state.cat=null;
+  $('#sw-wait').setAttribute('aria-pressed','true');
+  $$('#fbar .chip').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.v==='demo')));
+  renderAll(); showScreen('flux');
+});
+
+/* ============================================================
+   ÉCRAN 4 — goal
+   ============================================================ */
+function renderDoD(){
+  $('#dod-list').innerHTML = DOD.map((d,i)=>
+    '<button class="dod" data-d="'+i+'" aria-pressed="'+d.done+'">'
+    + '<span class="box"><svg class="ic s12"><use href="#i-check"/></svg></span>'
+    + '<span class="lab">'+d.lab+'</span></button>').join('');
+  const n = DOD.filter(d=>d.done).length;
+  $('#dod-count').textContent = n;
+  $('#dod-c2').textContent = n+'/4';
+  $('#goal-validate').disabled = n<4;
+  $('#goal-validate').title = n<4 ? 'Les 4 critères doivent être cochés' : 'Tous les critères sont remplis';
+  $$('.dod').forEach(b=> b.addEventListener('click',()=>{
+    const d = DOD[+b.dataset.d]; d.done=!d.done; renderDoD();
+  }));
+}
+let jOpen=false;
+function renderJournal(){
+  $('#journal').innerHTML = JOURNAL.map((j,i)=>
+    '<div class="jrow'+(jOpen?' open':'')+'" data-j="'+i+'"><span class="jt">'+j.t+'</span>'
+    + '<span class="jk">'+j.k+'</span><span class="jv">'+hl(j.v)+'</span></div>').join('');
+  $$('.jrow').forEach(r=> r.addEventListener('click',()=> r.classList.toggle('open')));
+}
+$('#j-toggle').addEventListener('click',()=>{
+  jOpen=!jOpen; $('#j-toggle').textContent = jOpen?'Replier les payloads':'Déplier les payloads'; renderJournal();
+});
+$('#kill-btn').addEventListener('click',()=>{ $('#kill-1').hidden=true; $('#kill-2').hidden=false; $('#kill-yes').focus(); });
+$('#kill-no').addEventListener('click',()=>{ $('#kill-2').hidden=true; $('#kill-1').hidden=false; $('#kill-btn').focus(); });
+$('#kill-yes').addEventListener('click',()=>{
+  $('#kill-2').hidden=true; $('#kill-1').hidden=false;
+  $('#kill-btn').disabled=true; $('#kill-btn').innerHTML='<svg class="ic s12"><use href="#i-power"/></svg>Goal arrêté';
+  $('#kill-p').textContent='Arrêté à 14:42:07. Aucune nouvelle session ne sera lancée pour ce goal ; il faudra le relancer explicitement.';
+  $('#stopped-note').hidden=false;
+  $('#goal-state').textContent='stopped'; $('#goal-dot').className='dot err';
+  JOURNAL.unshift({t:'14:42:07',k:'status',v:'{"status":"stopped","by":"operator","reason":"kill switch"}'});
+  renderJournal();
+});
+
+/* ============================================================
+   Démarrage
+   ============================================================ */
+renderAll();
+renderTimeline();
+renderBoard();
+renderDoD();
+renderJournal();
+</script>
+</body>
+</html>

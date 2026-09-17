@@ -1,0 +1,25 @@
+/* The seam between two sessions: a rule, two words, nothing else. */
+
+.ch-session-mark {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  /* Symmetric margin: the seam separates, and would otherwise visually belong to one of the two. */
+  margin-block: var(--sp-4);
+}
+
+.ch-session-rule {
+  flex: 1;
+  height: 1px;
+  background: var(--border-separator);
+}
+
+.ch-session-label {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  /* The label can be long (agent, model, time, end cause): on a narrow window it shrinks rather than
+     pushing the rules to zero. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 70%;
+}

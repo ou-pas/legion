@@ -1,0 +1,39 @@
+/* The action band: two positions, two geometries (16/09, after an extra frame was measured:
+ * `.ch-action` 758×154 around a 726×125 `.ui-banner`, adding nothing).
+ *
+ * `--head` (fixed at the top of the pane, stream cut) stays a REGION of the sheet: same geometry as
+ * `.ch-conv-head` above (fixed block, padding, bottom rule), slightly raised background
+ * (`--sheet-hi`) saying its content is not part of the thread. That padding keeps the band off the
+ * sheet's rounded edges.
+ *
+ * `--thread` (end of thread, question and gate) sets NO surface: what it carries already has a frame
+ * (the gate `Banner`, `InboxCard`), and a plate underneath made a frame IN a frame, banned by
+ * `docs/DESIGN.md` § 4. It keeps only position and stacking (D1, spec of 16/09).
+ *
+ * An explicit variant, not a boolean (D2): `ChannelActionBand` requires `variant="head" | "thread"`.
+ *
+ * Tone never goes through a thick left stripe (banned by the design contract): it is carried by what
+ * the band CONTAINS, the `Banner` wash and rule, the question's state chip.
+ *
+ * One scroll (07/09). Fixed above the pane for the stream cut, which must show whatever one reads; IN
+ * the thread, as the last turn, for the question and gate. Putting everything above with
+ * `flex-shrink: 0` crushed the thread to 36 px under a round questionnaire (2,500 px), and bounding it
+ * gave two scrollbars in one column. The pane's scroll is the only one. */
+.ch-action {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+}
+
+.ch-action--head {
+  padding: var(--sp-7) var(--sp-8);
+  background: var(--sheet-hi);
+  border-bottom: 1px solid var(--border-separator);
+}
+
+@media (max-width: 700px) {
+  .ch-action--head {
+    padding: var(--sp-6) var(--sp-7);
+  }
+}

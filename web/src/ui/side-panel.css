@@ -1,0 +1,49 @@
+/* Negative margins cancel `.ui-main`'s padding (shell.css) on top, right and bottom, and inner
+   padding restores it: a column against the edges, not a card placed inside. */
+.ui-sidepanel {
+  display: flex;
+  flex-direction: column;
+  flex: none;
+  width: var(--w-sidepanel);
+  min-height: 0;
+  margin: calc(-1 * var(--sp-10)) calc(-1 * var(--sp-11)) calc(-1 * var(--sp-10)) 0;
+  padding: var(--sp-8) var(--sp-9) var(--sp-7) var(--sp-8);
+  background: var(--sheet);
+  border-left: 1px solid var(--border-separator);
+}
+
+/* Head and foot do not scroll; a line separates them from the body. */
+.ui-sidepanel-head {
+  flex: none;
+  padding-bottom: var(--sp-5);
+  margin-bottom: var(--sp-6);
+  border-bottom: 1px solid var(--border-separator);
+}
+
+/* Only the body scrolls. `min-height: 0`: a flex child refuses by default to go below its content
+   height; without it nothing scrolls and the column overflows. */
+.ui-sidepanel-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: var(--sp-1);
+}
+
+.ui-sidepanel-foot {
+  flex: none;
+  padding-top: var(--sp-5);
+  margin-top: var(--sp-6);
+  border-top: 1px solid var(--border-separator);
+}
+
+/* When narrow, the panel goes under the content: no room for two columns, and it is consulted
+   second. The line moves to the top. */
+@media (max-width: 1100px) {
+  .ui-sidepanel {
+    width: auto;
+    margin: var(--sp-8) 0 0;
+    padding: var(--sp-7) 0 0;
+    border-left: 0;
+    border-top: 1px solid var(--border-separator);
+  }
+}

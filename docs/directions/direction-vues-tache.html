@@ -1,0 +1,610 @@
+<meta charset="utf-8">
+<title>Les vues d'une tâche</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<style>
+/* Les tokens de l'Atelier, repris de direction-sous-menu-rail.html sans y toucher. Une maquette
+   qui invente sa palette ne prouve rien sur l'application qu'elle est censée décrire. */
+:root {
+  --paper: #f4f0e8; --sheet: #fcfaf6; --sheet-hi: #ffffff; --recess: #ede7da; --recess-2: #e5ddcc;
+  --ink: #1e1a15; --ink-2: #584f42; --ink-3: #6b6255;
+  --rule: #dcd3c3; --rule-2: #c6bba6; --rule-3: #aea18a;
+  --accent: #b03f1b; --accent-deep: #8e3213; --accent-wash: #f6e4da; --accent-line: #e3c0b2;
+  --run: #1b6350; --run-wash: #deeae4; --run-line: #bfd5cc;
+  --wait: #8a5a00; --wait-wash: #f6e9ce; --wait-line: #e2cd9c;
+  --ok: #3e6b2e; --ok-wash: #e1ebdf; --ok-line: #c2d6bf;
+  --bad: #a02617; --bad-wash: #f7dfda; --bad-line: #e7c3bb;
+  --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --measure: 72ch;
+  --w-iconrail: 56px; --w-rail: 218px;
+  --r: 4px;
+  color-scheme: light;
+}
+/* Le thème sombre est déclaré DEUX fois, et c'est la seule façon d'être juste dans les trois
+   états : l'utilisateur qui n'a rien choisi (aucun attribut, seul `prefers-color-scheme` parle),
+   celui qui a choisi sombre, celui qui a choisi clair sur un système sombre. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #2e3440; --sheet: #3b4252; --sheet-hi: #434c5e; --recess: #2a2f3a; --recess-2: #252a33;
+    --ink: #eceff4; --ink-2: #cbd3df; --ink-3: #a3adbd;
+    --rule: #48505f; --rule-2: #5a6474; --rule-3: #6f7b8d;
+    --accent: #8fc7d6; --accent-deep: #a9d5e0; --accent-wash: #384550; --accent-line: #54707e;
+    --run: #8fbcbb; --run-wash: #333f44; --run-line: #4e6a6a;
+    --wait: #ebcb8b; --wait-wash: #423d31; --wait-line: #6d6146;
+    --ok: #a3be8c; --ok-wash: #363f34; --ok-line: #5a6b4e;
+    --bad: #e88b7d; --bad-wash: #43333a; --bad-line: #74484a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #2e3440; --sheet: #3b4252; --sheet-hi: #434c5e; --recess: #2a2f3a; --recess-2: #252a33;
+  --ink: #eceff4; --ink-2: #cbd3df; --ink-3: #a3adbd;
+  --rule: #48505f; --rule-2: #5a6474; --rule-3: #6f7b8d;
+  --accent: #8fc7d6; --accent-deep: #a9d5e0; --accent-wash: #384550; --accent-line: #54707e;
+  --run: #8fbcbb; --run-wash: #333f44; --run-line: #4e6a6a;
+  --wait: #ebcb8b; --wait-wash: #423d31; --wait-line: #6d6146;
+  --ok: #a3be8c; --ok-wash: #363f34; --ok-line: #5a6b4e;
+  --bad: #e88b7d; --bad-wash: #43333a; --bad-line: #74484a;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+::selection { background: var(--accent-wash); color: var(--ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+svg { display: block; }
+
+.page { max-width: 1180px; margin: 0 auto; padding: 40px 20px 64px; display: flex; flex-direction: column; gap: 22px; }
+h1 { font-family: var(--f-display); font-weight: 600; font-size: clamp(1.7rem, 4vw, 2.3rem); line-height: 1.12; letter-spacing: -.014em; margin: 0; text-wrap: balance; }
+.lede { color: var(--ink-2); max-width: 68ch; margin: 0; }
+.hr { height: 3px; width: 64px; background: var(--ink); }
+
+/* LA MESURE OUVRE, parce que c'est elle qui a déclenché la question : neuf onglets, neuf blocs
+   empilés au-dessus d'eux, et un seul TabList restant dans toute l'application. */
+.facts { display: flex; flex-wrap: wrap; gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: var(--r); overflow: hidden; }
+.fact { background: var(--sheet); padding: 11px 15px; flex: 1 1 190px; display: flex; flex-direction: column; gap: 1px; }
+.fact b { font-family: var(--f-mono); font-size: 1.32rem; font-weight: 500; line-height: 1.1; letter-spacing: -.02em; }
+.fact span { font-size: .78rem; color: var(--ink-3); }
+.fact.hot b { color: var(--accent); }
+
+.variants { display: flex; border: 1px solid var(--rule-2); border-radius: var(--r); overflow: hidden; align-self: flex-start; background: var(--sheet); }
+.variants button { border: 0; background: transparent; font: inherit; font-weight: 500; color: var(--ink-2); padding: .5em 1.05em; cursor: pointer; border-right: 1px solid var(--rule); }
+.variants button:last-child { border-right: 0; }
+.variants button[aria-pressed="true"] { background: var(--accent-wash); color: var(--accent-deep); }
+
+.controls { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+.state { display: flex; align-items: center; gap: 7px; font-size: .82rem; color: var(--ink-2); }
+.state .seg { display: flex; border: 1px solid var(--rule-2); border-radius: var(--r); overflow: hidden; background: var(--sheet); }
+.state .seg button { border: 0; border-right: 1px solid var(--rule); background: transparent; font: inherit; font-size: .8rem; color: var(--ink-2); padding: .34em .8em; cursor: pointer; }
+.state .seg button:last-child { border-right: 0; }
+.state .seg button[aria-pressed="true"] { background: var(--recess); color: var(--ink); font-weight: 500; }
+
+/* ── LA MAQUETTE ────────────────────────────────────────────────────────────────────────── */
+.frame { border: 1px solid var(--rule-2); border-radius: 6px; overflow: hidden; background: var(--sheet); }
+.app { display: grid; grid-template-rows: 44px 1fr; height: 660px; }
+.topbar { display: flex; align-items: center; gap: 10px; padding: 0 12px; background: var(--sheet); border-bottom: 1px solid var(--rule); font-size: .85rem; }
+.topbar .brand { font-family: var(--f-display); font-weight: 600; }
+.topbar .sp { flex: 1; }
+.topbar .chip { font-family: var(--f-mono); font-size: .68rem; color: var(--ink-3); }
+
+.body { display: grid; grid-template-columns: var(--w-iconrail) var(--w-rail) 1fr; min-height: 0; }
+.iconrail { background: var(--recess-2); border-right: 1px solid var(--rule-2); display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 9px 0; }
+.prj { width: 34px; height: 34px; border-radius: 7px; display: grid; place-items: center; font-family: var(--f-mono); font-size: 12px; color: #fcfaf6; background: #b03f1b; }
+.prj.b { background: #3f7d63; }
+.prj.on { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 10px; }
+
+.rail { background: var(--recess); border-right: 1px solid var(--rule); padding: 11px 8px; display: flex; flex-direction: column; gap: 2px; overflow: auto; }
+.railhead { display: flex; align-items: center; gap: 9px; padding: 2px 8px 11px; min-width: 0; }
+.railhead .mk { width: 22px; height: 22px; border-radius: var(--r); display: grid; place-items: center; font-family: var(--f-mono); font-size: 10px; color: #fcfaf6; background: #b03f1b; flex: none; }
+.railhead b { font-family: var(--f-display); font-weight: 600; font-size: .95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.railhead .crumb { color: var(--ink-3); font-weight: 400; }
+
+.nav { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: var(--r); color: var(--ink-2); font-size: .86rem; cursor: pointer; border: 0; background: transparent; font-family: inherit; text-align: left; width: 100%; }
+.nav:hover { background: var(--sheet); color: var(--ink); }
+.nav[aria-current="true"] { background: var(--accent-wash); color: var(--accent-deep); font-weight: 600; }
+.nav .dot { width: 15px; height: 15px; flex: none; display: grid; place-items: center; font-size: 11px; color: var(--ink-3); }
+.nav[aria-current="true"] .dot { color: var(--accent); }
+/* Le compteur d'un rang. Il n'existe QUE dans la colonne de droite du rail, pour qu'il ne
+   déplace jamais le libellé — c'est ce qui le rend lisible en balayage vertical. */
+.nav .n { margin-left: auto; font-family: var(--f-mono); font-size: .66rem; color: var(--ink-3); background: var(--recess-2); border-radius: 8px; padding: 0 5px; line-height: 15px; }
+.nav[aria-current="true"] .n { background: var(--sheet); color: var(--accent-deep); }
+/* Un rang dont la vue n'a rien à montrer. Il reste EN PLACE (c'est la recommandation), et il le
+   dit par sa pâleur au lieu de disparaître sous le curseur. */
+.nav.void { color: var(--ink-3); }
+.nav.void .dot { opacity: .55; }
+.railsep { margin: 10px 8px 3px; font-family: var(--f-mono); font-size: .62rem; letter-spacing: .11em; text-transform: uppercase; color: var(--ink-3); }
+.back { display: flex; align-items: center; gap: 6px; padding: 5px 8px; margin-bottom: 3px; border-radius: var(--r); color: var(--ink-2); font-size: .82rem; cursor: pointer; border: 0; background: transparent; font-family: inherit; width: 100%; text-align: left; }
+.back:hover { background: var(--sheet); color: var(--ink); }
+.back .dot { width: 15px; height: 15px; flex: none; display: grid; place-items: center; font-size: 11px; color: var(--accent); }
+
+/* Les sous-entrées imbriquées (variante C) : le filet vertical dit « ceci appartient à ce qui
+   est au-dessus ». C'est lui qui remplace le fil d'Ariane dont A a besoin. */
+.subnav { display: flex; flex-direction: column; gap: 1px; margin: 1px 0 4px 16px; padding-left: 9px; border-left: 1px solid var(--rule-2); }
+.subnav .nav { font-size: .82rem; padding: 3.5px 8px; }
+.subnav .railsep { margin: 6px 8px 2px; }
+
+.railswap { display: flex; flex-direction: column; gap: 2px; }
+.railswap.push { animation: push .19s cubic-bezier(.22,.61,.36,1); }
+@keyframes push { from { transform: translateX(26px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .railswap.push { animation: none; } }
+
+/* ── LE CORPS ───────────────────────────────────────────────────────────────────────────── */
+.main { background: var(--paper); min-width: 0; display: flex; flex-direction: column; min-height: 0; }
+/* A et C font défiler TOUTE la page : la vue est le dernier bloc d'une pile. B épingle la tête
+   et donne le défilement à la vue seule. C'est toute la différence, et elle se voit à l'usage. */
+.scroll { overflow: auto; padding: 18px 22px 40px; display: flex; flex-direction: column; gap: 12px; }
+.head-fixed { padding: 18px 22px 14px; display: flex; flex-direction: column; gap: 12px; border-bottom: 1px solid var(--rule); background: var(--sheet); flex: none; }
+.viewport { overflow: auto; padding: 16px 22px 40px; flex: 1; min-height: 0; }
+
+.toolbar { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+.toolbar h2 { font-family: var(--f-display); font-weight: 600; font-size: 1.28rem; margin: 0; letter-spacing: -.012em; }
+.toolbar .sp { flex: 1; }
+.btn { font: inherit; font-size: .81rem; padding: .34em .8em; border-radius: var(--r); border: 1px solid var(--rule-2); background: var(--sheet); color: var(--ink); cursor: pointer; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fcfaf6; font-weight: 500; }
+.chip { font-size: .72rem; font-family: var(--f-mono); padding: .16em .5em; border-radius: 3px; border: 1px solid var(--rule-2); color: var(--ink-2); background: var(--sheet); }
+.chip.run { color: var(--run); background: var(--run-wash); border-color: var(--run-line); }
+.chip.ok { color: var(--ok); background: var(--ok-wash); border-color: var(--ok-line); }
+.chip.wait { color: var(--wait); background: var(--wait-wash); border-color: var(--wait-line); }
+
+.blk { background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--r); padding: 12px 14px; display: flex; flex-direction: column; gap: 7px; }
+.blk.wait { background: var(--wait-wash); border-color: var(--wait-line); }
+.blk.ok { background: var(--ok-wash); border-color: var(--ok-line); }
+.blk .t { font-size: .78rem; font-weight: 600; letter-spacing: .01em; display: flex; align-items: center; gap: 7px; }
+.blk p { margin: 0; font-size: .83rem; color: var(--ink-2); }
+.blk .li { font-size: .82rem; color: var(--ink-2); display: flex; gap: 8px; align-items: baseline; padding: 3px 0; border-top: 1px solid var(--rule); }
+.blk .li:first-of-type { border-top: 0; }
+.blk .li .m { font-family: var(--f-mono); font-size: .68rem; color: var(--ink-3); flex: none; width: 62px; }
+/* Le bandeau qui NOMME la pile — il n'existe que dans la maquette, pour compter à voix haute
+   ce que la variante A laisse au-dessus de la vue. */
+.stackmark { font-family: var(--f-mono); font-size: .64rem; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-3); display: flex; align-items: center; gap: 9px; }
+.stackmark::after { content: ""; height: 1px; flex: 1; background: var(--rule); }
+
+.view { background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--r); overflow: hidden; }
+.view .vh { display: flex; align-items: center; gap: 8px; padding: 9px 14px; border-bottom: 1px solid var(--rule); background: var(--recess); }
+.view .vh b { font-family: var(--f-display); font-weight: 600; font-size: .95rem; }
+.view .vb { padding: 13px 15px; display: flex; flex-direction: column; gap: 9px; }
+.view p { margin: 0; font-size: .85rem; color: var(--ink-2); max-width: var(--measure); }
+.line { display: flex; gap: 9px; align-items: baseline; font-size: .82rem; color: var(--ink-2); padding: 4px 0; border-top: 1px solid var(--rule); }
+.line:first-child { border-top: 0; }
+.line .k { font-family: var(--f-mono); font-size: .68rem; color: var(--ink-3); flex: none; width: 58px; }
+.line .g { color: var(--ink); }
+.bubble { border: 1px solid var(--rule); border-radius: var(--r); padding: 8px 11px; font-size: .83rem; color: var(--ink-2); background: var(--sheet-hi); max-width: 54ch; }
+.bubble.me { background: var(--recess); align-self: flex-end; }
+.empty { display: flex; flex-direction: column; gap: 5px; align-items: flex-start; padding: 18px 4px; color: var(--ink-3); font-size: .84rem; }
+.empty b { font-family: var(--f-display); font-weight: 600; font-size: .95rem; color: var(--ink-2); }
+
+/* ── VERDICT ────────────────────────────────────────────────────────────────────────────── */
+#try { margin: 0; font-size: .87rem; color: var(--ink-2); background: var(--recess); border-left: 3px solid var(--accent); border-radius: 0 var(--r) var(--r) 0; padding: 10px 14px; }
+#verdict { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.vc { border: 1px solid var(--rule); border-radius: var(--r); padding: 13px 15px; background: var(--sheet); display: flex; flex-direction: column; gap: 5px; }
+.vc .lbl { font-size: .74rem; font-family: var(--f-mono); letter-spacing: .07em; text-transform: uppercase; }
+.vc p { margin: 0; font-size: .85rem; color: var(--ink-2); }
+.vc.win { border-left: 3px solid var(--ok); } .vc.win .lbl { color: var(--ok); }
+.vc.cost { border-left: 3px solid var(--bad); } .vc.cost .lbl { color: var(--bad); }
+.vc.note { border-left: 3px solid var(--wait); } .vc.note .lbl { color: var(--wait); }
+
+.sect { display: flex; flex-direction: column; gap: 10px; padding-top: 8px; }
+.sect h3 { font-family: var(--f-display); font-weight: 600; font-size: 1.15rem; margin: 0; }
+.sect p { margin: 0; color: var(--ink-2); max-width: var(--measure); font-size: .89rem; }
+.groups { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+.grp { border: 1px solid var(--rule); border-radius: var(--r); background: var(--sheet); padding: 12px 14px; }
+.grp .gh { font-family: var(--f-mono); font-size: .66rem; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+.grp ul { margin: 0; padding-left: 17px; font-size: .85rem; color: var(--ink-2); }
+.grp li { padding: 1px 0; }
+code { font-family: var(--f-mono); font-size: .84em; background: var(--recess); padding: .1em .35em; border-radius: 3px; }
+</style>
+
+<div class="page">
+  <h1>Les vues d'une tâche</h1>
+  <div class="hr"></div>
+  <p class="lede">
+    La page d'une tâche porte le dernier <code>&lt;TabList&gt;</code> de l'application. Neuf onglets,
+    dont deux qui naissent et meurent selon l'état de la session, posés sur une carte qui arrive au
+    neuvième bloc d'une pile. Trois façons de leur donner une adresse, et ce que chacune coûte.
+  </p>
+
+  <div class="facts">
+    <div class="fact hot"><b>1</b><span>TabList restant dans <code>web/src</code></span></div>
+    <div class="fact"><b>9</b><span>onglets, dont 2 conditionnels</span></div>
+    <div class="fact"><b>9</b><span>blocs empilés avant la carte</span></div>
+    <div class="fact"><b>5</b><span>compteurs vivants dans la barre</span></div>
+  </div>
+
+  <div class="controls">
+    <div class="variants">
+      <button data-v="A" aria-pressed="true">A — Transposition</button>
+      <button data-v="B" aria-pressed="false">B — Tête et vue</button>
+      <button data-v="C" aria-pressed="false">C — Deuxième niveau</button>
+    </div>
+    <div class="state">
+      <span>Session :</span>
+      <div class="seg">
+        <button data-s="done" aria-pressed="true">terminée</button>
+        <button data-s="running" aria-pressed="false">en cours</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="app">
+      <div class="topbar">
+        <span class="brand">Legion</span>
+        <span class="sp"></span>
+        <span class="chip">3 en attente</span>
+        <span class="chip">wiki</span>
+        <span class="chip">système</span>
+      </div>
+      <div class="body">
+        <div class="iconrail">
+          <div class="prj on">AO</div>
+          <div class="prj b">OP</div>
+        </div>
+        <nav class="rail" id="rail" aria-label="Navigation"></nav>
+        <div class="main" id="main"></div>
+      </div>
+    </div>
+  </div>
+
+  <p id="try"></p>
+  <div id="verdict"></div>
+
+  <section class="sect">
+    <h3>Le groupement, qui est le vrai gain</h3>
+    <p>
+      Une barre horizontale ne peut pas nommer un groupe. Le rail le fait déjà, et les neuf onglets
+      SONT trois familles que les commentaires du code énoncent sans pouvoir les montrer. Les
+      critères, aujourd'hui un panneau permanent de la pile, y trouvent enfin une place.
+    </p>
+    <div class="groups">
+      <div class="grp"><div class="gh">Déroulé</div><ul><li>Entretien</li><li>Compte-rendu</li><li>Trace</li><li>Notes</li></ul></div>
+      <div class="grp"><div class="gh">Contrat</div><ul><li>Brief</li><li>Critères</li></ul></div>
+      <div class="grp"><div class="gh">Livraison</div><ul><li>Artifacts</li><li>Diff</li><li>PR</li></ul></div>
+      <div class="grp"><div class="gh">hors groupe</div><ul><li>Réglages, en bas — comme dans le rail du projet</li></ul></div>
+    </div>
+  </section>
+
+  <section class="sect">
+    <h3>Ce que le bouton « session en cours » montre</h3>
+    <p>
+      <code>railRowsFor</code> est une fonction PURE du chemin, et trois commentaires plus un test
+      défendent cette propriété. Elle ne peut pas savoir qu'un compte-rendu existe : <code>hasReport</code>
+      dérive du flux SSE qui vit dans la page, <code>hasPrTab</code> aussi. Deux issues, et la maquette
+      montre la seconde : ou bien la page fait remonter ses rangs au rail, ou bien les rangs sont
+      STATIQUES comme <code>SETTINGS_ROWS</code> et une vue vide dit qu'elle est vide. Basculez le
+      bouton : les rangs pâlissent au lieu de disparaître, et rien ne bouge sous le curseur.
+    </p>
+  </section>
+</div>
+
+<script>
+// ── LES DONNÉES ────────────────────────────────────────────────────────────────────────────
+// Les vues, dans leurs trois groupes. `need` dit de quoi la vue a besoin pour avoir du contenu :
+// c'est ce qui pâlit le rang quand la session tourne encore, au lieu de le retirer.
+const VIEWS = [
+  { g: "Déroulé" },
+  { id: "entretien", label: "Entretien", icon: "◇", n: 4 },
+  { id: "rapport", label: "Compte-rendu", icon: "≡", need: "done" },
+  { id: "trace", label: "Trace", icon: "◷", n: 218 },
+  { id: "notes", label: "Notes", icon: "✎", n: 3 },
+  { g: "Contrat" },
+  { id: "brief", label: "Brief", icon: "▤" },
+  { id: "criteres", label: "Critères", icon: "✓", n: 3 },
+  { g: "Livraison" },
+  { id: "artifacts", label: "Artifacts", icon: "◫", n: 4, need: "done" },
+  { id: "diff", label: "Diff", icon: "⇄", n: 2 },
+  { id: "pr", label: "PR", icon: "⌥", need: "done" },
+  { g: null },
+  { id: "reglages", label: "Réglages", icon: "⚙" },
+];
+
+// Le rail du projet, tel qu'il est aujourd'hui — la variante C le garde entier.
+const PROJECT = [
+  { id: "board", label: "Board", icon: "▦" },
+  { id: "canaux", label: "Canaux", icon: "◈" },
+  { id: "goals", label: "Objectifs", icon: "◎" },
+  { id: "planif", label: "Planifiées", icon: "◔" },
+  { g: "Revue" },
+  { id: "reviews", label: "Reviews", icon: "⌥" },
+  { id: "issues", label: "Issues", icon: "○" },
+  { g: "Configurer" },
+  { id: "agents", label: "Agents", icon: "◆" },
+  { id: "capa", label: "Capacités", icon: "✦" },
+  { id: "regl", label: "Réglages", icon: "⚙" },
+];
+
+const CONTENT = {
+  entretien: () => [
+    ["bubble", "Le filtre doit-il partir chez Linear, ou trier le lot déjà chargé ?"],
+    ["bubble me", "Chez Linear. Filtrer une source distante est le travail de la source."],
+    ["bubble", "Alors les menus ne peuvent plus se déduire des issues rendues. Je les charge à part."],
+  ],
+  rapport: () => [
+    ["p", "Les membres du workspace viennent maintenant de la requête <code>users</code>, et les trois filtres partent dans la requête GraphQL. AI-1942, rang 217, ressort quand on se sélectionne."],
+    ["p", "Un piège trouvé en construisant : les menus se déduisaient des issues rendues. Une fois le filtre parti, choisir l'équipe A retirait l'équipe B et on ne pouvait plus revenir."],
+  ],
+  trace: () => [
+    ["line", "12:04:11", "tool_use", "Read web/src/integrations/issue-filters.ts"],
+    ["line", "12:04:19", "text", "Le commentaire dit qu'un état Linear est un texte libre par équipe."],
+    ["line", "12:05:02", "tool_use", "Edit server/src/integrations/linear.ts"],
+    ["line", "12:07:40", "tool_use", "Bash pnpm -s test --filter @legion/web"],
+    ["line", "12:08:52", "result", "219 tests, 26 fichiers — verts"],
+  ],
+  notes: () => [
+    ["li", "hier", "Le faux Linear doit interpréter le filtre, pas l'acquiescer."],
+    ["li", "hier", "Rang d'AI-1942 mesuré en direct : 217 sur plus de 250 ouvertes."],
+    ["li", "12:09", "Barre de filtres montée sous issues.length > 0 — cul-de-sac sur filtre vide."],
+  ],
+  brief: () => [
+    ["p", "Un opérateur ne se voit pas dans la liste des personnes, et une issue qui lui est assignée n'apparaît nulle part. Deux symptômes, une cause : l'écran montre l'ombre des cinquante issues les plus récentes."],
+    ["p", "Charger les membres ne suffit pas. Se choisir dans une liste de vingt-six pour ensuite filtrer les cinquante déjà chargées donnerait un écran vide."],
+  ],
+  criteres: () => [
+    ["li", "test", "La liste des personnes vient des membres du workspace."],
+    ["li", "test", "Filtrer interroge Linear avec ce filtre, pas un lot tronqué."],
+    ["li", "human", "Les trois filtres se cherchent au clavier, composant dans ui/."],
+  ],
+  artifacts: () => [
+    ["li", "4,1 ko", "combobox.tsx"],
+    ["li", "2,7 ko", "combobox.css"],
+    ["li", "3,3 ko", "combobox.stories.tsx"],
+    ["li", "6,0 ko", "linear-query.test.ts"],
+  ],
+  diff: () => [
+    ["line", "+118 −24", "server", "src/integrations/linear.ts"],
+    ["line", "+96 −41", "web", "src/integrations/IssuesPage.tsx"],
+    ["p", "Deux commentaires de pré-revue ouverts, pas encore envoyés."],
+  ],
+  pr: () => [
+    ["p", "<b>feat(linear) : les filtres partent à la source</b>"],
+    ["p", "Brouillon <code>pr.md</code> prêt. La branche <code>feature/linear-filtres-source</code> est poussée ; la PR n'est pas encore ouverte."],
+  ],
+  reglages: () => [
+    ["line", "agent", "builder", "Opus 5 (1M)"],
+    ["line", "étape", "build", "chaîne « tranche »"],
+    ["line", "dépôts", "legion", "écriture"],
+  ],
+};
+
+// Ce qu'une vue dit quand elle n'a rien à montrer. C'est le prix des rangs statiques, et il est
+// PLUS LISIBLE qu'un rang qui s'évapore : la vue explique, un rang absent n'explique rien.
+const VOID = {
+  rapport: ["Pas encore de compte-rendu", "Le dernier texte d'une session qui tourne est un état d'avancement, pas un bilan."],
+  artifacts: ["Aucun artifact déposé", "Ils arrivent au fil de la session, dans /artifacts."],
+  pr: ["Aucune PR en vue", "Rien n'a encore été poussé sur une branche."],
+};
+
+let variant = "A";
+let session = "done";
+let current = "trace";
+let anim = "";
+
+const el = (t, c, x) => { const n = document.createElement(t); if (c) n.className = c; if (x != null) n.innerHTML = x; return n; };
+const alive = (v) => !(v.need === "done" && session === "running");
+
+// ── LE RAIL ────────────────────────────────────────────────────────────────────────────────
+function navRow(v, host) {
+  const b = el("button", "nav" + (alive(v) ? "" : " void"));
+  b.setAttribute("aria-current", String(v.id === current));
+  b.append(el("span", "dot", v.icon), el("span", null, v.label));
+  // Le compteur disparaît avec le contenu, pas le rang : un « 4 » sur une vue vide serait un
+  // mensonge, alors qu'un rang pâle est une information.
+  if (v.n && alive(v)) b.append(el("span", "n", String(v.n)));
+  b.addEventListener("click", () => { current = v.id; render(); });
+  host.append(b);
+}
+
+function renderRail() {
+  const rail = document.getElementById("rail");
+  rail.textContent = "";
+
+  const head = el("div", "railhead");
+  head.append(el("span", "mk", "AO"));
+  // La tête est le SEUL endroit qui dise encore dans quel projet on est une fois la liste
+  // remplacée. En C rien n'est remplacé, donc elle n'a rien à ajouter.
+  head.append(el("b", null, variant === "C" ? "Legion" : 'Legion <span class="crumb">· Tâche</span>'));
+  rail.append(head);
+
+  if (variant === "C") {
+    // Le rail du projet reste ENTIER, et les vues de la tâche s'ajoutent sous le board — d'où
+    // elle a été ouverte, et où l'on retourne.
+    for (const r of PROJECT) {
+      if (r.g !== undefined) { if (r.g) rail.append(el("div", "railsep", r.g)); continue; }
+      const b = el("button", "nav");
+      b.setAttribute("aria-current", "false");
+      b.append(el("span", "dot", r.icon), el("span", null, r.label));
+      rail.append(b);
+      if (r.id === "board") {
+        const sub = el("div", "subnav");
+        const t = el("div", "railsep", "les issues qu'on cherche");
+        sub.append(t);
+        for (const v of VIEWS) {
+          if (v.g !== undefined) { if (v.g) sub.append(el("div", "railsep", v.g)); continue; }
+          navRow(v, sub);
+        }
+        rail.append(sub);
+      }
+    }
+    return;
+  }
+
+  const swap = el("div", "railswap" + (anim ? " push" : ""));
+  const back = el("button", "back");
+  back.append(el("span", "dot", "←"), el("span", null, "Board"));
+  swap.append(back);
+  for (const v of VIEWS) {
+    if (v.g !== undefined) { if (v.g) swap.append(el("div", "railsep", v.g)); continue; }
+    navRow(v, swap);
+  }
+  rail.append(swap);
+}
+
+// ── LE CORPS ───────────────────────────────────────────────────────────────────────────────
+function toolbar() {
+  const t = el("div", "toolbar");
+  t.append(el("h2", null, "Les issues qu'on cherche"));
+  t.append(el("span", "chip " + (session === "done" ? "ok" : "run"), session === "done" ? "en revue" : "en cours"));
+  t.append(el("span", "sp"));
+  if (session === "done") {
+    t.append(el("button", "btn primary", "Approuver"));
+    t.append(el("button", "btn", "Créer la PR"));
+  }
+  t.append(el("button", "btn", "Déplacer"));
+  return t;
+}
+
+function verdict() {
+  const b = el("div", session === "done" ? "blk ok" : "blk");
+  b.append(el("div", "t", session === "done"
+    ? '<span class="chip ok">terminée</span> il y a 12 min · 8 min 40 s · 1,84 $'
+    : '<span class="chip run">en cours</span> depuis 3 min · builder · Opus 5'));
+  b.append(el("p", null, session === "done"
+    ? "Un brouillon de PR attend d'être relu. La branche est poussée, la PR n'est pas ouverte."
+    : "L'agent lit <code>issue-filters.ts</code>. Rien ne demande de décision pour l'instant."));
+  return b;
+}
+
+function inbox() {
+  const b = el("div", "blk wait");
+  b.append(el("div", "t", '<span class="chip wait">t\'attend</span> Une question de l\'agent'));
+  b.append(el("p", null, "« Le doublon Chaînes entre Réglages et Capacités : laquelle est la bonne ? »"));
+  return b;
+}
+
+function panel(title, rows) {
+  const b = el("div", "blk");
+  b.append(el("div", "t", title));
+  for (const [m, x] of rows) {
+    const li = el("div", "li");
+    li.append(el("span", "m", m), el("span", null, x));
+    b.append(li);
+  }
+  return b;
+}
+
+function viewCard() {
+  const v = VIEWS.find((x) => x.id === current);
+  const card = el("div", "view");
+  const vh = el("div", "vh");
+  vh.append(el("span", "dot", v.icon), el("b", null, v.label));
+  if (v.n && alive(v)) vh.append(el("span", "chip", String(v.n)));
+  card.append(vh);
+  const vb = el("div", "vb");
+  if (!alive(v)) {
+    const [t, p] = VOID[v.id];
+    const e = el("div", "empty");
+    e.append(el("b", null, t), el("span", null, p));
+    vb.append(e);
+  } else {
+    for (const row of CONTENT[v.id]()) {
+      const [kind, ...rest] = row;
+      if (kind === "p") vb.append(el("p", null, rest[0]));
+      else if (kind.startsWith("bubble")) vb.append(el("div", kind, rest[0]));
+      else if (kind === "li") {
+        const l = el("div", "line");
+        l.append(el("span", "k", rest[0]), el("span", null, rest[1]));
+        vb.append(l);
+      } else {
+        const l = el("div", "line");
+        l.append(el("span", "k", rest[0]), el("span", "g", rest[1]), el("span", null, rest[2] ?? ""));
+        vb.append(l);
+      }
+    }
+  }
+  card.append(vb);
+  return card;
+}
+
+function renderMain() {
+  const main = document.getElementById("main");
+  main.textContent = "";
+
+  if (variant === "B") {
+    // LA TÊTE EST ÉPINGLÉE : le titre, ses gestes, le verdict, et ce qui demande une décision.
+    // Tout le reste appartient à une vue, et la vue possède son propre défilement.
+    const head = el("div", "head-fixed");
+    head.append(toolbar(), verdict());
+    if (session === "done") head.append(inbox());
+    main.append(head);
+    const vp = el("div", "viewport");
+    vp.append(viewCard());
+    main.append(vp);
+    return;
+  }
+
+  // A et C : la pile d'aujourd'hui, intacte. La vue est le dernier bloc, et c'est le constat.
+  const sc = el("div", "scroll");
+  sc.append(toolbar(), verdict());
+  if (session === "done") sc.append(inbox());
+  sc.append(panel("Ce que la tâche doit prouver", [
+    ["test", "La liste des personnes vient des membres du workspace."],
+    ["test", "Filtrer interroge Linear avec ce filtre."],
+    ["human", "Les trois filtres se cherchent au clavier."],
+  ]));
+  sc.append(panel("Filiation", [
+    ["née de", "Découper le chantier navigation"],
+    ["a déposé", "Rendre le combobox accessible au clavier"],
+  ]));
+  sc.append(el("div", "stackmark", "la vue commence ici — neuvième bloc"));
+  sc.append(viewCard());
+  main.append(sc);
+}
+
+// ── VERDICTS ───────────────────────────────────────────────────────────────────────────────
+const VERDICTS = {
+  A: [
+    ["Ce qu'on gagne", "win", "Le dernier TabList disparaît, et le mécanisme existe déjà : railRowsFor rend une liste, ProjectRailNav la dessine. Une ligne de table, deux constantes. C'est la variante la moins chère de très loin."],
+    ["Ce qu'on paie", "cost", "Le rail choisit le neuvième bloc d'une pile. Cliquer « Diff » ne montre pas le diff : il faut ensuite descendre. Une navigation qui n'amène pas là où elle pointe est pire qu'une barre d'onglets, qui au moins était collée à son contenu."],
+    ["Et la fréquence", "note", "Réglages, on y entre et on y reste. Une tâche, on l'ouvre et on la quitte des dizaines de fois par jour, toujours par le board. Le glissement du rail rejouerait à chaque aller-retour — exactement ce que le commentaire de project.tsx redoute : « un mouvement qui se répète sans qu'il se soit rien passé finit par se lire comme un défaut d'affichage »."],
+  ],
+  B: [
+    ["Ce qu'on gagne", "win", "Le rail pointe enfin sur ce qu'il montre. La tête épinglée porte ce qui ne dépend d'aucune vue — le titre, les gestes, le verdict, la question qui attend — et la vue occupe tout le reste avec son propre défilement. La trace ne pousse plus le brief hors de l'écran."],
+    ["Ce qu'on paie", "cost", "Quatre panneaux doivent trouver une adresse. Les critères deviennent une vue (« Contrat »), la filiation en devient une autre ou rejoint le brief, les bloqueurs restent dans la tête parce qu'ils expliquent l'absence du bouton « lancer ». Ce n'est plus un déplacement d'onglets, c'est une refonte de la page."],
+    ["Ce qu'on découvre", "note", "Que la pile était le vrai problème, et les onglets seulement son symptôme le plus visible. Neuf blocs se sont accumulés parce que chacun, pris seul, méritait d'être toujours là."],
+  ],
+  C: [
+    ["Ce qu'on gagne", "win", "Rien ne disparaît. Depuis une tâche on voit encore Canaux, Reviews, Issues, et on y va d'un clic — ce qui compte quand on ouvre trente tâches par jour. Pas de rang retour à inventer, pas de fil d'Ariane : la position se lit dans son contexte."],
+    ["Ce qu'on paie", "cost", "Dix rangs de projet plus dix vues font un rail qui défile, et le sous-menu est ancré sous « Board » alors qu'une tâche n'est pas une sous-page du board. C'est un ancrage commode, pas un ancrage vrai. Le rendu montre en plus un défaut qu'on ne voyait pas sur le papier : « Réglages » apparaît DEUX FOIS dans la même colonne, une fois pour la tâche et une fois pour le projet, sans que rien ne les distingue."],
+    ["Le vrai défaut", "note", "Elle contredit la variante A retenue le 30/08 pour Réglages et Capacités. Deux sections se comportent d'une façon, les tâches d'une autre — et le rail cesse d'avoir une règle. Il faudrait rouvrir la décision pour les trois, pas en faire une exception."],
+  ],
+};
+
+function renderVerdict() {
+  const v = document.getElementById("verdict");
+  v.textContent = "";
+  for (const [lbl, tone, body] of VERDICTS[variant]) {
+    const c = el("div", "vc " + tone);
+    c.append(el("div", "lbl", lbl), el("p", null, body));
+    v.append(c);
+  }
+  document.getElementById("try").innerHTML = variant === "A"
+    ? "<b>Essayez :</b> cliquez « Diff » dans le rail. Le diff est en bas, sous cinq blocs. C'est là qu'est le coût."
+    : variant === "B"
+      ? "<b>Essayez :</b> passez de « Trace » à « Brief ». La tête ne bouge pas, la vue change, et rien n'a besoin de défiler."
+      : "<b>Essayez :</b> vous êtes dans une tâche, et « Reviews » est toujours à un clic. Puis comparez la hauteur du rail avec celle de la variante A.";
+}
+
+// `anim` est REMIS À ZÉRO après chaque rendu : c'est le sens du DERNIER geste, pas un état de la
+// vue. Sans ça, le glissement rejouerait à chaque clic sur une vue.
+function render() { renderRail(); renderMain(); renderVerdict(); anim = ""; }
+
+for (const b of document.querySelectorAll("[data-v]")) {
+  b.addEventListener("click", () => {
+    anim = variant !== b.dataset.v ? "push" : "";
+    variant = b.dataset.v;
+    for (const o of document.querySelectorAll("[data-v]")) o.setAttribute("aria-pressed", String(o === b));
+    render();
+  });
+}
+for (const b of document.querySelectorAll("[data-s]")) {
+  b.addEventListener("click", () => {
+    session = b.dataset.s;
+    for (const o of document.querySelectorAll("[data-s]")) o.setAttribute("aria-pressed", String(o === b));
+    render();
+  });
+}
+render();
+</script>

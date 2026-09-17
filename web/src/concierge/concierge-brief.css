@@ -1,0 +1,114 @@
+/* The situation report. It reads like a handwritten note, not a dashboard: sentences first, then
+   triage. */
+.cc-brief {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+  max-width: var(--measure);
+}
+
+/* The stamp. A report without its age gets believed, and it ages, since nothing recomputes it on
+   its own (the slice's accepted debt, visible rather than hidden). */
+.cc-brief-stamp {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+.cc-brief-refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  font-size: var(--fs-2xs);
+  color: var(--accent-deep);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: var(--sp-1);
+}
+
+.cc-brief-refresh:disabled {
+  color: var(--ink-3);
+  cursor: default;
+  text-decoration: none;
+}
+
+.cc-brief-prose {
+  font-size: var(--fs-sm);
+  line-height: var(--lh-snug);
+  color: var(--ink-2);
+}
+
+/* What really waits for a decision. Distinct from the bar badge, which counts what is stopped: here
+   only what the next step depends on, with the expected gesture. */
+.cc-brief-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-1);
+  overflow: hidden;
+}
+
+.cc-brief-item {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-5);
+  padding: var(--sp-4) var(--sp-6);
+  background: var(--sheet);
+  border-top: 1px solid var(--border-separator);
+}
+
+.cc-brief-item:first-child {
+  border-top: 0;
+}
+
+/* The level is a word, not just a colour: "to do" reads without telling red from yellow. Colour
+   only ranks what the word already says. */
+.cc-brief-sev {
+  flex: none;
+  width: var(--w-severity);
+  font-family: var(--sans);
+  font-size: var(--fs-3xs);
+  letter-spacing: var(--tr-caps);
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.cc-brief-item[data-severity="now"] .cc-brief-sev {
+  color: var(--bad);
+}
+
+.cc-brief-item[data-severity="soon"] .cc-brief-sev {
+  color: var(--wait);
+}
+
+.cc-brief-text {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-snug);
+  color: var(--ink-2);
+}
+
+.cc-brief-go {
+  flex: none;
+  align-self: center;
+  font-size: var(--fs-xs);
+  white-space: nowrap;
+}
+
+/* The very first launch, the one state with no situation to report. Say why, and what to do for
+   there to be one. */
+.cc-brief-first {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-5);
+  max-width: var(--measure);
+  padding: var(--sp-10) 0;
+}

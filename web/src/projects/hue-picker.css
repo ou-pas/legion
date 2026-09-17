@@ -1,0 +1,140 @@
+/* A project's colour picker (v47). It shows the same scale as the icon rail, at the same size
+   (`--sz-prj`): you pick the square you will reread every day, not a smaller sample giving another
+   idea of the colour. */
+
+.hue-picker {
+  /* `<fieldset>` comes with a 1996 border and margins: removed, keeping the group role and its
+     legend, which is all we came for. */
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-inline-size: 0;
+}
+
+.hue-picker-legend {
+  /* The legend names the group for screen readers; visually the card title already does. Hiding it
+     entirely would remove the group name, so it stays in the flow, invisible and zero-height. */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.hue-picker-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-4);
+}
+
+.hue-swatch {
+  position: relative;
+  display: inline-flex;
+  cursor: pointer;
+}
+
+/* The native radio, hidden to the eye and alive for everything else: arrows, group announcement,
+   focus. `display: none` would also remove it from the keyboard, exactly the mistake this file
+   exists to avoid. */
+.hue-swatch-input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.hue-swatch-chip {
+  display: grid;
+  place-items: center;
+  width: var(--sz-prj);
+  height: var(--sz-prj);
+  border-radius: var(--r-3);
+  /* Border always set, transparent at rest (same reason as `.prj`): marking the choice must not
+     shift the other eleven swatches by two pixels. */
+  border: 2px solid transparent;
+  background: var(--recess);
+  transition: border-color var(--dur-1) var(--ease-out);
+}
+
+.hue-swatch-input:checked + .hue-swatch-chip {
+  border-color: var(--ink);
+}
+
+.hue-swatch-input:focus-visible + .hue-swatch-chip {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+/* The "automatic" swatch: an empty hatched box, not a colour. It does not say which one would be
+   chosen; the derived swatch already does with its dot. */
+.hue-swatch-chip[data-auto="true"] {
+  border-color: var(--border-control);
+  background: repeating-linear-gradient(
+    45deg,
+    var(--recess) 0 var(--sp-2),
+    var(--recess-2) var(--sp-2) var(--sp-4)
+  );
+}
+
+/* The dot on the derived hue: "the one you would get doing nothing". Without it the picker shows
+   twelve equivalent colours and the default becomes invisible. */
+.hue-swatch-chip[data-derived="true"]::after {
+  content: "";
+  width: var(--sz-hue-mark);
+  height: var(--sz-hue-mark);
+  border-radius: var(--r-round);
+  background: var(--prj-ink);
+}
+
+/* The colour name: read, never seen. Twelve squares without text are twelve unlabelled boxes for a
+   screen reader, so an unusable picker. */
+.hue-swatch-name {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The scale, the same twelve steps as `.prj` (projects/project-rail.css), for the same reason:
+   twelve hand-written rules rather than a `style={{}}`, which is a lint error in this repository. */
+.hue-swatch-chip[data-hue="0"] {
+  background: var(--prj-hue-0);
+}
+.hue-swatch-chip[data-hue="1"] {
+  background: var(--prj-hue-1);
+}
+.hue-swatch-chip[data-hue="2"] {
+  background: var(--prj-hue-2);
+}
+.hue-swatch-chip[data-hue="3"] {
+  background: var(--prj-hue-3);
+}
+.hue-swatch-chip[data-hue="4"] {
+  background: var(--prj-hue-4);
+}
+.hue-swatch-chip[data-hue="5"] {
+  background: var(--prj-hue-5);
+}
+.hue-swatch-chip[data-hue="6"] {
+  background: var(--prj-hue-6);
+}
+.hue-swatch-chip[data-hue="7"] {
+  background: var(--prj-hue-7);
+}
+.hue-swatch-chip[data-hue="8"] {
+  background: var(--prj-hue-8);
+}
+.hue-swatch-chip[data-hue="9"] {
+  background: var(--prj-hue-9);
+}
+.hue-swatch-chip[data-hue="10"] {
+  background: var(--prj-hue-10);
+}
+.hue-swatch-chip[data-hue="11"] {
+  background: var(--prj-hue-11);
+}

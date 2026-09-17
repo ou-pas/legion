@@ -1,0 +1,50 @@
+/* The PR as an icon: the tint comes from the state, the number stays in ink. Colours are the `--pr-*`
+   tokens (ui/tokens.css, theme-dark.css), GitHub's, in both themes. */
+.pr-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-width: 0;
+  padding: var(--sp-1) var(--sp-3) var(--sp-1) var(--sp-2);
+  border-radius: var(--r-2);
+  color: var(--ink);
+  text-decoration: none;
+  transition: background var(--dur-1) var(--ease);
+}
+
+.pr-mark:hover {
+  background: var(--recess);
+}
+
+.pr-mark-icon {
+  flex: none;
+}
+
+.pr-mark[data-look="open"] .pr-mark-icon {
+  color: var(--pr-open);
+}
+.pr-mark[data-look="merged"] .pr-mark-icon {
+  color: var(--pr-merged);
+}
+.pr-mark[data-look="closed"] .pr-mark-icon {
+  color: var(--pr-closed);
+}
+.pr-mark[data-look="draft"] .pr-mark-icon {
+  color: var(--pr-draft);
+}
+/* A conflict keeps the app's WAITING tone: GitHub has no colour for it, and it is a gesture waiting,
+   not a closure. */
+.pr-mark[data-look="conflict"] .pr-mark-icon {
+  color: var(--wait);
+}
+
+.pr-mark-number {
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+}
+
+.pr-mark-repo {
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+}

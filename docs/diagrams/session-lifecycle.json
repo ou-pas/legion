@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "Session lifecycle",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "viewBox": [1030, 600],
+    "legend": { "entries": { "start": { "label": "Start" }, "active": { "label": "Active" }, "waiting": { "label": "Waiting" }, "decision": { "label": "Decision" }, "success": { "label": "Normal end" }, "failure": { "label": "Failure" }, "neutral": { "label": "Neutral" }, "external": { "label": "External" } } },
+    "views": [
+      { "id": "nominal", "label": "Normal path", "focus": ["launch", "starting", "running", "ended"], "note": "From the preflight to the removed container." },
+      { "id": "pauses", "label": "Pause and resume", "focus": ["running", "waiting", "starting"], "note": "The session sleeps without dying: its container is destroyed, its conversation is kept, and the resume starts a new container." },
+      { "id": "failures", "label": "Failure", "focus": ["running", "failed"], "note": "The reason is stored on the session, and a diagnostic reads the trace." }
+    ]
+  },
+  "lanes": [
+    { "id": "main", "label": "Session status" },
+    { "id": "pauses", "label": "Pause" },
+    { "id": "terminal", "label": "Abnormal end" }
+  ],
+  "states": [
+    { "id": "launch", "type": "start", "label": "Launch", "sublabel": "preflight", "lane": "main", "col": 0, "step": "01", "tag": "named refusal" },
+    { "id": "starting", "type": "active", "label": "starting", "sublabel": "creates the container", "lane": "main", "col": 1, "step": "02", "tag": "4 min max" },
+    { "id": "running", "type": "active", "label": "running", "sublabel": "the agent works", "lane": "main", "col": 2, "step": "03", "tag": "live trace" },
+    { "id": "ended", "type": "success", "label": "ended", "sublabel": "exit code 0", "lane": "main", "col": 3, "step": "04", "tag": "container removed" },
+    { "id": "waiting", "type": "waiting", "label": "waiting for you", "sublabel": "answer or decision", "lane": "pauses", "col": 0, "width": 110, "tag": "no container" },
+    { "id": "failed", "type": "failure", "label": "failed", "sublabel": "reason stored", "lane": "terminal", "col": 1, "yOffset": -60, "tag": "diagnostic" }
+  ],
+  "transitions": [
+    { "id": "running-waiting", "from": "running", "to": "waiting", "label": "question, gate, pause", "fromSide": "bottom", "toSide": "top", "route": "straight", "labelDx": -8, "labelDy": 24 },
+    { "id": "waiting-resume", "from": "waiting", "to": "starting", "label": "answer or wake-up", "variant": "emphasis", "labelDx": -20, "labelDy": 30 },
+    { "id": "running-failed", "from": "running", "to": "failed", "label": "non-zero exit", "variant": "security", "route": "drop", "labelAt": [532, 235] }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "Normal path", "items": ["Preflight refuses before any model turn", "No container after 4 min: failed, task saved for later", "Session over: the task moves to review"] },
+    { "dot": "amber", "title": "Waiting for you", "items": ["Your answer, or your decision on an approval gate", "The container is destroyed while it waits", "The resume goes back through starting"] },
+    { "dot": "rose", "title": "Failure", "items": ["The end reason is stored on the session", "A diagnostic reads the trace and asks you", "Never relaunched automatically"] }
+  ]
+}

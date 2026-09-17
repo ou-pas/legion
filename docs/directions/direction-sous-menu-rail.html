@@ -1,0 +1,445 @@
+<title>Le sous-menu dans le rail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<style>
+/* Les tokens de l'Atelier, repris de direction-wiki-largeur.html sans y toucher : une maquette
+   qui invente sa palette ne prouve rien sur l'application qu'elle est censée décrire. */
+:root {
+  --paper: #f4f0e8; --sheet: #fcfaf6; --recess: #ede7da; --recess-2: #e5ddcc;
+  --ink: #1e1a15; --ink-2: #584f42; --ink-3: #6b6255;
+  --rule: #dcd3c3; --rule-2: #c6bba6; --rule-3: #aea18a;
+  --accent: #b03f1b; --accent-deep: #8e3213; --accent-wash: #f6e4da; --accent-line: #e3c0b2;
+  --bad: #a2321f; --bad-wash: #f7e2dd;
+  --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --measure: 72ch;
+  --w-iconrail: 56px; --w-rail: 214px;
+  --r: 4px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #2e3440; --sheet: #3b4252; --recess: #2a2f3a; --recess-2: #252a33;
+    --ink: #eceff4; --ink-2: #cbd3df; --ink-3: #a3adbd;
+    --rule: #48505f; --rule-2: #5a6474; --rule-3: #6f7b8d;
+    --accent: #8fc7d6; --accent-deep: #a9d5e0; --accent-wash: #384550; --accent-line: #54707e;
+    --bad: #e88b7d; --bad-wash: #43333a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #2e3440; --sheet: #3b4252; --recess: #2a2f3a; --recess-2: #252a33;
+  --ink: #eceff4; --ink-2: #cbd3df; --ink-3: #a3adbd;
+  --rule: #48505f; --rule-2: #5a6474; --rule-3: #6f7b8d;
+  --accent: #8fc7d6; --accent-deep: #a9d5e0; --accent-wash: #384550; --accent-line: #54707e;
+  --bad: #e88b7d; --bad-wash: #43333a;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+::selection { background: var(--accent-wash); color: var(--ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+svg { display: block; }
+
+.page { max-width: 1180px; margin: 0 auto; padding: 40px 20px 64px; display: flex; flex-direction: column; gap: 22px; }
+h1 { font-family: var(--f-display); font-weight: 600; font-size: clamp(1.7rem, 4vw, 2.3rem); line-height: 1.12; letter-spacing: -.014em; margin: 0; text-wrap: balance; }
+.lede { color: var(--ink-2); max-width: 68ch; margin: 0; }
+.hr { height: 3px; width: 64px; background: var(--ink); }
+
+.variants { display: flex; border: 1px solid var(--rule-2); border-radius: var(--r); overflow: hidden; align-self: flex-start; background: var(--sheet); }
+.variants button { border: 0; background: transparent; font: inherit; font-weight: 500; color: var(--ink-2); padding: .5em 1.05em; cursor: pointer; border-right: 1px solid var(--rule); }
+.variants button:last-child { border-right: 0; }
+.variants button[aria-pressed="true"] { background: var(--accent-wash); color: var(--accent-deep); }
+
+/* ── la maquette ── */
+.frame { border: 1px solid var(--rule-2); border-radius: 6px; overflow: hidden; background: var(--sheet); }
+.app { display: grid; grid-template-rows: 44px 1fr; height: 620px; }
+.topbar { display: flex; align-items: center; gap: 10px; padding: 0 12px; background: var(--sheet); border-bottom: 1px solid var(--rule); font-size: .85rem; }
+.topbar .brand { font-family: var(--f-display); font-weight: 600; }
+.topbar .sp { flex: 1; }
+.topbar .chip { font-family: var(--f-mono); font-size: .68rem; color: var(--ink-3); }
+
+.body { display: grid; grid-template-columns: var(--w-iconrail) var(--w-rail) 1fr; min-height: 0; }
+.iconrail { background: var(--recess-2); border-right: 1px solid var(--rule-2); display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 9px 0; }
+.prj { width: 34px; height: 34px; border-radius: 7px; display: grid; place-items: center; font-family: var(--f-mono); font-size: 12px; color: #fff; background: #6b5ca5; }
+.prj.b { background: #3f7d63; }
+.prj.on { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 10px; }
+
+.rail { background: var(--recess); border-right: 1px solid var(--rule); padding: 11px 8px; display: flex; flex-direction: column; gap: 2px; overflow: auto; }
+.railhead { display: flex; align-items: center; gap: 9px; padding: 2px 8px 11px; min-width: 0; }
+.railhead .mk { width: 22px; height: 22px; border-radius: var(--r); display: grid; place-items: center; font-family: var(--f-mono); font-size: 10px; color: #fff; background: #6b5ca5; flex: none; }
+.railhead b { font-family: var(--f-display); font-weight: 600; font-size: .95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.railhead .crumb { color: var(--ink-3); font-weight: 400; }
+
+.nav { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: var(--r); color: var(--ink-2); font-size: .86rem; cursor: pointer; border: 0; background: transparent; font-family: inherit; text-align: left; width: 100%; }
+.nav:hover { background: var(--sheet); color: var(--ink); }
+.nav[aria-current="true"] { background: var(--sheet); color: var(--ink); font-weight: 600; box-shadow: inset 0 0 0 1px var(--rule-2); }
+.nav .dot { width: 15px; height: 15px; flex: none; display: grid; place-items: center; font-size: 11px; color: var(--ink-3); }
+.nav[aria-current="true"] .dot { color: var(--accent); }
+.nav .caret { margin-left: auto; font-size: .62rem; color: var(--ink-3); transition: transform .16s ease; }
+.nav[aria-expanded="true"] .caret { transform: rotate(90deg); }
+.railsep { margin: 9px 8px 3px; font-family: var(--f-mono); font-size: .62rem; letter-spacing: .11em; text-transform: uppercase; color: var(--ink-3); }
+
+/* Les sous-entrées imbriquées (variante B). Le filet vertical dit « ceci appartient à ce qui est
+   au-dessus » — c'est lui qui remplace le fil d'Ariane dont la variante A a besoin. */
+.subnav { display: flex; flex-direction: column; gap: 1px; margin: 1px 0 3px 16px; padding-left: 9px; border-left: 1px solid var(--rule-2); }
+.subnav .nav { font-size: .82rem; padding: 3.5px 8px; }
+.subnav .nav[aria-current="true"] { box-shadow: none; background: var(--accent-wash); color: var(--accent-deep); }
+/* La même liste, sans filet ni retrait : le parent est dans la tête, rien ne la porte ici. */
+.flat { display: flex; flex-direction: column; gap: 1px; }
+.flat .nav[aria-current="true"] { background: var(--accent-wash); color: var(--accent-deep); box-shadow: none; }
+
+/* Le rang de tête de la variante A : il NOMME la section et il est le moyen d'en sortir. Dessiné
+   comme un titre et pas comme une pastille — une pastille se lit comme une étiquette, or c'est
+   la ligne qui ancre toute la liste en dessous. Le fond n'apparaît qu'au survol, parce que c'est
+   à ce moment-là qu'il faut dire qu'on peut cliquer. Qu'il faille inventer ce rang EST le constat
+   sur cette variante : l'autre n'en a pas besoin. */
+.back { display: flex; align-items: center; gap: 6px; padding: 5px 8px; margin-bottom: 3px; border-radius: var(--r); color: var(--ink); font-size: .88rem; font-weight: 600; cursor: pointer; border: 0; background: transparent; font-family: inherit; width: 100%; text-align: left; }
+.back:hover { background: var(--sheet); }
+.back .dot { width: 15px; height: 15px; flex: none; display: grid; place-items: center; font-size: 11px; color: var(--accent); }
+.back > span:first-child { color: var(--ink-3); font-weight: 400; }
+/* Quand la flèche nomme sa DESTINATION, le rang n'est plus un titre : il redevient un contrôle,
+   et il se dessine comme tel — la section, elle, est écrite dans la tête. */
+.back .dest { font-weight: 400; font-size: .82rem; color: var(--ink-2); }
+
+/* LA TRANSITION DIT LA DIRECTION. Un fondu ne distingue pas « je descends d'un cran » de « je
+   suis parti ailleurs » : les deux listes se croisent au même endroit, sans vecteur. Un
+   glissement l'encode — on entre par la droite en descendant, par la gauche en remontant, comme
+   une pile. C'est le geste que tout le monde connaît d'un écran de réglages sur téléphone.
+
+   La courbe est décélérée (`.22,.61,.36,1`) et non linéaire : une navigation doit ARRIVER, pas
+   défiler. 190 ms, sous le seuil où l'on attend. */
+.railswap { display: flex; flex-direction: column; gap: 2px; }
+.railswap.push { animation: push .19s cubic-bezier(.22,.61,.36,1); }
+.railswap.pop { animation: pop .19s cubic-bezier(.22,.61,.36,1); }
+@keyframes push { from { transform: translateX(30px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes pop { from { transform: translateX(-30px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* La variante B n'a rien à faire glisser : les entrées s'AJOUTENT sous leur parent, elles ne
+   remplacent rien. Elles se déploient donc vers le bas, ce qui est le seul mouvement vrai ici. */
+.subnav.open { animation: unfold .17s ease-out; }
+@keyframes unfold { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .railswap.push, .railswap.pop, .subnav.open { animation: none; }
+  .nav .caret { transition: none; }
+}
+
+.main { overflow: auto; padding: 20px 22px 40px; background: var(--paper); display: flex; flex-direction: column; gap: 14px; }
+.ph { display: flex; flex-direction: column; gap: 2px; }
+.ph h2 { font-family: var(--f-display); font-weight: 600; font-size: 1.32rem; margin: 0; letter-spacing: -.01em; }
+.ph p { margin: 0; color: var(--ink-2); font-size: .88rem; }
+.card { background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--r); padding: 18px 20px; max-width: var(--measure); display: flex; flex-direction: column; gap: 10px; }
+.card h3 { font-family: var(--f-display); font-weight: 600; font-size: 1rem; margin: 0; }
+.card p { margin: 0; color: var(--ink-2); font-size: .87rem; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--rule); font-size: .85rem; }
+.row:first-of-type { border-top: 0; }
+.row .k { font-family: var(--f-mono); font-size: .74rem; color: var(--ink-3); }
+.tag { font-family: var(--f-mono); font-size: .68rem; padding: 1px 7px; border-radius: 999px; background: var(--recess); color: var(--ink-2); border: 1px solid var(--rule); }
+
+/* Le verdict sous la maquette : ce qui se paie, dans un cas et dans l'autre. */
+.verdict { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+.vc { border: 1px solid var(--rule); border-radius: var(--r); padding: 15px 17px; background: var(--sheet); display: flex; flex-direction: column; gap: 7px; }
+.vc h3 { font-family: var(--f-display); font-weight: 600; font-size: 1rem; margin: 0; }
+.vc p { margin: 0; color: var(--ink-2); font-size: .87rem; }
+/* Le verdict est porté par le LIBELLÉ, pas par un filet de couleur au bord de la carte : le mot
+   « ce qu'on paie » dit déjà ce que le filet répétait, et la teinte sur le mot suffit à le faire
+   voir de loin. Un liseré accentué sur le côté d'une carte est le tic le plus reconnaissable des
+   interfaces générées, et il n'ajoutait rien ici. */
+.vc .lbl { font-family: var(--f-mono); font-size: .63rem; letter-spacing: .11em; text-transform: uppercase; color: var(--ink-3); padding-bottom: 6px; border-bottom: 1px solid var(--rule); }
+.vc.cost .lbl { color: var(--bad); }
+.vc.win .lbl { color: var(--accent-deep); }
+
+.sub-switch { display: flex; align-items: center; gap: 11px; flex-wrap: wrap; }
+.eyebrow { font-family: var(--f-mono); font-size: .64rem; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+.sub-switch .variants button { font-size: .84rem; padding: .38em .85em; }
+
+.try { border: 1px dashed var(--rule-3); border-radius: var(--r); padding: 11px 14px; background: var(--recess); color: var(--ink-2); font-size: .87rem; max-width: var(--measure); }
+.try b { color: var(--ink); font-weight: 600; }
+</style>
+
+<div class="page">
+  <h1>Le sous-menu dans le rail</h1>
+  <div class="hr"></div>
+  <p class="lede">Trois écrans portent encore des onglets à l'intérieur de la page. Deux d'entre
+    eux (Réglages, Capacités) sont des listes de sujets distincts, donc des adresses — le Système
+    a déjà fait ce passage à la tranche nav/05. Reste à choisir COMMENT le rail les porte.</p>
+
+  <div class="variants" role="group" aria-label="Variante">
+    <button type="button" data-v="A" aria-pressed="true">A · Le rail se remplace</button>
+    <button type="button" data-v="B" aria-pressed="false">B · Le rail se déplie</button>
+  </div>
+
+  <div class="sub-switch" id="anchorSwitch" hidden>
+    <span class="eyebrow">Où s'écrit « Réglages »</span>
+    <div class="variants" role="group" aria-label="Emplacement du nom de section">
+      <button type="button" data-a="row" aria-pressed="false">Dans le rang</button>
+      <button type="button" data-a="head" aria-pressed="true">Dans la tête</button>
+    </div>
+  </div>
+
+  <p class="try" id="try"></p>
+
+  <div class="frame">
+    <div class="app">
+      <div class="topbar">
+        <span class="brand">Legion</span>
+        <span class="sp"></span>
+        <span class="chip">0 session(s) &nbsp; quota 5 h · 32 % &nbsp; docker ok</span>
+      </div>
+      <div class="body">
+        <div class="iconrail" aria-hidden="true">
+          <div class="prj on">AG</div>
+          <div class="prj b">KO</div>
+        </div>
+        <nav class="rail" id="rail" aria-label="Navigation du projet"></nav>
+        <div class="main" id="main"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="verdict" id="verdict"></div>
+</div>
+
+<script>
+// LE MODÈLE. Les entrées sont celles du vrai rail (web/src/projects/project.tsx) et les
+// sous-entrées celles des vrais onglets (ProjectPage.tsx, CapabilitiesPage.tsx) — une maquette
+// qui invente ses libellés cache exactement le problème qu'on veut voir : leur NOMBRE.
+const RAIL = [
+  { id: "board",      label: "Board",       icon: "▦" },
+  { id: "canaux",     label: "Canaux",      icon: "◇" },
+  { id: "goals",      label: "Goals",       icon: "◎" },
+  { id: "planifiees", label: "Planifiées",  icon: "◔" },
+  { group: "Revue" },
+  { id: "reviews",    label: "Reviews",     icon: "⑂" },
+  { id: "issues",     label: "Issues",      icon: "○" },
+  { group: "Configurer" },
+  { id: "agents",     label: "Agents",      icon: "◈" },
+  { id: "capabilities", label: "Capacités", icon: "✦", sub: [
+    { id: "skills", label: "Skills" }, { id: "regles", label: "Règles" },
+    { id: "chaines", label: "Chaînes" }, { id: "mcp", label: "MCP" },
+    { id: "env", label: "Environnements" },
+  ] },
+  { id: "reglages",   label: "Réglages",    icon: "⚙", sub: [
+    { id: "repos", label: "Repos" }, { id: "contexte", label: "Contexte" },
+    { id: "modeles", label: "Modèles & quota" }, { id: "chaines2", label: "Chaînes" },
+    { id: "secrets", label: "Secrets & identité" }, { id: "execution", label: "Exécution" },
+    { id: "coffre", label: "Coffre" }, { id: "danger", label: "Danger" },
+  ] },
+];
+
+const PANELS = {
+  board: ["Board", "Le travail par état. Quatre colonnes, une carte par tâche."],
+  canaux: ["Canaux", "Le même travail, lu par le temps plutôt que par l'état."],
+  goals: ["Goals", "Les objectifs qui engendrent des tâches."],
+  planifiees: ["Planifiées", "Ce qui doit partir tout seul, et quand."],
+  reviews: ["Reviews", "Les PR ouvertes par les agents, en attente d'un verdict."],
+  issues: ["Issues", "Ce qui est remonté et pas encore transformé en tâche."],
+  agents: ["Agents", "Qui a le droit de faire quoi, avec quels outils."],
+  skills: ["Skills", "Les compétences accordées aux agents de ce projet."],
+  regles: ["Règles", "Injectées dans le prompt système de chaque session."],
+  chaines: ["Chaînes", "Les enchaînements d'étapes qu'une tâche peut suivre."],
+  mcp: ["MCP", "Les serveurs d'outils atteignables depuis une session."],
+  env: ["Environnements", "Les images et les variables d'exécution."],
+  repos: ["Repos", "Les dépôts clonés dans chaque session."],
+  contexte: ["Contexte", "Ce que toute session de ce projet sait avant de commencer."],
+  modeles: ["Modèles & quota", "Le routage des modèles et la fenêtre de consommation."],
+  chaines2: ["Chaînes", "Les enchaînements d'étapes qu'une tâche peut suivre."],
+  secrets: ["Secrets & identité", "Les clés du projet, chiffrées, et leurs libellés."],
+  execution: ["Exécution", "L'image de session, la mémoire, le réseau autorisé."],
+  coffre: ["Coffre", "L'archive scellée du projet, exportable et rejouable."],
+  danger: ["Danger", "Ce qui ne se défait pas."],
+};
+
+const PARENT_OF = {};
+for (const e of RAIL) for (const s of e.sub ?? []) PARENT_OF[s.id] = e;
+
+let variant = "A";  // la variante retenue
+let current = "coffre";   // on arrive DANS un sous-écran : c'est là que la différence se joue
+let drilled = null;       // variante A seulement : quelle section a remplacé le rail
+// Le SENS du dernier mouvement, et rien d'autre : « push » on est descendu, « pop » on est
+// remonté, "" on n'a pas changé de niveau. C'est cette variable que le fondu ne pouvait pas
+// exprimer — il n'a qu'un seul état, donc il dit toujours la même chose.
+let anim = "";
+// « row » ou « head » : lequel des deux emplacements porte le nom de la section. Voir renderRail.
+// « head » est la RETENUE (30/08) : le nom de la section vit dans la tête du rail, et le rang de
+// retour nomme sa destination comme une flèche le fait partout ailleurs.
+let anchor = "head";
+
+const el = (t, c, txt) => { const n = document.createElement(t); if (c) n.className = c; if (txt != null) n.textContent = txt; return n; };
+
+function navButton(label, icon, active, onClick, extra) {
+  const b = el("button", "nav");
+  b.type = "button";
+  if (icon) b.append(el("span", "dot", icon));
+  b.append(el("span", null, label));
+  if (active) b.setAttribute("aria-current", "true");
+  if (extra) extra(b);
+  b.addEventListener("click", onClick);
+  return b;
+}
+
+function renderRail() {
+  const rail = document.getElementById("rail");
+  rail.textContent = "";
+
+  const head = el("div", "railhead");
+  head.append(el("span", "mk", "AG"));
+  const name = el("b");
+  // OÙ S'ÉCRIT LA SECTION. Deux arrangements tiennent debout, et ils vont PAR PAIRE — le nom de
+  // la section s'écrit une fois, et l'autre emplacement dit autre chose :
+  //
+  //   « rang »  le rang dit « ← Réglages », la tête garde le projet ;
+  //   « tête »  le rang dit « ← Projet » (la flèche nomme sa destination, comme partout
+  //             ailleurs), et c'est la tête qui porte « Legion · Réglages ».
+  //
+  // Ce qui ne tient pas debout est la moitié de chaque : « ← Projet » avec une tête qui ne dit
+  // que le projet ne nomme la section nulle part.
+  if (variant === "A" && drilled && anchor === "head") {
+    name.append(document.createTextNode("Legion "));
+    name.append(el("span", "crumb", "· " + drilled.label));
+  } else {
+    name.textContent = "Legion";
+  }
+  head.append(name);
+  rail.append(head);
+
+  const swap = el("div", "railswap" + (anim ? " " + anim : ""));
+
+  if (variant === "A" && drilled) {
+    // UN SEUL RANG, ET IL NOMME OÙ L'ON EST (correction de l'opérateur, 30/08). Il disait « ← Projet »
+    // et le parent était écrit en dessous : deux rangs pour une seule information, et le premier
+    // nommait l'endroit qu'on quitte plutôt que celui où l'on est. La flèche reste le moyen de
+    // sortir, le mot dit la section.
+    //
+    // ⚠ Le point à trancher : sur la plupart des systèmes, une flèche suivie d'un libellé nomme
+    // la DESTINATION (« ← Réglages » = retourner aux réglages). Ici elle nomme le lieu courant.
+    // C'est cohérent avec la tête de rail, qui garde le projet, mais ça va contre l'habitude — et
+    // ça se règle d'un mot si l'usage tranche autrement.
+    const back = el("button", "back");
+    back.type = "button";
+    back.append(el("span", null, "←"));
+    if (anchor === "row") back.append(el("span", "dot", drilled.icon), el("span", null, drilled.label));
+    else back.append(el("span", "dest", "Projet"));
+    back.addEventListener("click", () => { drilled = null; current = "board"; anim = "pop"; render(); });
+    back.title = "Revenir au projet";
+    swap.append(back);
+    // LE FILET SUIT LE PARENT, il ne tient pas tout seul. En mode « rang » le parent est écrit
+    // juste au-dessus, donc le trait relie deux choses et l'indentation se justifie. En mode
+    // « tête » le parent est monté dans la tête : un filet resterait accroché à rien, et une
+    // indentation décalerait la liste sans que rien ne la porte. La liste va alors bord à bord,
+    // comme sur un écran de réglages de téléphone.
+    const nest = el("div", anchor === "row" ? "subnav" : "flat");
+    for (const s of drilled.sub) {
+      nest.append(navButton(s.label, null, current === s.id, () => { current = s.id; render(); }));
+    }
+    swap.append(nest);
+  } else {
+    for (const e of RAIL) {
+      if (e.group) { swap.append(el("div", "railsep", e.group)); continue; }
+      const owns = !!e.sub && e.sub.some((s) => s.id === current);
+      const b = navButton(e.label, e.icon, current === e.id || (variant === "A" && owns), () => {
+        // Cliquer la section ouvre sa première sous-entrée, dans les deux variantes. C'est ce
+        // que fait déjà le vrai routeur : `/p/x/project` n'a pas de contenu à lui, il atterrit
+        // sur « Repos ». Un parent qui serait « sélectionné » sans écran n'existe pas.
+        if (variant === "A" && e.sub) { drilled = e; current = e.sub[0].id; anim = "push"; }
+        else { if (e.sub && !owns) anim = "open"; current = e.sub ? e.sub[0].id : e.id; }
+        render();
+      }, (btn) => { if (e.sub && variant === "B") { btn.setAttribute("aria-expanded", String(!!owns)); btn.append(el("span", "caret", "▶")); } });
+      swap.append(b);
+      if (variant === "B" && owns) {
+        const nest = el("div", "subnav" + (owns && anim === "open" ? " open" : ""));
+        for (const s of e.sub) {
+          nest.append(navButton(s.label, null, current === s.id, () => { current = s.id; render(); }));
+        }
+        swap.append(nest);
+      }
+    }
+  }
+  rail.append(swap);
+}
+
+function renderMain() {
+  const main = document.getElementById("main");
+  main.textContent = "";
+  const [title, sub] = PANELS[current] ?? PANELS.board;
+  const h = el("div", "ph");
+  h.append(el("h2", null, title), el("p", null, sub));
+  main.append(h);
+
+  const card = el("div", "card");
+  if (current === "coffre") {
+    card.append(el("h3", null, "Sceller le projet"));
+    card.append(el("p", null, "Une archive qui contient les dépôts, les règles, les agents et l'historique des tâches. Les secrets n'y entrent jamais en clair."));
+    for (const [k, v] of [["dernier sceau", "hier, 18:04"], ["taille", "41,2 Mo"], ["intégrité", "vérifiée"]]) {
+      const r = el("div", "row");
+      r.append(el("span", "k", k), el("span", null, v));
+      card.append(r);
+    }
+  } else {
+    card.append(el("h3", null, title));
+    card.append(el("p", null, "Le contenu de cet écran n'est pas le sujet de la maquette. Ce qui se juge ici est la colonne de gauche : ce qu'elle montre, et ce qu'elle a cessé de montrer."));
+    const r = el("div", "row");
+    r.append(el("span", "k", "écran"), el("span", "tag", current));
+    card.append(r);
+  }
+  main.append(card);
+}
+
+const VERDICTS = {
+  A: [
+    ["Ce qu'on gagne", "win", "Une seule liste à lire, huit entrées au lieu de dix plus huit. Le sous-menu a toute la hauteur du rail, donc les libellés longs tiennent : « Secrets & identité » ne se tronque pas."],
+    ["Ce qu'on paie", "cost", "Depuis « Coffre », plus rien ne mène à « Board » : il faut d'abord remonter. On a inventé un bouton retour, et un fil d'Ariane dans la tête pour dire où l'on est. Deux mécanismes que l'autre variante n'a pas besoin d'avoir."],
+    ["Le filet et le glissement règlent une moitié", "win", "Le parent reste écrit, ses entrées gardent le filet vertical de B, et la liste entre par la droite en descendant, par la gauche en remontant. On sait de quoi cette liste est la liste, et dans quel sens on s'est déplacé — ce que le fondu ne pouvait pas dire, n'ayant qu'un seul état. L'autre moitié du coût reste entière : le reste du projet a disparu de l'écran."],
+  ],
+  B: [
+    ["Ce qu'on gagne", "win", "Rien ne disparaît. Depuis « Coffre » on voit encore Board, Canaux, Reviews, et on y va d'un clic. Pas de bouton retour à inventer, pas de fil d'Ariane : la position se lit sur l'entrée surlignée, dans son contexte."],
+    ["Ce qu'on paie", "cost", "Le rail est plus long quand une section est ouverte, et il défile. Une seule section s'ouvre à la fois, ce qui borne la casse ; c'est le prix, et il est visible à l'écran plutôt que caché dans un geste."],
+    ["La transition", "win", "Aucune n'est nécessaire, et c'est un gain : le fondu de la variante A existe pour masquer une substitution. Ici rien n'est substitué, les entrées s'ajoutent sous leur parent."],
+  ],
+};
+
+function renderVerdict() {
+  const v = document.getElementById("verdict");
+  v.textContent = "";
+  for (const [lbl, tone, body] of VERDICTS[variant]) {
+    const c = el("div", "vc " + tone);
+    c.append(el("div", "lbl", lbl), el("p", null, body));
+    v.append(c);
+  }
+  document.getElementById("try").innerHTML = variant === "A"
+    ? "<b>Essayez :</b> vous êtes dans « Coffre ». Retournez au Board sans passer par « ← Projet ». C'est là qu'est le coût."
+    : "<b>Essayez :</b> vous êtes dans « Coffre ». Le Board est toujours à un clic, et « Capacités » s'ouvre sans fermer le reste de la navigation.";
+}
+
+// `anim` est REMIS À ZÉRO après chaque rendu : c'est le sens du DERNIER geste, pas un état de la
+// vue. Sans ça, le glissement se rejouerait à chaque clic sur une sous-entrée — un mouvement qui
+// se répète sans qu'il se soit rien passé finit par se lire comme un défaut d'affichage.
+function render() {
+  // Le choix d'emplacement ne concerne QUE la variante A : en B rien n'est remplacé, donc il n'y
+  // a ni rang de retour ni fil d'Ariane à placer quelque part.
+  document.getElementById("anchorSwitch").hidden = variant !== "A";
+  renderRail(); renderMain(); renderVerdict(); anim = "";
+}
+
+for (const b of document.querySelectorAll("[data-v]")) {
+  b.addEventListener("click", () => {
+    variant = b.dataset.v;
+    drilled = variant === "A" ? PARENT_OF[current] ?? null : null;
+    for (const o of document.querySelectorAll("[data-v]")) o.setAttribute("aria-pressed", String(o === b));
+    render();
+  });
+}
+for (const b of document.querySelectorAll("[data-a]")) {
+  b.addEventListener("click", () => {
+    anchor = b.dataset.a;
+    for (const o of document.querySelectorAll("[data-a]")) o.setAttribute("aria-pressed", String(o === b));
+    render();
+  });
+}
+render();
+</script>

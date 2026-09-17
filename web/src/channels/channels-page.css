@@ -1,0 +1,166 @@
+/* The channels view: a panel page, like the wiki.
+ *
+ * On 25/08 it had its own geometry: three edge-to-edge columns and the app rail collapsed to icons,
+ * which cost the open project's name (operator feedback, 26/08). In an app where every URL is
+ * `/p/$projectId/…`, losing the project is losing where you are.
+ *
+ * Now: a page TITLE, then three panes (channel list, conversation, state). The rail never moves; the
+ * third column fits WITHOUT collapsing it (224 + 236 + 280 = 740 px of chrome).
+ *
+ * It keeps one autonomy: VIEWPORT HEIGHT. The thread scrolls by itself and the composer sticks to the
+ * bottom, since a steering field at the end of three hundred events is not a composer. Hence `bleed`:
+ * the wiki's geometry, not its scroll model. */
+.ch-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--paper);
+}
+
+/* Page title frame: PageHeader (ui/page.tsx) lays out the title; this only holds the fixed background
+   (nothing scrolls above) and its own bottom margin. */
+.ch-page-head {
+  flex-shrink: 0;
+  padding: var(--sp-9) var(--sp-10) var(--sp-7);
+  border-bottom: 1px solid var(--border-separator);
+}
+
+.ch-panel {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: var(--w-channels) minmax(0, 1fr) var(--w-aside);
+  grid-template-areas: "list conv state";
+  gap: var(--sp-8);
+  padding: var(--sp-8) var(--sp-10) var(--sp-9);
+}
+
+.ch-aside {
+  grid-area: list;
+}
+.ch-conv {
+  grid-area: conv;
+}
+.ch-details {
+  grid-area: state;
+}
+
+/* Both panes are SHEETS on the board, like the app's cards: three edge-to-edge zones read as a
+   dashboard, not as objects. */
+.ch-aside,
+.ch-conv {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--sheet);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-3);
+  box-shadow: var(--el-1);
+}
+
+.ch-aside {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Channel header: the task name and what to know before reading. It does not scroll: you must know
+   whom you talk to at the bottom of the thread as at the top. */
+.ch-conv-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-5);
+  flex-shrink: 0;
+  padding: var(--sp-7) var(--sp-8);
+  border-bottom: 1px solid var(--border-separator);
+}
+
+/* `.ch-conv-scroll` frames a <ScrollArea size="fill">, which provides scrolling, edge shadows and the
+   new-messages pill. Only the thread padding stays here, on the scrolling area rather than the frame,
+   or the pill would float inside the margin. */
+.ch-conv-scroll > .ui-scroll-view {
+  padding: var(--sp-9) var(--sp-9) var(--sp-8);
+}
+/* The composer: the steering field, at the bottom where expected.
+ *
+ * IN the recess, not on the sheet (operator feedback, 26/08: do not confuse the thread with the reply
+ * panel). A one-pixel rule did not separate two same-coloured surfaces. `--recess` is the token for
+ * exactly that. The header STAYS on the sheet, on purpose: it NAMES the thread; the composer is a
+ * different gesture and detaches. */
+.ch-conv-composer {
+  flex-shrink: 0;
+  padding: var(--sp-6) var(--sp-8) var(--sp-7);
+  background: var(--recess);
+  border-top: 1px solid var(--border-separator);
+}
+
+/* The secondary composer, when a question waits in the action band.
+ *
+ * The field stays (adding an instruction next to a question is legitimate) but loses its WEIGHT: no
+ * fill or four-edge rule, just an underline. Two equally dense surfaces at the top and bottom of one
+ * column made this field look like the answer field.
+ *
+ * `:not(:focus)`: focused, it becomes a field again (base.css), since a control in use does not fade.
+ * Same mechanics as contract rule 9quater; `input.css` hover stays more specific and still wins. */
+.ch-composer-secondary .ui-input:not(:focus) {
+  background: transparent;
+  border-color: transparent;
+  border-bottom-color: var(--border-separator);
+}
+
+/* Narrow-width channel selector: it REPLACES the list, it does not double it. */
+.ch-switch {
+  display: none;
+  flex-shrink: 0;
+  padding: var(--sp-6) var(--sp-10) 0;
+}
+
+/* Below 1280px the state no longer FITS as a column, but it does not disappear: it becomes a BAND under
+   the conversation, through the same `auto-fit` grid (see channel-details.css). A `display: none`
+   would have erased branch and deliverables on a laptop. */
+@media (max-width: 1280px) {
+  .ch-panel {
+    grid-template-columns: var(--w-channels) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "list conv"
+      "list state";
+  }
+}
+
+/* Below 1000px two side-by-side panes strangle the conversation. The list does not vanish (that would
+   lose channel switching): it becomes a selector above the conversation. */
+@media (max-width: 1000px) {
+  .ch-panel {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "conv"
+      "state";
+    padding-top: var(--sp-6);
+  }
+
+  .ch-aside {
+    display: none;
+  }
+
+  .ch-switch {
+    display: block;
+  }
+}
+
+@media (max-width: 700px) {
+  .ch-page-head {
+    padding: var(--sp-8) var(--sp-8) var(--sp-6);
+  }
+
+  .ch-panel {
+    padding: var(--sp-6) var(--sp-8) var(--sp-8);
+  }
+
+  .ch-switch {
+    padding: var(--sp-6) var(--sp-8) 0;
+  }
+}

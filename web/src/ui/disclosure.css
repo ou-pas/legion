@@ -1,0 +1,50 @@
+/* Same mechanics as `.ui-tl-fold` (Timeline): the chevron rotates on open, the target covers the
+   whole summary row. */
+.ui-disclosure-head {
+  /* Contract target floor (24px). */
+  min-height: var(--h-control-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  cursor: pointer;
+  list-style: none;
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+}
+
+.ui-disclosure-head::-webkit-details-marker {
+  display: none;
+}
+
+.ui-disclosure-head:hover {
+  color: var(--ink);
+}
+
+.ui-disclosure-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  min-width: 0;
+}
+
+.ui-disclosure-caret {
+  margin-left: auto;
+  flex-shrink: 0;
+  transition: transform var(--dur-1) var(--ease);
+}
+
+.ui-disclosure[open] > .ui-disclosure-head .ui-disclosure-caret {
+  transform: rotate(90deg);
+}
+
+.ui-disclosure-body {
+  margin-top: var(--sp-3);
+  padding-left: var(--sp-8);
+  min-width: 0;
+}
+
+/* `flush`: expanded content sits at the edge, without the indent. In a 280px page margin the
+   indent misaligned expanded fields with those above and ate width (operator feedback, 23/08). */
+.ui-disclosure[data-flush] > .ui-disclosure-body {
+  padding-left: 0;
+}

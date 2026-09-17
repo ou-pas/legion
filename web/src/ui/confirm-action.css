@@ -1,0 +1,21 @@
+/* Two steps in place. Inline: it lives in a toolbar or a row; the label changes, the page does
+   not jump. */
+.ui-confirm {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+/* The armed button gets a stronger line, like a raised safety catch. Its color follows the
+   variant: accent for everyday actions, red for destructive ones. */
+.ui-confirm[data-armed="true"] > .ui-btn:first-child {
+  border-color: var(--accent-deep);
+  box-shadow: var(--field-ring);
+}
+
+.ui-confirm[data-armed="true"] > .ui-btn[data-variant="danger"]:first-child {
+  border-color: var(--bad-deep);
+  box-shadow: var(--field-ring-bad);
+}
+
+/* Read, never seen. */

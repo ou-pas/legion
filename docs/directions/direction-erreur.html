@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Legion — direction « L'écran qui a cassé »</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   L'ÉCRAN QUI A CASSÉ — trois directions
+   Le problème : en PWA installée il n'y a pas de barre d'adresse, donc pas de
+   bouton « recharger ». Un écran qui plante y est un cul-de-sac.
+   Le cas le plus fréquent n'est même pas un bug : Legion s'est mis à jour
+   pendant que l'écran était ouvert, et le morceau de code que la page suivante
+   demande n'existe plus sous ce nom.
+   ============================================================ */
+:root{
+  --paper:#F4F0E8;
+  --sheet:#FCFAF6;
+  --recess:#EDE7DA;
+  --recess-2:#E5DDCC;
+
+  --ink:#1E1A15;
+  --ink-2:#584F42;
+  --ink-3:#6B6255;
+
+  --accent:#B03F1B;
+  --accent-deep:#8E3213;
+  --accent-wash:#F6E4DA;
+  --accent-line:#E3C0B2;
+
+  --border-separator:#DCD3C2;
+  --border-surface:#E4DCCB;
+  --border-floating:#CFC5B0;
+
+  --r-2:6px; --r-3:10px;
+  --sans:'Archivo',system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --el-1:0 1px 2px rgba(30,26,21,.06);
+  --el-2:0 6px 20px rgba(30,26,21,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:var(--sans);
+  color:var(--ink);
+  background:var(--paper);
+  line-height:1.5;
+  padding:32px 20px 80px;
+}
+.wrap{max-width:1180px;margin:0 auto}
+h1{font-size:22px;font-weight:600;letter-spacing:-.01em}
+.lede{margin-top:10px;max-width:70ch;color:var(--ink-2);font-size:14px}
+.lede b{color:var(--ink);font-weight:600}
+
+.note{
+  margin-top:22px;padding:14px 16px;
+  background:var(--accent-wash);
+  border:1px solid var(--accent-line);
+  border-radius:var(--r-3);
+  font-size:13.5px;color:var(--ink-2);max-width:80ch;
+}
+.note b{color:var(--accent-deep)}
+
+h2{margin:44px 0 4px;font-size:15px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.why{margin-bottom:18px;max-width:72ch;font-size:13.5px;color:var(--ink-2)}
+
+/* ── le téléphone ─────────────────────────────────────────── */
+.decks{display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start}
+.phone{
+  width:375px;height:640px;flex:none;
+  background:var(--paper);
+  border:1px solid var(--border-floating);
+  border-radius:22px;
+  box-shadow:var(--el-2);
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  background-image:
+    linear-gradient(to right,rgba(30,26,21,.035) 1px,transparent 1px),
+    linear-gradient(to bottom,rgba(30,26,21,.035) 1px,transparent 1px);
+  background-size:16px 16px;
+}
+.bar{
+  flex:none;display:flex;align-items:center;gap:12px;
+  padding:0 16px;min-height:52px;
+  background:var(--sheet);border-bottom:1px solid var(--border-separator);
+}
+.sq{width:26px;height:26px;border-radius:var(--r-2);background:#2F6B3D;color:#fff;
+    font-size:10px;font-weight:700;display:grid;place-items:center}
+.bar .name{font-size:16px;font-weight:600}
+.bar .dots{margin-left:auto;color:var(--ink-3);font-size:18px;letter-spacing:2px}
+.tabs{
+  flex:none;display:flex;border-top:1px solid var(--border-separator);
+  background:var(--sheet);
+}
+.tabs span{
+  flex:1;text-align:center;padding:9px 2px 11px;
+  font-size:11px;color:var(--ink-3);
+}
+.tabs span.on{color:var(--ink);font-weight:500}
+.tabs i{display:block;width:15px;height:15px;margin:0 auto 4px;border-radius:3px;
+        border:1.5px solid currentColor;opacity:.75;font-style:normal}
+.body{flex:1;min-height:0;display:flex;overflow:hidden}
+
+/* ── pièces communes ──────────────────────────────────────── */
+.btn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:0 14px;min-height:38px;
+  border:1px solid var(--border-floating);border-radius:var(--r-2);
+  background:var(--sheet);color:var(--ink);
+  font:inherit;font-size:14px;font-weight:500;cursor:pointer;
+}
+.btn.primary{background:var(--accent);border-color:var(--accent-deep);color:#fff}
+.btn.quiet{background:none;border-color:transparent;color:var(--ink-2)}
+.mono{font-family:var(--mono);font-size:11.5px}
+
+/* ============================================================
+   A — LA PLANCHE
+   ============================================================ */
+.a-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+        text-align:center;gap:18px;padding:28px 26px}
+.plate{width:132px;height:88px;flex:none}
+.plate .frame{fill:none;stroke:var(--border-separator);stroke-width:1.5;stroke-dasharray:5 4}
+.plate .rule{fill:none;stroke:var(--border-separator);stroke-width:2;stroke-linecap:round}
+.plate .tear{fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.a-title{font-size:17px;font-weight:600;letter-spacing:-.01em;line-height:1.3}
+.a-body{font-size:13.5px;color:var(--ink-2);max-width:34ch}
+.a-actions{display:flex;flex-direction:column;gap:8px;align-items:center;width:100%;margin-top:2px}
+.a-actions .btn{width:100%;justify-content:center}
+
+/* ============================================================
+   B — LE CONSTAT
+   ============================================================ */
+.b-wrap{flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px;padding:28px 24px}
+.b-kicker{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-deep);font-weight:600}
+.b-title{font-size:21px;font-weight:600;letter-spacing:-.015em;line-height:1.25}
+.b-body{font-size:13.5px;color:var(--ink-2)}
+.b-detail{
+  border:1px solid var(--border-surface);border-radius:var(--r-2);
+  background:var(--recess);padding:10px 12px;color:var(--ink-3);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.b-actions{display:flex;gap:8px;margin-top:4px}
+.b-actions .btn{flex:1;justify-content:center}
+
+/* ============================================================
+   C — LA FEUILLE DÉTACHÉE
+   ============================================================ */
+.c-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:24px 20px}
+.card{
+  width:100%;background:var(--sheet);
+  border:1px solid var(--border-surface);border-radius:var(--r-3);
+  box-shadow:var(--el-1);overflow:hidden;
+}
+.card-art{
+  padding:26px 0 20px;display:grid;place-items:center;
+  background:var(--recess);border-bottom:1px solid var(--border-separator);
+}
+.card-body{padding:20px 18px 18px;display:flex;flex-direction:column;gap:12px}
+.c-title{font-size:16px;font-weight:600;letter-spacing:-.01em}
+.c-body{font-size:13.5px;color:var(--ink-2)}
+.c-foot{display:flex;gap:8px;padding-top:4px}
+.c-foot .btn{flex:1;justify-content:center}
+.chip{
+  display:inline-block;padding:2px 8px;border-radius:999px;
+  background:var(--accent-wash);border:1px solid var(--accent-line);
+  color:var(--accent-deep);font-size:11px;font-weight:600;
+}
+
+.verdict{margin-top:14px;max-width:72ch;font-size:13px;color:var(--ink-3)}
+.verdict b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>L'écran qui a cassé</h1>
+<p class="lede">
+  Une application installée n'a <b>pas de barre d'adresse</b>, donc pas de bouton « recharger ».
+  Quand un écran plante, il n'y a plus de sortie : ni retour, ni rafraîchissement. Fermer l'app et
+  la rouvrir ne suffit pas toujours, puisqu'elle reprend là où elle était.
+</p>
+
+<div class="note">
+  <b>Et le cas le plus fréquent n'est pas un bug.</b> Legion se met à jour en se reconstruisant :
+  les fichiers de l'écran changent de nom à chaque version. Une page restée ouverte pendant une
+  mise à jour demande, à la navigation suivante, un morceau de code qui n'existe plus sous ce nom.
+  Ce n'est pas une panne, c'est un écran périmé — et un rechargement le répare à coup sûr.
+  Les trois directions ci-dessous <b>distinguent ce cas du vrai plantage</b>, parce que la phrase
+  à écrire n'est pas la même : l'un promet que le bouton suffit, l'autre ne peut pas le promettre.
+</div>
+
+<!-- ============================================================ A -->
+<h2>A — La planche</h2>
+<p class="why">
+  Le vocabulaire des états vides du design system, tel quel : cadre pointillé, réglures, aucune
+  mascotte. Ici la planche est <em>déchirée</em> — un seul trait de couleur, le même vermillon que
+  les gestes. L'écran d'erreur devient un état de l'application parmi les autres, pas une page
+  étrangère. C'est la direction la moins chère et la plus cohérente.
+</p>
+<div class="decks">
+
+  <div class="phone">
+    <div class="bar"><span class="sq">LE</span><span class="name">Board</span><span class="dots">···</span></div>
+    <div class="body">
+      <div class="a-wrap">
+        <svg class="plate" viewBox="0 0 120 80" aria-hidden="true">
+          <rect class="frame" x="1" y="1" width="118" height="78" rx="4"/>
+          <g class="rule"><path d="M22 30 h76"/><path d="M22 44 h34"/><path d="M62 58 h36"/></g>
+          <path class="tear" d="M52 12 l6 12 l-8 9 l7 11 l-6 10 l7 14"/>
+        </svg>
+        <div>
+          <p class="a-title">Cet écran date d'avant la mise à jour</p>
+          <p class="a-body">Legion s'est reconstruit pendant qu'il était ouvert. Recharger suffit — rien n'est perdu.</p>
+        </div>
+        <div class="a-actions">
+          <button class="btn primary">Recharger</button>
+          <button class="btn quiet">Voir le détail technique</button>
+        </div>
+      </div>
+    </div>
+    <div class="tabs">
+      <span class="on"><i></i>Board</span><span><i></i>Canal</span>
+      <span><i></i>Inbox</span><span><i></i>Goals</span><span><i></i>Planif.</span>
+    </div>
+  </div>
+
+  <div class="phone">
+    <div class="bar"><span class="sq">LE</span><span class="name">Tâche</span><span class="dots">···</span></div>
+    <div class="body">
+      <div class="a-wrap">
+        <svg class="plate" viewBox="0 0 120 80" aria-hidden="true">
+          <rect class="frame" x="1" y="1" width="118" height="78" rx="4"/>
+          <g class="rule"><path d="M22 30 h76"/><path d="M22 44 h34"/><path d="M62 58 h36"/></g>
+          <path class="tear" d="M52 12 l6 12 l-8 9 l7 11 l-6 10 l7 14"/>
+        </svg>
+        <div>
+          <p class="a-title">Cet écran s'est arrêté</p>
+          <p class="a-body">Quelque chose a cassé en l'affichant. Recharger repart d'une page propre ; si ça recommence, le détail dit où.</p>
+        </div>
+        <div class="a-actions">
+          <button class="btn primary">Recharger</button>
+          <button class="btn quiet">Copier le détail</button>
+        </div>
+      </div>
+    </div>
+    <div class="tabs">
+      <span><i></i>Board</span><span><i></i>Canal</span>
+      <span class="on"><i></i>Inbox</span><span><i></i>Goals</span><span><i></i>Planif.</span>
+    </div>
+  </div>
+
+</div>
+<p class="verdict">Les deux téléphones sont le <b>même composant</b> : seuls le titre, la phrase et le second bouton changent selon que la cause est nommable ou non.</p>
+
+<!-- ============================================================ B -->
+<h2>B — Le constat</h2>
+<p class="why">
+  Pas d'illustration. Un surtitre qui classe, une phrase en grand qui dit ce qui s'est passé, le
+  message brut à portée de copie, deux boutons. C'est la forme d'<code class="mono">ErrorState</code>,
+  qui existe déjà dans le design system et qu'on réemploierait presque sans rien écrire. Le plus
+  rapide à lire, le moins accueillant.
+</p>
+<div class="decks">
+
+  <div class="phone">
+    <div class="bar"><span class="sq">LE</span><span class="name">Board</span><span class="dots">···</span></div>
+    <div class="body">
+      <div class="b-wrap">
+        <p class="b-kicker">Écran périmé</p>
+        <p class="b-title">Legion a été mis à jour pendant que cet écran était ouvert.</p>
+        <p class="b-body">La page demande un morceau de code qui a changé de nom. Recharger suffit, et rien n'est perdu.</p>
+        <div class="b-detail mono">Importing a module script failed.</div>
+        <div class="b-actions">
+          <button class="btn primary">Recharger</button>
+          <button class="btn">Copier</button>
+        </div>
+      </div>
+    </div>
+    <div class="tabs">
+      <span class="on"><i></i>Board</span><span><i></i>Canal</span>
+      <span><i></i>Inbox</span><span><i></i>Goals</span><span><i></i>Planif.</span>
+    </div>
+  </div>
+
+  <div class="phone">
+    <div class="bar"><span class="sq">LE</span><span class="name">Tâche</span><span class="dots">···</span></div>
+    <div class="body">
+      <div class="b-wrap">
+        <p class="b-kicker">Écran arrêté</p>
+        <p class="b-title">Cet écran n'a pas pu s'afficher.</p>
+        <p class="b-body">Le reste de l'application fonctionne. Recharger repart d'une page propre.</p>
+        <div class="b-detail mono">TypeError: t.segments is undefined</div>
+        <div class="b-actions">
+          <button class="btn primary">Recharger</button>
+          <button class="btn">Copier</button>
+        </div>
+      </div>
+    </div>
+    <div class="tabs">
+      <span><i></i>Board</span><span><i></i>Canal</span>
+      <span class="on"><i></i>Inbox</span><span><i></i>Goals</span><span><i></i>Planif.</span>
+    </div>
+  </div>
+
+</div>
+<p class="verdict">Avantage réel : <b>zéro nouveau composant</b>. Inconvénient : sur un téléphone, un mur de texte à la place d'un écran attendu se lit comme une panne plus grave qu'elle n'est.</p>
+
+<!-- ============================================================ C -->
+<h2>C — La feuille détachée</h2>
+<p class="why">
+  L'erreur est une <em>carte</em>, comme tout le reste de l'application — pas un écran vide. Le
+  dessin est en tête, dans le creux, et montre une feuille qui s'est décollée de son classeur.
+  La plus soignée, et la seule qui reste lisible si elle apparaît un jour <em>dans</em> une page
+  plutôt qu'à sa place.
+</p>
+<div class="decks">
+
+  <div class="phone">
+    <div class="bar"><span class="sq">LE</span><span class="name">Board</span><span class="dots">···</span></div>
+    <div class="body">
+      <div class="c-wrap">
+        <div class="card">
+          <div class="card-art">
+            <svg width="150" height="94" viewBox="0 0 150 94" aria-hidden="true">
+              <rect x="16" y="10" width="86" height="74" rx="4" fill="none"
+                    stroke="var(--border-separator)" stroke-width="1.5" stroke-dasharray="5 4"/>
+              <g fill="none" stroke="var(--border-separator)" stroke-width="2" stroke-linecap="round">
+                <path d="M30 32 h54"/><path d="M30 45 h34"/>
+              </g>
+              <g transform="rotate(11 118 58)">
+                <rect x="94" y="34" width="46" height="52" rx="3" fill="var(--sheet)"
+                      stroke="var(--accent-line)" stroke-width="1.5"/>
+                <g fill="none" stroke="var(--accent-line)" stroke-width="2" stroke-linecap="round">
+                  <path d="M103 50 h28"/><path d="M103 60 h18"/>
+                </g>
+              </g>
+              <path d="M100 26 l10 -9 M104 34 l13 -3" fill="none" stroke="var(--accent)"
+                    stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="card-body">
+            <span class="chip">Écran périmé</span>
+            <p class="c-title">Cette page date d'avant la mise à jour</p>
+            <p class="c-body">Legion s'est reconstruit pendant qu'elle était ouverte. Recharger suffit — ce que tu as saisi ailleurs n'est pas perdu.</p>
+            <div class="c-foot">
+              <button class="btn primary">Recharger</button>
+              <button class="btn">Détail</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tabs">
+      <span class="on"><i></i>Board</span><span><i></i>Canal</span>
+      <span><i></i>Inbox</span><span><i></i>Goals</span><span><i></i>Planif.</span>
+    </div>
+  </div>
+
+  <div class="phone">
+    <div class="bar"><span class="sq">LE</span><span class="name">Tâche</span><span class="dots">···</span></div>
+    <div class="body">
+      <div class="c-wrap">
+        <div class="card">
+          <div class="card-art">
+            <svg width="150" height="94" viewBox="0 0 150 94" aria-hidden="true">
+              <rect x="16" y="10" width="86" height="74" rx="4" fill="none"
+                    stroke="var(--border-separator)" stroke-width="1.5" stroke-dasharray="5 4"/>
+              <g fill="none" stroke="var(--border-separator)" stroke-width="2" stroke-linecap="round">
+                <path d="M30 32 h54"/><path d="M30 45 h34"/>
+              </g>
+              <g transform="rotate(11 118 58)">
+                <rect x="94" y="34" width="46" height="52" rx="3" fill="var(--sheet)"
+                      stroke="var(--accent-line)" stroke-width="1.5"/>
+                <g fill="none" stroke="var(--accent-line)" stroke-width="2" stroke-linecap="round">
+                  <path d="M103 50 h28"/><path d="M103 60 h18"/>
+                </g>
+              </g>
+              <path d="M100 26 l10 -9 M104 34 l13 -3" fill="none" stroke="var(--accent)"
+                    stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="card-body">
+            <span class="chip">Écran arrêté</span>
+            <p class="c-title">Cette page n'a pas pu s'afficher</p>
+            <p class="c-body">Le reste de l'application fonctionne. Recharger repart d'une page propre ; si ça recommence, le détail dit où ça a cassé.</p>
+            <div class="c-foot">
+              <button class="btn primary">Recharger</button>
+              <button class="btn">Détail</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tabs">
+      <span><i></i>Board</span><span><i></i>Canal</span>
+      <span class="on"><i></i>Inbox</span><span><i></i>Goals</span><span><i></i>Planif.</span>
+    </div>
+  </div>
+
+</div>
+<p class="verdict">La plus travaillée, et la plus chère : une illustration de plus à tenir, et un dessin qui ne dit rien de plus que celui de A.</p>
+
+<h2>Ce que je recommande</h2>
+<p class="why">
+  <b>A</b>, pour une raison qui n'est pas esthétique : l'application a déjà un langage pour « il n'y
+  a rien à montrer » — la planche pointillée des états vides — et un écran cassé en est un cas.
+  Réemployer ce langage coûte un trait de plus dans un SVG existant, et donne un écran qui
+  appartient au produit au lieu de lui être étranger. B est ce qu'on écrirait si le temps manquait ;
+  C est plus beau et ne dit rien de plus.
+</p>
+<p class="why">
+  Ce qui compte davantage que la direction : <b>les deux cas sont distingués</b>, et la barre du bas
+  reste là. Un écran cassé au milieu de l'application ne doit pas emporter la navigation avec lui —
+  c'est ce qui transforme une page ratée en cul-de-sac.
+</p>
+
+</div>
+</body>
+</html>

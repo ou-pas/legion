@@ -1,0 +1,30 @@
+/* A live round: a surface on the board like any register; `ui/panel` carries the rule and rows. */
+.ch-round {
+  min-width: 0;
+}
+
+.ch-round-body {
+  padding: var(--sp-6) var(--sp-8);
+  min-width: 0;
+}
+
+/* An answered round collapses by itself. Same surface as a live round without its header: state, not
+   container, tells them apart (rule 9septies). */
+.ch-round-answered {
+  background: var(--sheet);
+  border: 1px solid var(--border-surface);
+  border-radius: var(--r-3);
+  min-width: 0;
+}
+
+.ch-round-answered > .ui-disclosure-head {
+  padding: var(--sp-4) var(--sp-8);
+}
+
+.ch-round-answered[open] > .ui-disclosure-head {
+  border-bottom: 1px solid var(--border-separator);
+}
+
+.ch-round-answered > .ui-disclosure-body {
+  margin-top: 0;
+}

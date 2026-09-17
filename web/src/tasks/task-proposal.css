@@ -1,0 +1,24 @@
+/* The composer's proposal line: chips and a provenance on one calm line. The state only changes
+   the provenance ink; a proposal is not an alert. */
+.dm-proposal {
+  align-items: center;
+  min-height: var(--h-control-sm);
+  color: var(--ink-2);
+}
+
+.dm-proposal svg {
+  flex-shrink: 0;
+  vertical-align: text-bottom;
+}
+
+/* The "why" lives in a Tooltip: the caption carrying it signals that it can be looked up. */
+.dm-proposal-why {
+  cursor: help;
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+}
+
+/* Fallback: the defaults apply, said in muted ink, not as an alarm. */
+.dm-proposal[data-state="fallback"] {
+  color: var(--ink-3);
+}

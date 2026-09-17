@@ -1,0 +1,42 @@
+# Excluded from the repo-root build context (`deploy/Dockerfile`).
+#
+# `browser-image/` and `proxy-image/` are built with their own folder as context, so this file
+# does not apply to them. `session-image/` is built from the root, but BuildKit reads
+# `session-image/Dockerfile.dockerignore` instead of this one.
+#
+# node_modules matters most. Without it, the build stage's `COPY . .` overwrites the modules
+# installed in the image with the building machine's: native binaries built for macOS arm64 in a
+# linux image. `better-sqlite3` then breaks on the first `require`, with a message that says
+# nothing of the cause.
+node_modules
+**/node_modules
+
+# The UI is built inside the image. A stale local `dist` would win, since `COPY . .` comes after.
+dist
+**/dist
+storybook-static
+**/storybook-static
+
+# Secrets and state: never in an image.
+.env
+**/.env
+*.pem
+*.key
+*_deploy
+*_deploy.pub
+**/*.db
+**/*.db-shm
+**/*.db-wal
+server/data
+
+# Useless at runtime, and heavy.
+.git
+.github
+.claude
+.impeccable
+.work
+browser-image
+session-image
+proxy-image
+*.log
+.DS_Store
