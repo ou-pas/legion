@@ -187,7 +187,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
       </div>
       <p class="lede">Two layers, which are not the same thing. Node has no address guard: the socket listens on every interface so that session containers can call back.</p>
 
-      <p class="prereq"><strong>A private network is a prerequisite, not an option.</strong> Without one, port 8790 is open to anything that reaches the machine, and the operator token is the only lock left. Your phone, your workstation and the machines that run sessions sit on a tailnet (Tailscale or equivalent), with ACLs.</p>
+      <p class="prereq"><strong>Beyond your own machine, a private network is a prerequisite, not an option.</strong> To reach Legion from your phone or run it on a server, your phone, your workstation and the machines that run sessions sit on a tailnet (Tailscale or equivalent), with ACLs. Even locally, on a shared network port 8790 is reachable by the other machines and the operator token is the only lock.</p>
 
       <table class="sheet-table sheet-table--ink">
         <thead><tr><th scope="col">Surface</th><th scope="col">Who reaches it</th><th scope="col">What it requires</th></tr></thead>
@@ -258,11 +258,11 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
         <table class="sheet-table sheet-table--compact">
           <thead><tr><th scope="col">You need</th><th scope="col">Why</th></tr></thead>
           <tbody>
-            <tr><th scope="row">A tailnet (Tailscale or equivalent), with ACLs</th><td>It decides who reaches the port.</td></tr>
             <tr><th scope="row">Node 22 or newer, and pnpm</th><td>The control plane and the screen.</td></tr>
             <tr><th scope="row">Docker, running</th><td>One container per session. Legion checks it before every launch and refuses cleanly if it does not answer.</td></tr>
             <tr><th scope="row">A Claude credential</th><td><code>CLAUDE_CODE_OAUTH_TOKEN</code> or <code>ANTHROPIC_API_KEY</code>. Without one, sessions run in mock mode and produce no code.</td></tr>
-            <tr><th scope="row">A domain and a Caddy front end, for the phone</th><td>HTTPS for the PWA and Web Push.</td></tr>
+            <tr><th scope="row">For the phone or a server: a tailnet, with ACLs</th><td>It decides who reaches the port.</td></tr>
+            <tr><th scope="row">For the phone: a domain and a Caddy front end</th><td>HTTPS for the PWA and Web Push.</td></tr>
           </tbody>
         </table>
       </div>
