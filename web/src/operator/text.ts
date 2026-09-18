@@ -20,6 +20,24 @@ export const OPERATOR_TEXT = defineText({
     lost: "Lost the token? It cannot be recovered, only regenerated from the machine hosting the control plane.",
   },
 
+  /** The first-run screen (18/09): shown once, before any operator session has ever opened, so the
+   *  one question a fresh install asks first — where is the token — gets commands instead of a
+   *  hint pointing at a boot log nobody is watching yet. */
+  setup: {
+    title: "First launch",
+    lede: "Legion generated an operator token when the control plane started. Two ways to get it.",
+    readStep:
+      "Already running? It was printed once, right after the log says the API is protected.",
+    readCommandLabel: "Read the boot log",
+    readCommand: "docker compose -f deploy/compose.yaml logs -f",
+    generateStep: "Missed it, or starting fresh? Set a new one from the control plane machine.",
+    generateCommandLabel: "Generate a token",
+    generateCommand:
+      "docker compose -f deploy/compose.yaml exec control-plane node scripts/operator-token.mjs",
+    generateDev: "On a development clone: make operator-token.",
+    pasteHint: "Paste it below.",
+  },
+
   /** The wait while the server is asked whether a session exists. A sentence and not a blank: the
    *  first load goes through here, and half a second of white screen reads as a failure. */
   checking: "Checking the session…",
