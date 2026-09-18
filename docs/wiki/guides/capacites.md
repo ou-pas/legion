@@ -195,6 +195,10 @@ disappearing under a live agent changes what it can reach.
 The [[concepts/runner]]'s shared browser is granted agent by agent. Without the grant, the agent does
 not receive the service address, so it cannot connect to it.
 
+The address, `BROWSER_WS_ENDPOINT`, is not only for a manual Playwright script: a project's own
+Vitest suite can connect to it too, for component tests that need a real browser rather than a DOM
+emulator. [[guides/tests-navigateur]] has the wiring and what was checked.
+
 ## Read next
 
 [[concepts/agent]] for the role, [[concepts/projet]] for what all of them share.
