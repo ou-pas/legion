@@ -129,6 +129,13 @@ USER agent
 ENV LEGION_WORKDIR=/workspace
 ENV NODE_PATH=/opt/legion/node_modules
 ENV npm_config_cache=/pkg-cache/npm
+# A project wiring Vitest browser mode to the shared browser (BROWSER_WS_ENDPOINT, see
+# docs/wiki/guides) needs the `playwright` npm package as a peer of `@vitest/browser-playwright`,
+# even in connect-only mode where no local browser ever launches. Without this flag its postinstall
+# tries to download Chromium on every `pnpm install`, which stalls or fails behind a "limited"
+# network's allowlist. No browser is installed by this image (task 8jZtM1gy9n): the flag only
+# stops one that was never needed.
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 WORKDIR /workspace
 
 # The entrypoint prepares the SSH key when there is one, then `exec "$@"`, so the CMD stays

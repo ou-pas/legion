@@ -280,6 +280,11 @@ project" modal, since what it creates is a project, not a setting of the one you
 Rules, skills, MCP servers, environments and chains sit together under Library. The details of the
 moves are in [[produit/decisions]].
 
+A project's own Vitest suite can now run in browser mode inside a session, over the shared
+`BROWSER_WS_ENDPOINT` a browser-granted agent already receives. Earlier sessions on a different
+task had read this as impossible in a sandbox; it was a missing recipe, not a limit, and the
+recipe plus the verification are in [[guides/tests-navigateur]].
+
 ## What is not finished
 
 A session's log lives in the control plane. Until it is written next to the agent, a container that
