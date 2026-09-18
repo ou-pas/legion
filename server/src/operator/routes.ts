@@ -1,11 +1,12 @@
-// Operator session routes. All three are exempt from `operatorGuard`, in one place, and its test
-// checks the exemption is exactly this path and nothing more.
+// Operator session routes, plus the first-run setup status. All four are exempt from
+// `operatorGuard`, in one place, and its test checks the exemption is exactly these paths and
+// nothing more.
 import { z } from "zod";
 import type { Hono } from "hono";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { parseBody } from "../http/parse-body.js";
 import { OPERATOR_COOKIE, closeSession, openSession, tokenMatches } from "./operator.js";
-import { operatorSessionRow } from "./operator-store.js";
+import { allOperatorSessions, operatorSessionRow } from "./operator-store.js";
 
 const loginBody = z.object({ token: z.string().min(1) });
 
@@ -22,6 +23,12 @@ function isHttps(c: { req: { url: string; header: (n: string) => string | undefi
 }
 
 export function registerOperatorRoutes(app: Hono): void {
+  // Always 200, even to a stranger: the gate asks this before any session exists, to tell a fresh
+  // install from a returning operator who forgot the token. Only a boolean, never the token itself.
+  app.get("/api/operator/setup", (c) => {
+    return c.json({ required: allOperatorSessions().length === 0 });
+  });
+
   // Always 200, even to a stranger: the UI asks this on load to decide whether to show login, and
   // a 401 would be a failure to display rather than an answer to read.
   app.get("/api/operator/session", (c) => {

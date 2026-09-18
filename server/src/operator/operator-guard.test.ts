@@ -1,6 +1,6 @@
 // The operator guard over HTTP (13/09): a caller without a session is refused on an ordinary
-// route, both ways in work, and the exemptions are exactly the intended ones. One exemption too
-// many does not show on reading.
+// route, both ways in work, and the exemptions are exactly the intended ones (session, setup,
+// internal, webhooks, the built UI). One exemption too many does not show on reading.
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -129,5 +129,12 @@ describe("the exemptions, and nothing more", () => {
     const res = await get("/api/operator/session");
     assert.equal(res.status, 200);
     assert.deepEqual(await res.json(), { authenticated: false, method: null });
+  });
+
+  it("answers the setup status without a session, since it decides whether to show one", async () => {
+    const res = await get("/api/operator/setup");
+    assert.equal(res.status, 200);
+    const body = (await res.json()) as { required: boolean };
+    assert.equal(typeof body.required, "boolean");
   });
 });

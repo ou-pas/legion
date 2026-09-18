@@ -9,6 +9,8 @@
 //   · `/webhooks/*`: HMAC signature or header token, checked route by route. A forge cannot
 //     present an operator session, and must not be able to.
 //   · `/api/operator/session`: the door itself. A door you must pass to reach it never opens.
+//   · `/api/operator/setup`: asked before any session exists, to tell a fresh install from a
+//     returning operator who forgot the token. It answers a boolean, never the token itself.
 //   · anything outside `/api/`: the built UI and its files. The app must load without a session,
 //     since it carries the login screen; what it serves is client code, nothing secret.
 //
@@ -20,7 +22,9 @@ import { getCookie } from "hono/cookie";
 import { OPERATOR_COOKIE, sessionIsOpen, tokenMatches } from "./operator.js";
 
 const HUMAN_PREFIX = "/api/";
-const LOGIN_PATH = "/api/operator/session";
+// Both are doors you must pass to reach without a session: `/session` opens one, `/setup` only
+// says whether one has ever opened.
+const EXEMPT_PATHS = new Set(["/api/operator/session", "/api/operator/setup"]);
 
 /** The bearer of an `Authorization: Bearer …` header. This is the path for tools (`curl`,
  *  `make responsive`, measurement scripts) that cannot hold a cookie and have no reason to open a
@@ -33,7 +37,7 @@ function bearer(c: Context): string | undefined {
 
 export async function operatorGuard(c: Context, next: Next): Promise<Response | void> {
   const path = c.req.path;
-  if (!path.startsWith(HUMAN_PREFIX) || path === LOGIN_PATH) return next();
+  if (!path.startsWith(HUMAN_PREFIX) || EXEMPT_PATHS.has(path)) return next();
   if (sessionIsOpen(getCookie(c, OPERATOR_COOKIE))) return next();
   if (tokenMatches(bearer(c))) return next();
   // The refusal names what it expects: otherwise a tool receiving 401 is left guessing between an
