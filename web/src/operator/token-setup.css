@@ -1,0 +1,19 @@
+/* Native numbering, muted marker: same convention as ui/prose.css. Each step is a sentence plus
+   the one command that does it, not a page of documentation. */
+.op-setup-steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+  padding-left: var(--sp-8);
+  margin: 0;
+}
+
+.op-setup-steps li::marker {
+  color: var(--ink-3);
+}
+
+.op-setup-steps li {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}

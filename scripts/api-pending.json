@@ -7,7 +7,9 @@
     "Removing a line here is what closes a gap."
   ],
 
-  "missing": {},
+  "missing": {
+    "GET /api/operator/setup": "First-run onboarding (web/src/operator/token-setup.tsx): the gate needs to tell a fresh install (no operator session ever opened) from a returning operator who forgot the token, to show the right screen. Server task: 'Operator setup status route (GET /api/operator/setup)'."
+  },
 
   "unused": {
     "GET /api/connections/callback": "Not debt, and the one line here that will never go: the screen never calls it. The OAuth provider sends the browser back to it from the URL registered on its side, so no `/api/…` literal can exist in `web/src/`, and making one up to silence this check would lie to the check. It is the case the header of `api-contract.ts` names: some routes are there for the outside.",

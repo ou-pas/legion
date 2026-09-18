@@ -11,11 +11,17 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { operatorApi } from "../api/operator.js";
 import { Text } from "../ui/text.js";
 import { SignIn } from "./sign-in.js";
+import { TokenSetup } from "./token-setup.js";
 import { OPERATOR_TEXT } from "./text.js";
 
 /** The "do I have a session" key. Kept apart so that signing out can invalidate it without
  *  knowing the rest of the cache. */
 export const OPERATOR_SESSION_KEY = ["operator", "session"] as const;
+
+/** The "has any session ever opened" key, asked once the gate is confirmed shut. Separate from
+ *  `OPERATOR_SESSION_KEY`: this one decides which screen explains the token, not whether one is
+ *  held right now. */
+export const OPERATOR_SETUP_KEY = ["operator", "setup"] as const;
 
 export function OperatorGate({ children }: { children: ReactNode }) {
   const client = useQueryClient();
@@ -28,6 +34,19 @@ export function OperatorGate({ children }: { children: ReactNode }) {
     staleTime: 0,
   });
   const [entered, setEntered] = useState(false);
+  // `entered` covers the gap between the server's answer and the cache refresh: without it, the
+  // sign-in screen flashes once more after a successful entry.
+  const gateShut = !entered && !session.data?.authenticated;
+  // Asked only once the gate is confirmed shut: a signed-in operator never needs the answer, and
+  // asking earlier would race the session check for nothing. A failed or absent answer (the route
+  // is not always deployed yet, see scripts/api-pending.json) falls back to the plain SignIn.
+  const setup = useQuery({
+    queryKey: OPERATOR_SETUP_KEY,
+    queryFn: operatorApi.setupStatus,
+    enabled: !session.isPending && gateShut,
+    retry: false,
+    staleTime: 0,
+  });
 
   async function signIn(token: string) {
     await operatorApi.signIn(token);
@@ -37,7 +56,7 @@ export function OperatorGate({ children }: { children: ReactNode }) {
     await client.invalidateQueries();
   }
 
-  if (session.isPending) {
+  if (session.isPending || (gateShut && setup.isPending)) {
     return (
       <div className="op-signin">
         <Text tone="muted">{OPERATOR_TEXT.checking}</Text>
@@ -45,9 +64,7 @@ export function OperatorGate({ children }: { children: ReactNode }) {
     );
   }
 
-  // `entered` covers the gap between the server's answer and the cache refresh: without it, the
-  // sign-in screen flashes once more after a successful entry.
-  if (!entered && !session.data?.authenticated) return <SignIn onSignIn={signIn} />;
+  if (gateShut) return setup.data?.required ? <TokenSetup onSignIn={signIn} /> : <SignIn onSignIn={signIn} />;
 
   return <>{children}</>;
 }
