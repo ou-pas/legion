@@ -64,7 +64,8 @@ export function OperatorGate({ children }: { children: ReactNode }) {
     );
   }
 
-  if (gateShut) return setup.data?.required ? <TokenSetup onSignIn={signIn} /> : <SignIn onSignIn={signIn} />;
+  if (gateShut)
+    return setup.data?.required ? <TokenSetup onSignIn={signIn} /> : <SignIn onSignIn={signIn} />;
 
   return <>{children}</>;
 }

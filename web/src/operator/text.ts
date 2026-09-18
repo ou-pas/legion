@@ -26,7 +26,8 @@ export const OPERATOR_TEXT = defineText({
   setup: {
     title: "First launch",
     lede: "Legion generated an operator token when the control plane started. Two ways to get it.",
-    readStep: "Already running? It was printed once, right after the log says the API is protected.",
+    readStep:
+      "Already running? It was printed once, right after the log says the API is protected.",
     readCommandLabel: "Read the boot log",
     readCommand: "docker compose -f deploy/compose.yaml logs -f",
     generateStep: "Missed it, or starting fresh? Set a new one from the control plane machine.",
