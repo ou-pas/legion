@@ -42,7 +42,20 @@ export function useTaskEvents(
     staleTime: 30_000,
   });
 
-  const live = useSessionEvents(liveSessionId, onEvent);
+  // The live SSE replays its session from the start. Replayed events are already in history and
+  // already reflected in what the caller fetched: reporting them made a task page refetch its task,
+  // links, inbox and artifacts once per replayed `status`/`fs_op` (14 rounds on open, 18/09). So the
+  // stream waits for history, stays shut on a session history knows has ended, and only reports
+  // events history does not hold.
+  const knownUpTo = useMemo(
+    () => (history.data?.events ?? []).reduce((max, e) => Math.max(max, e.dbId), 0),
+    [history.data],
+  );
+  const ended = history.data?.sessions.find((s) => s.id === liveSessionId)?.endedAt != null;
+  const streamed = history.isLoading || ended ? undefined : liveSessionId;
+  const live = useSessionEvents(streamed, (type, dbId) => {
+    if (dbId === undefined || dbId > knownUpTo) onEvent?.(type);
+  });
 
   const events = useMemo(() => {
     const past = (history.data?.events ?? []).map((e): SessionEvent => ({

@@ -58,7 +58,7 @@ export const SESSION_EVENT_TYPES = [
 
 export function useSessionEvents(
   sessionId: string | undefined,
-  onEvent?: (type: string) => void,
+  onEvent?: (type: string, dbId: number | undefined) => void,
 ): {
   events: SessionEvent[];
   stream: SessionStream;
@@ -109,7 +109,7 @@ export function useSessionEvents(
           ...(Number.isFinite(dbId) ? { dbId } : {}),
         },
       ]);
-      notify.current?.(type);
+      notify.current?.(type, dbId);
     };
     for (const t of SESSION_EVENT_TYPES)
       es.addEventListener(t, (e) => receive(e as MessageEvent, t));
