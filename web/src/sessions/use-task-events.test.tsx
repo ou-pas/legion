@@ -64,3 +64,79 @@ describe("a task's thread", () => {
     );
   });
 });
+
+// Opening a task page fired 14 identical rounds of task/links/inbox/artifacts (18/09): the live SSE
+// replays its session from the start, and every replayed `status`/`fs_op` reached the page's
+// `onEvent` as if it had just happened, each one invalidating the task queries.
+describe("the live stream only reports what history does not already hold", () => {
+  const opened: FakeEventSource[] = [];
+
+  class FakeEventSource {
+    static readonly CLOSED = 2;
+    readyState = 1;
+    onopen: (() => void) | null = null;
+    onerror: (() => void) | null = null;
+    private readonly listeners = new Map<string, (e: MessageEvent) => void>();
+    constructor(readonly url: string) {
+      opened.push(this);
+    }
+    addEventListener(type: string, fn: (e: MessageEvent) => void) {
+      this.listeners.set(type, fn);
+    }
+    close() {}
+    emit(type: string, dbId: number) {
+      this.listeners.get(type)?.(new MessageEvent(type, { data: "{}", lastEventId: String(dbId) }));
+    }
+  }
+
+  function stubServer(sessions: { id: string; endedAt: number | null }[]) {
+    opened.length = 0;
+    vi.stubGlobal("EventSource", FakeEventSource);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() =>
+        Promise.resolve(
+          new Response(
+            JSON.stringify({
+              sessions: sessions.map((s) => ({ ...s, status: "running", startedAt: TS })),
+              events: [{ dbId: 7, sessionId: "s1", type: "status", payload: {}, ts: TS }],
+            }),
+            { headers: { "content-type": "application/json" } },
+          ),
+        ),
+      ),
+    );
+  }
+
+  function Live({ onEvent }: { onEvent: (type: string) => void }) {
+    const { events } = useTaskEvents("t1", "s1", onEvent);
+    return <output>{events.length}</output>;
+  }
+
+  it("ignores a replayed event history already holds, reports a new one", async () => {
+    stubServer([{ id: "s1", endedAt: null }]);
+    const onEvent = vi.fn();
+    render(
+      <Wrap>
+        <Live onEvent={onEvent} />
+      </Wrap>,
+    );
+    await waitFor(() => expect(opened).toHaveLength(1));
+
+    opened[0]?.emit("status", 7);
+    expect(onEvent).not.toHaveBeenCalled();
+    opened[0]?.emit("status", 8);
+    expect(onEvent).toHaveBeenCalledExactlyOnceWith("status");
+  });
+
+  it("opens no stream on a session history already says has ended", async () => {
+    stubServer([{ id: "s1", endedAt: TS }]);
+    render(
+      <Wrap>
+        <Live onEvent={vi.fn()} />
+      </Wrap>,
+    );
+    await waitFor(() => expect(screen.getByRole("status").textContent).toBe("1"));
+    expect(opened).toHaveLength(0);
+  });
+});
