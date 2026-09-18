@@ -1,6 +1,7 @@
-/* A separate page, not an overlay on the application: as long as there is no session, no screen
-   has mounted, so no data has been requested. An overlay on a rendered app leaves requests going
-   out and project names in the DOM. */
+/* The page chrome shared by SignIn and TokenSetup (18/09): a separate page, not an overlay on the
+   application. As long as there is no session, no screen has mounted, so no data has been
+   requested. An overlay on a rendered app leaves requests going out and project names in the DOM.
+   Each screen keeps its own head icon/copy; this file only lays out the card around it. */
 .op-signin {
   display: flex;
   align-items: center;
@@ -34,17 +35,6 @@
   align-items: center;
   gap: var(--sp-4);
   color: var(--ink);
-}
-
-.op-signin-form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-5);
-}
-
-/* The token is an opaque string: monospace, so a mis-pasted character shows. */
-.op-signin-field {
-  font-family: var(--mono);
 }
 
 @media (max-width: 640px) {

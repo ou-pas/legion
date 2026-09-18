@@ -1,0 +1,10 @@
+.op-entry-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+/* The token is an opaque string: monospace, so a mis-pasted character shows. */
+.op-entry-field {
+  font-family: var(--mono);
+}
