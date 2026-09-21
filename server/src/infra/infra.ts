@@ -45,6 +45,8 @@ const isActive = (status: string) => (ACTIVE_SESSION_STATES as readonly string[]
 // promise a live runtime (review 5a #1).
 const RUNTIME_STATES = [SESSION_STATUS.running, SESSION_STATUS.committing] as const;
 const STARTING_GRACE_MS = 90_000;
+// Not `created`: `docker run -d` passes through it right before running.
+const EXITED_STATES = new Set(["exited", "dead"]);
 
 export interface InfraContainer {
   name: string;
@@ -299,12 +301,17 @@ async function inspectRunner(
   };
 
   /** Shared services (browser, disk sentinel) are judged by their RUNNER's state; sessions by the
-   *  database. */
+   *  database; image rebuilds by their own state. */
   const containerOrphan = (
     name: string,
     role: InfraContainer["role"],
     sessionId: string | null,
+    state: string,
   ) => {
+    if (name.startsWith("legion-rebuild-"))
+      // Started without `--rm` (images/rebuild.ts): the exited carcass stays until the next rebuild.
+      // Its log lives on the host, so only a running rebuild is worth keeping.
+      return EXITED_STATES.has(state);
     if (role === "browser")
       // No session to look at: judged by its RUNNER (browser-cleanup.ts).
       return isOrphanBrowserContainer(browserContainerRunnerId(name), runnerEnabledById);
@@ -326,7 +333,7 @@ async function inspectRunner(
       state: r.State ?? "?",
       status: r.Status ?? "",
       image: r.Image ?? "",
-      orphan: containerOrphan(name, role, sessionId),
+      orphan: containerOrphan(name, role, sessionId, r.State ?? "?"),
       ...taskLinkOf(s),
       sessionStatus: s?.status ?? null,
     };
