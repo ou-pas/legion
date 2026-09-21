@@ -100,7 +100,8 @@ blaming capacity. A machine that comes back becomes eligible on its own. Each ru
 own callback address, the one its containers will call. A task can name its machine, next to "Run
 the task again": the choice is strict, it refuses by naming the machine rather than falling back
 elsewhere, and it applies to the next sessions, never to the one running. No chosen machine remains
-the default. The details are in [[concepts/runner]].
+the default. What sessions and image rebuilds leave behind is removed every fifteen minutes on each
+enabled runner, with no one opening the page. The details are in [[concepts/runner]].
 
 A session's files travel. On a remote machine, the working directory, Claude's state, the package
 cache and the project key are no longer paths on the control plane's disk but Docker volumes on

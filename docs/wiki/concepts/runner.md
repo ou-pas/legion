@@ -96,7 +96,12 @@ wake-up puts one back.
 
 Working volumes survive the pause, exactly as folders do locally. They go when the task is done or
 deleted, and the orphan cleanup in System → Runners sees them, counts them and removes them along with
-containers and networks.
+containers and networks. An image rebuild container stays behind once it has exited, so that
+`docker logs` can still read it; the same cleanup takes it too, since its log also lives in a file on
+the host. A rebuild still running is never touched. The server also runs this cleanup by itself every
+fifteen minutes on each enabled runner, and writes a line in the control log whenever it removes
+something, so a leftover does not wait for someone to open the page. A container kept on purpose to
+inspect it after a failure is gone within that delay.
 
 Artifacts never had to travel: the session drops them through the internal API, the same channel as
 its spec and its events, so they land on the control plane whichever machine runs the session. A test
