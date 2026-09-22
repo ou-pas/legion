@@ -7,7 +7,7 @@
 **Legion is a self-hosted control room for Claude agents: each task runs in a throwaway container with only the access you granted, and the agent comes to you when a decision is yours.**
 
 <p>
-  <img alt="version" src="https://img.shields.io/badge/version-v0.3.0-informational">
+  <img alt="version" src="https://img.shields.io/github/v/tag/ou-pas/legion">
   <img alt="operators" src="https://img.shields.io/badge/operators-single-lightgrey">
   <img alt="hosting" src="https://img.shields.io/badge/hosting-self--hosted-lightgrey">
   <img alt="runtime" src="https://img.shields.io/badge/runtime-Claude%20Agent%20SDK-lightgrey">
