@@ -111,11 +111,18 @@
   border-bottom-color: var(--border-separator);
 }
 
-/* Narrow-width channel selector: it REPLACES the list, it does not double it. */
+/* Narrow-width channel selector: it REPLACES the list, it does not double it. Row layout only takes
+   effect once the 1000px query turns `display` to `flex` (D4): the select grows, the icon button
+   beside it (open the task page) keeps its square width. */
 .ch-switch {
   display: none;
   flex-shrink: 0;
   padding: var(--sp-6) var(--sp-10) 0;
+}
+
+.ch-switch .ui-select {
+  flex: 1;
+  min-width: 0;
 }
 
 /* Below 1280px the state no longer FITS as a column, but it does not disappear: it becomes a BAND under
@@ -132,7 +139,11 @@
 }
 
 /* Below 1000px two side-by-side panes strangle the conversation. The list does not vanish (that would
-   lose channel switching): it becomes a selector above the conversation. */
+   lose channel switching): it becomes a selector above the conversation. The conversation header
+   disappears with it: the task name it repeats is already the select's value, ten centimetres above
+   (measured 127px at 375px wide before this rule). `display: none`, not a hook: it also drops the
+   heading from the a11y tree, so no ghost title remains and nothing about the DOM's structure moves
+   above this breakpoint. */
 @media (max-width: 1000px) {
   .ch-panel {
     grid-template-columns: minmax(0, 1fr);
@@ -147,7 +158,13 @@
   }
 
   .ch-switch {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: var(--sp-5);
+  }
+
+  .ch-conv-head {
+    display: none;
   }
 }
 
@@ -162,5 +179,19 @@
 
   .ch-switch {
     padding: var(--sp-6) var(--sp-8) 0;
+  }
+}
+
+/* Touch floor under 640px, same scoped pattern as `tasks/task-actions-bar.css`: a thumb aims, not a
+   cursor. Only the icon button grows; the select keeps its own height (D4's assumed cost). */
+@media (max-width: 640px) {
+  .ch-switch .ui-btn-icon[data-size="md"] {
+    width: var(--h-touch);
+    height: var(--h-touch);
+  }
+
+  .ch-switch .ui-btn svg {
+    width: var(--icon-touch);
+    height: var(--icon-touch);
   }
 }
