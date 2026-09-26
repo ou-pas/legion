@@ -10,7 +10,7 @@ import { Link as RouterLink, useNavigate, useParams } from "@tanstack/react-rout
 import { useQuery } from "@tanstack/react-query";
 import { ExternalLink, GitCompareArrows } from "lucide-react";
 import { Banner } from "../ui/banner.js";
-import { Button } from "../ui/button.js";
+import { Button, IconButton } from "../ui/button.js";
 import { Row, Spacer, Stack } from "../ui/flex.js";
 import { Heading } from "../ui/heading.js";
 import { Link } from "../ui/link.js";
@@ -158,6 +158,22 @@ export function ChannelsPage() {
               </option>
             ))}
           </Select>
+          {/* Absent without an open channel (never a disabled button explained by a `title`, project
+              convention): the select's own placeholder already says there is nothing to open. */}
+          {selected !== undefined && (
+            <IconButton
+              title={CHANNELS_TEXT.head.openTask}
+              render={(p) => (
+                <RouterLink
+                  to="/p/$projectId/tasks/$taskId"
+                  params={{ projectId, taskId: selected.task.id }}
+                  {...p}
+                />
+              )}
+            >
+              <ExternalLink aria-hidden="true" />
+            </IconButton>
+          )}
         </div>
       )}
 
