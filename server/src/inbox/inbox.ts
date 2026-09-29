@@ -2,7 +2,12 @@
 // flips its session to waiting; answering it (web UI or Discord) resumes it.
 import { nanoid } from "nanoid";
 import { publish } from "../shared/events.js";
-import { type FormSpec, serializeFormAnswer, validateFormAnswer, FORM_COMMENT_KEY } from "./inbox-form.js";
+import {
+  type FormSpec,
+  serializeFormAnswer,
+  validateFormAnswer,
+  FORM_COMMENT_KEY,
+} from "./inbox-form.js";
 import { answeredCount, parseDraft } from "./inbox-draft.js";
 import { roundIndexOf } from "./inbox-question.js";
 import { isFreeTextAnswer } from "./rule-suggestion-gate.js";
@@ -351,10 +356,7 @@ function resolveAnswerText(
       : (answer.text ?? "");
   if (answer.formData !== undefined) {
     if (!msg.form) throw new Error("this question has no form");
-    const validated = validateFormAnswer(
-      JSON.parse(msg.form) as FormSpec,
-      answer.formData,
-    );
+    const validated = validateFormAnswer(JSON.parse(msg.form) as FormSpec, answer.formData);
     // If text is also provided, add it as a round comment
     if (answer.text?.trim()) {
       validated[FORM_COMMENT_KEY] = answer.text.trim();

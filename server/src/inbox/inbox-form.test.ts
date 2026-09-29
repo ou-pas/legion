@@ -263,7 +263,11 @@ describe("inbox, a form question from pause to resume", () => {
     assert.equal(parsed.choice, "a", "form field is preserved");
     assert.equal(parsed.budget, 5, "form field is preserved");
     assert.equal(parsed.dry, false, "form field is preserved");
-    assert.equal(parsed[FORM_COMMENT_KEY], "chosen because of XYZ constraint", "text becomes round comment");
+    assert.equal(
+      parsed[FORM_COMMENT_KEY],
+      "chosen because of XYZ constraint",
+      "text becomes round comment",
+    );
     await new Promise((r) => setTimeout(r, 80)); // runLifecycle is fire-and-forget
     assert.ok(resumed, "the session was resumed");
   });
