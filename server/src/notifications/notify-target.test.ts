@@ -12,9 +12,10 @@ describe("notifTarget", () => {
     assert.equal(notifTarget("inbox_question", full), "/p/p1/channels/t1");
   });
 
-  it("opens the PR view for a gate and for PRs", () => {
+  it("opens the PR view for a gate and for PRs, ci_failed included", () => {
     assert.equal(notifTarget("gate_waiting", full), "/p/p1/tasks/t1/pr");
     assert.equal(notifTarget("pr_merged", full), "/p/p1/tasks/t1/pr");
+    assert.equal(notifTarget("ci_failed", full), "/p/p1/tasks/t1/pr");
   });
 
   it("opens the trace for a failure", () => {

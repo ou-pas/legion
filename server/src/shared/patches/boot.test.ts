@@ -57,12 +57,16 @@ seed
 seed.close();
 
 const { listControlEvents } = await import("../db.js");
+const { HEAD_VERSION } = await import("../migrations/index.js");
 
 describe("boot wiring", () => {
   const sqlite = new Database(DB, { readonly: true });
 
   it("ran migrations then patches: the patch found the column and the table", () => {
-    assert.equal(sqlite.pragma("user_version", { simple: true }), 75);
+    // Dynamic on purpose (unlike the migration count and patch ids below, frozen on 15/09): this
+    // seed only cares that `db.ts` ran every migration up to HEAD, whichever version that is today,
+    // not that it stopped at 75 — a later migration must not break this test on the way past it.
+    assert.equal(sqlite.pragma("user_version", { simple: true }), HEAD_VERSION);
     assert.deepEqual(
       (sqlite.prepare("SELECT id FROM patches").all() as { id: string }[]).map((r) => r.id),
       ["p1-secrets-vers-connexions", "p2-seeded-text-in-english", "p3-legion-writes-in-english"],

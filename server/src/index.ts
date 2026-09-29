@@ -27,6 +27,7 @@ import { recoverGoals } from "./goals/goals.js";
 import { startDiscord } from "./notifications/discord.js";
 import { startStandupScheduler } from "./notifications/standup.js";
 import { startOrphanSweep } from "./infra/orphan-sweep.js";
+import { startCiWatch } from "./review/ci-watch-tick.js";
 import { registerTaskRoutes } from "./tasks/routes/index.js";
 import { registerGoalRoutes } from "./goals/routes.js";
 import { registerInboxRoutes } from "./inbox/routes.js";
@@ -226,6 +227,7 @@ setInterval(() => {
 }, 30_000).unref();
 startStandupScheduler();
 startOrphanSweep();
+startCiWatch();
 // Fleet health probe (v51), before `pumpQueue`: `last_seen_at` dates from the previous process, so
 // every runner counts as unreachable until the first pass answers. It probes immediately without
 // waiting; a queue starting meanwhile stops on "no reachable runner" and resumes at the next pump.

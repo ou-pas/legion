@@ -182,6 +182,11 @@ function patchContext(input: ProjectPatchInput): ProjectPatch {
   return input.context === undefined ? {} : { context: input.context.slice(0, 8000) };
 }
 
+// 29/09: the red-CI watch switch. A plain boolean, nothing to validate.
+function patchCiWatch(input: ProjectPatchInput): ProjectPatch {
+  return input.ciWatch === undefined ? {} : { ciWatch: input.ciWatch };
+}
+
 // Batch nav/2a: the default model was named as a fallback in the three routing selectors
 // (`ModelRoutingCard`, `T.fallback(project.defaultModel)`) with no field to set it. No `null`: it is
 // `resolveModel`'s last fallback, and an empty string would leave no model at all.
@@ -226,6 +231,7 @@ function scalarPatch(input: ProjectPatchInput, projectId: string): ProjectPatch 
     patchGitIdentity(input),
     patchRoutingAndBindings(input, projectId),
     patchContext(input),
+    patchCiWatch(input),
     patchDefaultModel(input),
     patchFsRoot(input),
   ];

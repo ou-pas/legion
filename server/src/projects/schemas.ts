@@ -50,6 +50,8 @@ export const projectPatchBody = z.strictObject({
   defaultSkillNames: z.array(z.string()).optional(),
   modelRouting: z.unknown().optional(),
   chainBindings: z.unknown().optional(),
+  /** 29/09: the red-CI watch switch, on by default at creation. */
+  ciWatch: z.boolean().optional(),
 });
 export type ProjectPatchInput = z.infer<typeof projectPatchBody>;
 

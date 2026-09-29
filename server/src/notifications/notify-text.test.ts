@@ -29,6 +29,13 @@ describe("summarizeNotif", () => {
   it("does not pretend to know a name it was not given", () => {
     assert.equal(summarizeNotif("pr_created", {}), "PR opened · unnamed");
   });
+
+  it("names the exhausted attempts for ci_failed", () => {
+    assert.equal(
+      summarizeNotif("ci_failed", { task: "Redesign" }),
+      "CI still red after 3 automatic attempts · Redesign",
+    );
+  });
 });
 
 describe("headerSafe", () => {

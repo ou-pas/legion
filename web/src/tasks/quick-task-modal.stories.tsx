@@ -34,6 +34,7 @@ const project: Project = {
   sessionDockerfile: null,
   sshKeyPath: null,
   hue: null,
+  ciWatch: true,
 };
 
 const agent = (id: string, name: string): Agent => ({

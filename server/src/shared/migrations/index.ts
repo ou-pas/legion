@@ -11,6 +11,7 @@ import { steps as steps56to60 } from "./v56-v60.js";
 import { steps as steps61to65 } from "./v61-v65.js";
 import { steps as steps66to70 } from "./v66-v70.js";
 import { steps as steps71to75 } from "./v71-v75.js";
+import { steps as steps76to80 } from "./v76-v80.js";
 import { createLogger } from "../log.js";
 
 const log = createLogger("db");
@@ -29,6 +30,7 @@ const STEPS: MigrationStep[] = [
   ...steps61to65,
   ...steps66to70,
   ...steps71to75,
+  ...steps76to80,
 ];
 
 /** The highest version, read from the steps. Exported for tests, which used to hardcode it and

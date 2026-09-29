@@ -361,8 +361,12 @@ async function stateOfChangeRequest(
   return { ...state, checkState: report.state };
 }
 
-/** The merge state of each already open PR of one task (`task.prUrls`), read on demand: one call per
- *  PR, like `listOpen`, never a poller.
+/** The merge state of each already open PR of one task (`task.prUrls`): one call per PR, on demand
+ *  when the screen asks (`pr-tab.tsx`), and on the same rhythm every 5 minutes from the red-CI
+ *  watcher (`review/ci-watch-tick.ts`, 29/09) — the one deliberate poller in this codebase, decided
+ *  against the "never a poller" instinct written here for years: no new webhook subscription to
+ *  wire, and a fixed period well under any forge's rate limit beats a real-time reaction nobody
+ *  asked for on a control plane serving one operator.
  *
  *  Targeted, not swept: unlike `listOpenChangeRequests` (all project repositories, for the Reviews
  *  screen), this only knows the few repositories where this task already has a PR (`pr-tab.tsx` calls it

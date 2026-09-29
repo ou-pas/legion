@@ -27,6 +27,7 @@ const project = (over: Partial<Project>): Project => ({
   sessionDockerfile: null,
   sshKeyPath: null,
   hue: null,
+  ciWatch: true,
   ...over,
 });
 

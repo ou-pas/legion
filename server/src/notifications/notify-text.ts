@@ -49,39 +49,37 @@ function cause(p: Record<string, unknown>): string {
   return `update${version}`;
 }
 
+/** Events whose sentence is only their fact, followed by `· name`: the payload has nothing more to
+ *  say. Split out of `summarizeNotif`'s `switch` (11/09, complexity budget) — the events left in the
+ *  `switch` are exactly the ones that read something else from the payload. */
+const SIMPLE_SUMMARY: Partial<Record<NotifEvent, string>> = {
+  [NOTIF_EVENT.gateWaiting]: "An approval is waiting for you",
+  [NOTIF_EVENT.inboxQuestion]: "Question",
+  [NOTIF_EVENT.dependencyWait]: "Waiting for another task",
+  [NOTIF_EVENT.quotaPause]: "Out of quota, automatic resume",
+  [NOTIF_EVENT.taskFailed]: "Task failed",
+  [NOTIF_EVENT.repoPushFailed]: "Push refused",
+  [NOTIF_EVENT.taskProposed]: "Task proposed",
+  [NOTIF_EVENT.prCreated]: "PR opened",
+  [NOTIF_EVENT.prMerged]: "PR merged",
+  [NOTIF_EVENT.ciFailed]: "CI still red after 3 automatic attempts",
+  [NOTIF_EVENT.goalCompleted]: "Goal reached",
+  [NOTIF_EVENT.goalStopped]: "Goal stopped",
+};
+
 /** The sentence a human reads on their phone. Never empty: an event with no named case returns
  *  its own name, which is more readable than nothing and noticed at once. */
 export function summarizeNotif(event: NotifEvent, payload: Record<string, unknown>): string {
   const name = subject(payload);
+  const simple = SIMPLE_SUMMARY[event];
+  if (simple) return `${simple} · ${name}`;
   switch (event) {
-    case NOTIF_EVENT.gateWaiting:
-      return `An approval is waiting for you · ${name}`;
-    case NOTIF_EVENT.inboxQuestion:
-      return `Question · ${name}`;
-    case NOTIF_EVENT.dependencyWait:
-      return `Waiting for another task · ${name}`;
-    case NOTIF_EVENT.quotaPause:
-      return `Out of quota, automatic resume · ${name}`;
     // Fact first, cause second: `pushText` splits at the middle dot, so the left part is the bold
     // title, readable without unlocking; the cause can wait for the second line.
     case NOTIF_EVENT.systemPause:
       return `${plural(count(payload, "count"), "session")} suspended · ${cause(payload)}`;
-    case NOTIF_EVENT.taskFailed:
-      return `Task failed · ${name}`;
-    case NOTIF_EVENT.repoPushFailed:
-      return `Push refused · ${name}`;
-    case NOTIF_EVENT.taskProposed:
-      return `Task proposed · ${name}`;
     case NOTIF_EVENT.sessionRelaunched:
       return `Session restarted on its own (${plural(count(payload, "resume"), "time")}) · ${name}`;
-    case NOTIF_EVENT.prCreated:
-      return `PR opened · ${name}`;
-    case NOTIF_EVENT.prMerged:
-      return `PR merged · ${name}`;
-    case NOTIF_EVENT.goalCompleted:
-      return `Goal reached · ${name}`;
-    case NOTIF_EVENT.goalStopped:
-      return `Goal stopped · ${name}`;
     case NOTIF_EVENT.standup:
       return standupSummary(payload);
     default:
