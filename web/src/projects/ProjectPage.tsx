@@ -23,6 +23,7 @@ import { Text } from "../ui/text.js";
 import { ConnectionsCard } from "../connections/connections-card.js";
 import { CrateExport } from "../portability/CrateExport.js";
 import { CRATE_TEXT } from "../portability/text.js";
+import { CiWatchCard } from "./ci-watch-card.js";
 import { ContextCard } from "./context-card.js";
 import { CredentialsCard } from "./credentials-card.js";
 import { DangerCard } from "./danger-card.js";
@@ -81,9 +82,9 @@ export function ProjectGeneralScreen() {
   );
 }
 
-/** Repositories: three settings answering "how does this project touch git": the repositories,
- *  their commit identity (from the old "Secrets & identity") and the SSH key (from the old
- *  "Execution"). */
+/** Repositories: four settings answering "how does this project touch git": the repositories,
+ *  their commit identity (from the old "Secrets & identity"), the SSH key (from the old
+ *  "Execution") and the red-CI watch (29/09) — a PR is a repository fact, and so is its CI. */
 export function ReposScreen() {
   return (
     <SettingsPage title={T.tabs.repos}>
@@ -92,6 +93,7 @@ export function ReposScreen() {
           <ReposCard projectId={project.id} />
           <GitIdentityCard project={project} />
           <SshKeyCard project={project} />
+          <CiWatchCard project={project} />
         </Stack>
       )}
     </SettingsPage>

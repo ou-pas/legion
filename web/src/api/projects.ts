@@ -47,6 +47,9 @@ export type Project = {
   /** v47: the CHOSEN hue of the project mark, a rank 0 to 11 on the `ui/tokens.css` scale. `null`
    *  = nobody chose, the name/id derivation holds (`projects/project-mark.ts`). That is the default. */
   hue: number | null;
+  /** v76: watches CI on this project's `review` tasks' open PRs, every 5 minutes; on 3 failed
+   *  automatic `fixCi` attempts it notifies instead of retrying. On by default. */
+  ciWatch: boolean;
 };
 /** The image this project ACTUALLY uses, on ONE runner (09/09, Kopee.me outage), see
  *  `server/src/infra/project-image.ts`. */
@@ -218,6 +221,8 @@ export const projectsApi = {
       /** Slice nav/2a: the model routing's last fallback, named in the three complexity selectors
        *  with no field to set it. No `null`: unlike `hue`, there is no derivation to return to. */
       defaultModel?: string;
+      /** v76: the red-CI watch switch. */
+      ciWatch?: boolean;
     },
   ): Promise<PatchProjectResult> =>
     fetch(`/api/projects/${id}`, {
