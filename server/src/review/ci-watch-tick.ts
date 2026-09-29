@@ -37,9 +37,21 @@ function prUrlsOf(raw: string): { repo: string; url: string }[] {
   }
 }
 
+/** What a test can inject: the forge probe, the launch, and the outbound notification. Same
+ *  shape as `merge-events.ts`'s `HandleDeps`, for the same reason — a database is cheap to fake in
+ *  a tmp file, a forge and a running session are not. */
+export type CiWatchDeps = {
+  merge: typeof mergeStatesOf;
+  fixCi: typeof fixCi;
+  notifyOut: typeof notifyOut;
+};
+
+const DEFAULT_DEPS: CiWatchDeps = { merge: mergeStatesOf, fixCi, notifyOut };
+
 /** One PR's turn: probe already done (`mergeStatesOf`), decide, act, persist. Never throws — a
  *  forge or launch failure on one PR must not stop the tick for the others; the caller logs it. */
 async function watchOnePr(
+  deps: CiWatchDeps,
   task: { id: string; name: string; projectId: string },
   pr: { repo: string; number: number; checkState: (typeof CHECK_STATE)[keyof typeof CHECK_STATE] },
 ): Promise<void> {
@@ -56,7 +68,7 @@ async function watchOnePr(
   }
 
   if (action === "launch") {
-    const result = await fixCi(task.id, { repoName: pr.repo, number: pr.number });
+    const result = await deps.fixCi(task.id, { repoName: pr.repo, number: pr.number });
     // A refusal (session active, 409, 502) does not count as an attempt: the PR is tried again on
     // the next tick, and the counter stays exactly where it was.
     if (!result.ok) return;
@@ -73,26 +85,25 @@ async function watchOnePr(
   }
 
   // action === "notify": the cap is spent and this is the first tick to notice it.
-  notifyOut(NOTIF_EVENT.ciFailed, { taskId: task.id, task: task.name, repoName: pr.repo });
+  deps.notifyOut(NOTIF_EVENT.ciFailed, { taskId: task.id, task: task.name, repoName: pr.repo });
   saveCiWatchState(task.id, pr.repo, pr.number, foldCiWatchState(current, "notified"), now);
 }
 
 /** One pass over every watched task. Exported for tests; the timer below is the only real caller. */
-export async function ciWatchTick(
-  merge: typeof mergeStatesOf = mergeStatesOf,
-): Promise<void> {
+export async function ciWatchTick(deps: CiWatchDeps = DEFAULT_DEPS): Promise<void> {
   const candidates = tasksInReviewWithProjectFlags().filter(({ project }) =>
     ciWatchEnabledFor(project),
   );
   for (const { task } of candidates) {
     const prs = prUrlsOf(task.prUrls);
     if (prs.length === 0) continue;
-    const states = await merge(task.projectId, prs).catch(() => []);
+    const states = await deps.merge(task.projectId, prs).catch(() => []);
     for (const state of states) {
       // Not open (merged, closed, or unresolved) or never probed for checks: nothing to act on. A
       // merged/closed PR belongs to `merge-events.ts`, not here.
       if (state.prState !== "open" || state.number === null || !state.checkState) continue;
       await watchOnePr(
+        deps,
         { id: task.id, name: task.name, projectId: task.projectId },
         { repo: state.repo, number: state.number, checkState: state.checkState },
       ).catch((e: unknown) =>
