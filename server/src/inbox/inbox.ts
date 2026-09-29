@@ -2,7 +2,12 @@
 // flips its session to waiting; answering it (web UI or Discord) resumes it.
 import { nanoid } from "nanoid";
 import { publish } from "../shared/events.js";
-import { type FormSpec, serializeFormAnswer, validateFormAnswer } from "./inbox-form.js";
+import {
+  type FormSpec,
+  serializeFormAnswer,
+  validateFormAnswer,
+  FORM_COMMENT_KEY,
+} from "./inbox-form.js";
 import { answeredCount, parseDraft } from "./inbox-draft.js";
 import { roundIndexOf } from "./inbox-question.js";
 import { isFreeTextAnswer } from "./rule-suggestion-gate.js";
@@ -339,7 +344,8 @@ function requireOpenInboxMessage(inboxId: string): InboxMessageRow {
 }
 
 /** The answer text: choice, free text, or a form validated against the agent's schema. Human
- *  first: free text still works on a form question ("no, do X instead" can bypass the fields). */
+ *  first: free text still works on a form question ("no, do X instead" can bypass the fields).
+ *  When both formData and text are provided, the text is added as a round comment to the form. */
 function resolveAnswerText(
   msg: { choices: string | null; form: string | null },
   answer: { choiceId?: string; text?: string; formData?: unknown },
@@ -348,11 +354,14 @@ function resolveAnswerText(
     answer.choiceId && msg.choices
       ? labelOfChoice(msg.choices, answer.choiceId)
       : (answer.text ?? "");
-  if (answer.formData !== undefined && !answer.text) {
+  if (answer.formData !== undefined) {
     if (!msg.form) throw new Error("this question has no form");
-    answerText = serializeFormAnswer(
-      validateFormAnswer(JSON.parse(msg.form) as FormSpec, answer.formData),
-    );
+    const validated = validateFormAnswer(JSON.parse(msg.form) as FormSpec, answer.formData);
+    // If text is also provided, add it as a round comment
+    if (answer.text?.trim()) {
+      validated[FORM_COMMENT_KEY] = answer.text.trim();
+    }
+    answerText = serializeFormAnswer(validated);
   }
   if (!answerText.trim()) throw new Error("empty answer");
   return answerText;

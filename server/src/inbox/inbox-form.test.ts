@@ -249,6 +249,29 @@ describe("inbox, a form question from pause to resume", () => {
     assert.match(answer, /option C/);
   });
 
+  it("combines formData and text: text becomes a round comment", async () => {
+    const created = createInboxMessage("s1", {
+      kind: INBOX_KIND.form,
+      body: "q",
+      form: validateFormSpec(SPEC),
+    });
+    const answer = await answerInbox(created.id, {
+      formData: { choice: "a", budget: 5, dry: false },
+      text: "chosen because of XYZ constraint",
+    });
+    const parsed = JSON.parse(answer) as Record<string, unknown>;
+    assert.equal(parsed.choice, "a", "form field is preserved");
+    assert.equal(parsed.budget, 5, "form field is preserved");
+    assert.equal(parsed.dry, false, "form field is preserved");
+    assert.equal(
+      parsed[FORM_COMMENT_KEY],
+      "chosen because of XYZ constraint",
+      "text becomes round comment",
+    );
+    await new Promise((r) => setTimeout(r, 80)); // runLifecycle is fire-and-forget
+    assert.ok(resumed, "the session was resumed");
+  });
+
   it("refuses formData on a question without a form, by name", async () => {
     const created = createInboxMessage("s1", { kind: INBOX_KIND.text, body: "simple question" });
     await assert.rejects(() => answerInbox(created.id, { formData: { x: 1 } }), /has no form/);
