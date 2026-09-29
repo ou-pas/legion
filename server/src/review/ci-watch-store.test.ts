@@ -54,73 +54,43 @@ describe("tasksInReviewWithProjectFlags", () => {
   });
 });
 
+const key = (repoName: string, number: number) => ({
+  taskId: "t-watched-review",
+  repoName,
+  number,
+});
+
 describe("ciWatchStateRow / saveCiWatchState", () => {
   it("returns null for a PR never seen red", () => {
-    assert.equal(ciWatchStateRow("t-watched-review", "backend", 1), null);
+    assert.equal(ciWatchStateRow(key("backend", 1)), null);
   });
 
   it("persists the counter, readable back — survives what a reload would do", () => {
-    saveCiWatchState(
-      "t-watched-review",
-      "backend",
-      7,
-      { attempts: 2, notified: false },
-      new Date(),
-    );
-    assert.deepEqual(ciWatchStateRow("t-watched-review", "backend", 7), {
-      attempts: 2,
-      notified: false,
-    });
+    saveCiWatchState(key("backend", 7), { attempts: 2, notified: false }, new Date());
+    assert.deepEqual(ciWatchStateRow(key("backend", 7)), { attempts: 2, notified: false });
   });
 
   it("a second save on the same key updates in place, no duplicate row", () => {
-    saveCiWatchState(
-      "t-watched-review",
-      "backend",
-      8,
-      { attempts: 1, notified: false },
-      new Date(),
-    );
-    saveCiWatchState("t-watched-review", "backend", 8, { attempts: 3, notified: true }, new Date());
-    assert.deepEqual(ciWatchStateRow("t-watched-review", "backend", 8), {
-      attempts: 3,
-      notified: true,
-    });
+    saveCiWatchState(key("backend", 8), { attempts: 1, notified: false }, new Date());
+    saveCiWatchState(key("backend", 8), { attempts: 3, notified: true }, new Date());
+    assert.deepEqual(ciWatchStateRow(key("backend", 8)), { attempts: 3, notified: true });
     const rows = db
       .select()
       .from(schema.ciWatchState)
-      .where(eqAll("t-watched-review", "backend", 8))
+      .where(eqAll(key("backend", 8)))
       .all();
     assert.equal(rows.length, 1);
   });
 
   it("keys are per (task, repo, number): two PRs on the same task stay independent", () => {
-    saveCiWatchState(
-      "t-watched-review",
-      "backend",
-      9,
-      { attempts: 1, notified: false },
-      new Date(),
-    );
-    saveCiWatchState(
-      "t-watched-review",
-      "frontend",
-      9,
-      { attempts: 2, notified: false },
-      new Date(),
-    );
-    assert.deepEqual(ciWatchStateRow("t-watched-review", "backend", 9), {
-      attempts: 1,
-      notified: false,
-    });
-    assert.deepEqual(ciWatchStateRow("t-watched-review", "frontend", 9), {
-      attempts: 2,
-      notified: false,
-    });
+    saveCiWatchState(key("backend", 9), { attempts: 1, notified: false }, new Date());
+    saveCiWatchState(key("frontend", 9), { attempts: 2, notified: false }, new Date());
+    assert.deepEqual(ciWatchStateRow(key("backend", 9)), { attempts: 1, notified: false });
+    assert.deepEqual(ciWatchStateRow(key("frontend", 9)), { attempts: 2, notified: false });
   });
 });
 
-function eqAll(taskId: string, repoName: string, number: number) {
+function eqAll({ taskId, repoName, number }: { taskId: string; repoName: string; number: number }) {
   return and(
     eq(schema.ciWatchState.taskId, taskId),
     eq(schema.ciWatchState.repoName, repoName),

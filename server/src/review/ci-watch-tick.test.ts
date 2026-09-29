@@ -26,6 +26,7 @@ const PROJECT = "p1";
 const TASK = "t1";
 const REPO = "backend";
 const NUMBER = 42;
+const KEY = { taskId: TASK, repoName: REPO, number: NUMBER };
 const now = new Date();
 
 before(() => {
@@ -82,7 +83,7 @@ describe("ciWatchTick", () => {
       notifyOut: () => assert.fail("must not notify before the cap is spent"),
     });
     assert.deepEqual(calls, [[TASK, { repoName: REPO, number: NUMBER }]]);
-    assert.deepEqual(ciWatchStateRow(TASK, REPO, NUMBER), { attempts: 1, notified: false });
+    assert.deepEqual(ciWatchStateRow(KEY), { attempts: 1, notified: false });
     const activity = taskActivityOf(TASK);
     assert.equal(activity.length, 1);
     assert.equal(activity[0]?.body, "CI red on backend#42, automatic attempt 1/3");
@@ -103,7 +104,7 @@ describe("ciWatchTick", () => {
     await tick();
     await tick();
     assert.equal(calls, 2, "fixCi is retried every tick while it keeps refusing");
-    assert.equal(ciWatchStateRow(TASK, REPO, NUMBER), null, "no counter ever written");
+    assert.equal(ciWatchStateRow(KEY), null, "no counter ever written");
     assert.equal(taskActivityOf(TASK).length, 0);
   });
 
@@ -133,7 +134,7 @@ describe("ciWatchTick", () => {
       });
     await tick();
     assert.equal(notified, 1);
-    assert.deepEqual(ciWatchStateRow(TASK, REPO, NUMBER), {
+    assert.deepEqual(ciWatchStateRow(KEY), {
       attempts: CI_WATCH_CAP,
       notified: true,
     });
@@ -157,7 +158,7 @@ describe("ciWatchTick", () => {
       fixCi: async () => assert.fail("green — nothing to fix"),
       notifyOut: () => assert.fail("green — nothing to notify"),
     });
-    assert.deepEqual(ciWatchStateRow(TASK, REPO, NUMBER), { attempts: 0, notified: false });
+    assert.deepEqual(ciWatchStateRow(KEY), { attempts: 0, notified: false });
   });
 
   it("pending and unknown do nothing", async () => {
@@ -167,7 +168,7 @@ describe("ciWatchTick", () => {
         fixCi: async () => assert.fail(`${checkState} — never act on uncertainty`),
         notifyOut: () => assert.fail(`${checkState} — never act on uncertainty`),
       });
-      assert.equal(ciWatchStateRow(TASK, REPO, NUMBER), null);
+      assert.equal(ciWatchStateRow(KEY), null);
     }
   });
 

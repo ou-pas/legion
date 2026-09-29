@@ -26,45 +26,35 @@ export function tasksInReviewWithProjectFlags(): {
     .all();
 }
 
+/** What identifies one PR's counter: a task carries several PRs, and a repo/number pair is only
+ *  unique within it. Grouped into one type (rather than three positional arguments) so
+ *  `ciWatchStateRow` and `saveCiWatchState` always take the same key, in the same shape. */
+export type CiWatchKey = { taskId: string; repoName: string; number: number };
+
+function whereKey(key: CiWatchKey) {
+  return and(
+    eq(schema.ciWatchState.taskId, key.taskId),
+    eq(schema.ciWatchState.repoName, key.repoName),
+    eq(schema.ciWatchState.number, key.number),
+  );
+}
+
 /** This PR's counter, or `null` for one never seen red (the caller defaults to
  *  `INITIAL_CI_WATCH_STATE`). */
-export function ciWatchStateRow(
-  taskId: string,
-  repoName: string,
-  number: number,
-): CiWatchState | null {
+export function ciWatchStateRow(key: CiWatchKey): CiWatchState | null {
   const row = db
     .select({ attempts: schema.ciWatchState.attempts, notified: schema.ciWatchState.notified })
     .from(schema.ciWatchState)
-    .where(
-      and(
-        eq(schema.ciWatchState.taskId, taskId),
-        eq(schema.ciWatchState.repoName, repoName),
-        eq(schema.ciWatchState.number, number),
-      ),
-    )
+    .where(whereKey(key))
     .get();
   return row ?? null;
 }
 
 /** Writes this PR's counter, creating the row on its first red. One key, one row: a later `fixCi`
  *  from the operator's own click reads the same counter next tick, nothing to reconcile. */
-export function saveCiWatchState(
-  taskId: string,
-  repoName: string,
-  number: number,
-  state: CiWatchState,
-  now: Date,
-): void {
+export function saveCiWatchState(key: CiWatchKey, state: CiWatchState, now: Date): void {
   db.insert(schema.ciWatchState)
-    .values({
-      taskId,
-      repoName,
-      number,
-      attempts: state.attempts,
-      notified: state.notified,
-      updatedAt: now,
-    })
+    .values({ ...key, attempts: state.attempts, notified: state.notified, updatedAt: now })
     .onConflictDoUpdate({
       target: [
         schema.ciWatchState.taskId,

@@ -59,7 +59,8 @@ async function watchOnePr(
   task: { id: string; name: string; projectId: string },
   pr: { repo: string; number: number; checkState: (typeof CHECK_STATE)[keyof typeof CHECK_STATE] },
 ): Promise<void> {
-  const current = ciWatchStateRow(task.id, pr.repo, pr.number) ?? INITIAL_CI_WATCH_STATE;
+  const key = { taskId: task.id, repoName: pr.repo, number: pr.number };
+  const current = ciWatchStateRow(key) ?? INITIAL_CI_WATCH_STATE;
   const action = decideCiWatchAction({ checkState: pr.checkState, state: current });
   const now = new Date();
 
@@ -67,7 +68,7 @@ async function watchOnePr(
 
   if (action === "reset") {
     if (current.attempts === 0 && !current.notified) return; // already at rest, nothing to write
-    saveCiWatchState(task.id, pr.repo, pr.number, foldCiWatchState(current, "green"), now);
+    saveCiWatchState(key, foldCiWatchState(current, "green"), now);
     return;
   }
 
@@ -77,7 +78,7 @@ async function watchOnePr(
     // the next tick, and the counter stays exactly where it was.
     if (!result.ok) return;
     const next = foldCiWatchState(current, "fix-launched");
-    saveCiWatchState(task.id, pr.repo, pr.number, next, now);
+    saveCiWatchState(key, next, now);
     insertTaskActivity({
       id: nanoid(10),
       taskId: task.id,
@@ -90,7 +91,7 @@ async function watchOnePr(
 
   // action === "notify": the cap is spent and this is the first tick to notice it.
   deps.notifyOut(NOTIF_EVENT.ciFailed, { taskId: task.id, task: task.name, repoName: pr.repo });
-  saveCiWatchState(task.id, pr.repo, pr.number, foldCiWatchState(current, "notified"), now);
+  saveCiWatchState(key, foldCiWatchState(current, "notified"), now);
 }
 
 /** One pass over every watched task. Exported for tests; the timer below is the only real caller. */
