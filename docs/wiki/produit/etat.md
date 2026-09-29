@@ -286,6 +286,18 @@ A project's own Vitest suite can now run in browser mode inside a session, over 
 task had read this as impossible in a sandbox; it was a missing recipe, not a limit, and the
 recipe plus the verification are in [[guides/tests-navigateur]].
 
+Red CI on an open pull request is watched, not just fixed on a click. Every 5 minutes, for each
+task in review whose project has the switch on (the Repos settings tab, on by default, off for the
+demo project), Legion probes the checks of its open PRs and relaunches "Fix CI" on its own, up to 3
+attempts per PR since the last green. Each automatic attempt writes one line on the task's activity;
+a `pending` or `unknown` check state is left alone, never acted on; a refusal (a session already
+running, the forge silent) does not count against the cap and is retried on the next tick. Once the
+3 attempts have failed, a `ci_failed` notification replaces the retry, sent once, through the same
+channels as a PR being opened or merged. This is a deliberate poller, the first one in the codebase,
+and the two "read on demand, never a poller" comments it goes against were updated rather than left
+to mislead the next reader. Merge conflicts are not watched the same way: `resolveConflict` still
+waits for a click, a later decision.
+
 ## What is not finished
 
 A session's log lives in the control plane. Until it is written next to the agent, a container that
