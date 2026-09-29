@@ -57,6 +57,10 @@ export const projects = sqliteTable("projects", {
   // lost: a new project has its mark with nobody doing anything. A rank on the twelve-step scale of
   // `web/src/ui/tokens.css`, not a colour, so the palette can change without touching this table.
   hue: integer("hue"),
+  // v76: red CI watch on open PRs. On by default — the operator accepted the token cost of sessions
+  // launched without a click on every project rather than a switch nobody remembers to flip. See
+  // `review/ci-watch.ts`.
+  ciWatch: integer("ci_watch", { mode: "boolean" }).notNull().default(true),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
 });
 
@@ -464,6 +468,25 @@ export const taskBlockers = sqliteTable("task_blockers", {
   primaryKey({ columns: [t.taskId, t.blockerId] }),
   index("idx_task_blockers_blocker").on(t.blockerId),
 ]);
+
+// v76: the red-CI-watch counter, one row per (task, repo, PR number). How many automatic `fixCi`
+// attempts ran since the last green CI, and whether the exhaustion notification (`ci_failed`) was
+// already sent for the current run of failures. Mutated in place on every tick rather than only
+// ever appended, unlike `lastMergePartialCount`'s control-log scan: a counter that resets to zero on
+// green wants an UPDATE, not a rescan of history for the latest line. `ON DELETE CASCADE`: a deleted
+// task leaves no orphan counter.
+export const ciWatchState = sqliteTable(
+  "ci_watch_state",
+  {
+    taskId: text("task_id").notNull().references(() => tasks.id, { onDelete: "cascade" }),
+    repoName: text("repo_name").notNull(),
+    number: integer("number").notNull(),
+    attempts: integer("attempts").notNull().default(0),
+    notified: integer("notified", { mode: "boolean" }).notNull().default(false),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.taskId, t.repoName, t.number] })],
+);
 
 export const taskActivity = sqliteTable("task_activity", {
   id: text("id").primaryKey(),
