@@ -332,8 +332,10 @@ const adapter: ForgeAdapter = {
       const number = Number(pr.number);
       const comments = await prComments(token, base, number);
       // `mergeable` exists only when reading one PR (`GET /pulls/:n`); the list does not return it.
-      // One more call per open PR, next to the two reading its comments: the price of on demand, not a
-      // background poller.
+      // One more call per open PR, next to the two reading its comments: the price of on demand.
+      // (This method itself stays on demand; the one deliberate poller in this codebase is the
+      // red-CI watcher, `review/ci-watch-tick.ts`, which reads `checks` through `mergeStatesOf`
+      // instead — not this list.)
       const mergeState = await adapter.mergeState(token, repo, number);
       out.push({
         repo: repo.name,
