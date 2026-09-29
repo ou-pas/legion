@@ -24,6 +24,10 @@ export type NotifEvent =
   | "repo_push_failed"
   | "pr_created"
   | "pr_merged" // inbound webhook: the PR was merged and the task moved to done on its own
+  // 29/09: the red-CI watcher (`review/ci-watch-tick.ts`) ran out of its 3 automatic `fixCi`
+  // attempts on one PR. Sent once per exhaustion (the counter resets on the next green), never on
+  // every tick that follows.
+  | "ci_failed"
   | "standup";
 
 /** Named events, so no caller carries a literal: `satisfies` fails the build if this object
@@ -45,6 +49,7 @@ export const NOTIF_EVENT = {
   repoPushFailed: "repo_push_failed",
   prCreated: "pr_created",
   prMerged: "pr_merged",
+  ciFailed: "ci_failed",
   standup: "standup",
 } as const satisfies Record<string, NotifEvent>;
 
@@ -65,5 +70,6 @@ export const NOTIF_EVENTS: NotifEvent[] = [
   NOTIF_EVENT.repoPushFailed,
   NOTIF_EVENT.prCreated,
   NOTIF_EVENT.prMerged,
+  NOTIF_EVENT.ciFailed,
   NOTIF_EVENT.standup,
 ];

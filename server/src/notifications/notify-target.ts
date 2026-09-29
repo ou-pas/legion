@@ -28,6 +28,7 @@ export function notifTarget(event: NotifEvent, payload: Record<string, unknown>)
     case NOTIF_EVENT.gateWaiting:
     case NOTIF_EVENT.prCreated:
     case NOTIF_EVENT.prMerged:
+    case NOTIF_EVENT.ciFailed:
       return `/p/${project}/tasks/${task}/pr`;
 
     // A failure is read in the trace: the task page says that it failed, the trace says where.

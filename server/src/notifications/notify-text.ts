@@ -78,6 +78,8 @@ export function summarizeNotif(event: NotifEvent, payload: Record<string, unknow
       return `PR opened · ${name}`;
     case NOTIF_EVENT.prMerged:
       return `PR merged · ${name}`;
+    case NOTIF_EVENT.ciFailed:
+      return `CI still red after 3 automatic attempts · ${name}`;
     case NOTIF_EVENT.goalCompleted:
       return `Goal reached · ${name}`;
     case NOTIF_EVENT.goalStopped:
