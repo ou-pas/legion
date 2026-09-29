@@ -18,10 +18,7 @@ const zero: CiWatchState = { attempts: 0, notified: false };
 describe("decideCiWatchAction", () => {
   it("resets on green, whatever the counter so far", () => {
     const busy: CiWatchState = { attempts: 2, notified: false };
-    assert.equal(
-      decideCiWatchAction({ checkState: CHECK_STATE.passing, state: busy }),
-      "reset",
-    );
+    assert.equal(decideCiWatchAction({ checkState: CHECK_STATE.passing, state: busy }), "reset");
   });
 
   it("does nothing on pending — never act on uncertainty", () => {
@@ -45,7 +42,10 @@ describe("decideCiWatchAction", () => {
 
   it("notifies exactly once once the cap is spent", () => {
     const exhausted: CiWatchState = { attempts: CI_WATCH_CAP, notified: false };
-    assert.equal(decideCiWatchAction({ checkState: CHECK_STATE.failing, state: exhausted }), "notify");
+    assert.equal(
+      decideCiWatchAction({ checkState: CHECK_STATE.failing, state: exhausted }),
+      "notify",
+    );
   });
 
   it("does nothing on every tick after the notification was sent", () => {
@@ -102,6 +102,9 @@ describe("ciWatchEnabledFor: the per-project switch, and the demo project exclus
 
 describe("ciWatchAttemptLine", () => {
   it("names the repo, the PR and the attempt out of the cap", () => {
-    assert.equal(ciWatchAttemptLine("backend", 42, 2), "CI red on backend#42, automatic attempt 2/3");
+    assert.equal(
+      ciWatchAttemptLine("backend", 42, 2),
+      "CI red on backend#42, automatic attempt 2/3",
+    );
   });
 });

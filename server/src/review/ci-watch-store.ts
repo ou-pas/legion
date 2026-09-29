@@ -66,7 +66,11 @@ export function saveCiWatchState(
       updatedAt: now,
     })
     .onConflictDoUpdate({
-      target: [schema.ciWatchState.taskId, schema.ciWatchState.repoName, schema.ciWatchState.number],
+      target: [
+        schema.ciWatchState.taskId,
+        schema.ciWatchState.repoName,
+        schema.ciWatchState.number,
+      ],
       set: { attempts: state.attempts, notified: state.notified, updatedAt: now },
     })
     .run();

@@ -13,9 +13,8 @@ process.env.LEGION_DATA = dir;
 after(() => rmSync(dir, { recursive: true, force: true }));
 
 const { db, schema } = await import("../shared/db.js");
-const { ciWatchStateRow, saveCiWatchState, tasksInReviewWithProjectFlags } = await import(
-  "./ci-watch-store.js"
-);
+const { ciWatchStateRow, saveCiWatchState, tasksInReviewWithProjectFlags } =
+  await import("./ci-watch-store.js");
 
 const WATCHED = "p-watched"; // ci_watch on (the column default), not demo
 const OFF = "p-off"; // ci_watch explicitly off
@@ -61,7 +60,13 @@ describe("ciWatchStateRow / saveCiWatchState", () => {
   });
 
   it("persists the counter, readable back — survives what a reload would do", () => {
-    saveCiWatchState("t-watched-review", "backend", 7, { attempts: 2, notified: false }, new Date());
+    saveCiWatchState(
+      "t-watched-review",
+      "backend",
+      7,
+      { attempts: 2, notified: false },
+      new Date(),
+    );
     assert.deepEqual(ciWatchStateRow("t-watched-review", "backend", 7), {
       attempts: 2,
       notified: false,
@@ -69,7 +74,13 @@ describe("ciWatchStateRow / saveCiWatchState", () => {
   });
 
   it("a second save on the same key updates in place, no duplicate row", () => {
-    saveCiWatchState("t-watched-review", "backend", 8, { attempts: 1, notified: false }, new Date());
+    saveCiWatchState(
+      "t-watched-review",
+      "backend",
+      8,
+      { attempts: 1, notified: false },
+      new Date(),
+    );
     saveCiWatchState("t-watched-review", "backend", 8, { attempts: 3, notified: true }, new Date());
     assert.deepEqual(ciWatchStateRow("t-watched-review", "backend", 8), {
       attempts: 3,
@@ -84,8 +95,20 @@ describe("ciWatchStateRow / saveCiWatchState", () => {
   });
 
   it("keys are per (task, repo, number): two PRs on the same task stay independent", () => {
-    saveCiWatchState("t-watched-review", "backend", 9, { attempts: 1, notified: false }, new Date());
-    saveCiWatchState("t-watched-review", "frontend", 9, { attempts: 2, notified: false }, new Date());
+    saveCiWatchState(
+      "t-watched-review",
+      "backend",
+      9,
+      { attempts: 1, notified: false },
+      new Date(),
+    );
+    saveCiWatchState(
+      "t-watched-review",
+      "frontend",
+      9,
+      { attempts: 2, notified: false },
+      new Date(),
+    );
     assert.deepEqual(ciWatchStateRow("t-watched-review", "backend", 9), {
       attempts: 1,
       notified: false,

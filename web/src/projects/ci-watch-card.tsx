@@ -32,7 +32,11 @@ export function CiWatchCard({ project }: { project: Project }) {
     <Card icon={<RefreshCw size={16} />} title={T.title} desc={T.why}>
       <Stack gap={8}>
         {err && <FormError>{err}</FormError>}
-        <Switch checked={checked} disabled={toggle.isPending} onChange={(next) => toggle.mutate(next)}>
+        <Switch
+          checked={checked}
+          disabled={toggle.isPending}
+          onChange={(next) => toggle.mutate(next)}
+        >
           {T.switchLabel}
         </Switch>
       </Stack>

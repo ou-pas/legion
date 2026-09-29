@@ -22,7 +22,11 @@ import {
   foldCiWatchState,
   INITIAL_CI_WATCH_STATE,
 } from "./ci-watch.js";
-import { ciWatchStateRow, saveCiWatchState, tasksInReviewWithProjectFlags } from "./ci-watch-store.js";
+import {
+  ciWatchStateRow,
+  saveCiWatchState,
+  tasksInReviewWithProjectFlags,
+} from "./ci-watch-store.js";
 
 const log = createLogger("ci-watch");
 const CI_WATCH_PERIOD_MS = 5 * 60_000;
@@ -127,7 +131,9 @@ export function startCiWatch(): void {
     if (running) return;
     running = true;
     void ciWatchTick()
-      .catch((e: unknown) => log.warn("ci watch tick failed", { error: String((e as Error)?.message ?? e) }))
+      .catch((e: unknown) =>
+        log.warn("ci watch tick failed", { error: String((e as Error)?.message ?? e) }),
+      )
       .finally(() => {
         running = false;
       });

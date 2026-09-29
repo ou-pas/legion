@@ -64,7 +64,11 @@ function oneState(checkState: (typeof CHECK_STATE)[keyof typeof CHECK_STATE]) {
 }
 
 const okFix: Result<{ launched: string }> = { ok: true, value: { launched: "session-1" } };
-const refusedFix: Result<{ launched: string }> = { ok: false, status: 409, error: "session active" };
+const refusedFix: Result<{ launched: string }> = {
+  ok: false,
+  status: 409,
+  error: "session active",
+};
 
 describe("ciWatchTick", () => {
   it("red CI launches fixCi, counts the attempt, writes one activity line", async () => {
@@ -129,14 +133,24 @@ describe("ciWatchTick", () => {
       });
     await tick();
     assert.equal(notified, 1);
-    assert.deepEqual(ciWatchStateRow(TASK, REPO, NUMBER), { attempts: CI_WATCH_CAP, notified: true });
+    assert.deepEqual(ciWatchStateRow(TASK, REPO, NUMBER), {
+      attempts: CI_WATCH_CAP,
+      notified: true,
+    });
     await tick(); // second tick, still red: no second notification
     assert.equal(notified, 1);
   });
 
   it("green resets the counter", async () => {
     db.insert(schema.ciWatchState)
-      .values({ taskId: TASK, repoName: REPO, number: NUMBER, attempts: 2, notified: false, updatedAt: now })
+      .values({
+        taskId: TASK,
+        repoName: REPO,
+        number: NUMBER,
+        attempts: 2,
+        notified: false,
+        updatedAt: now,
+      })
       .run();
     await ciWatchTick({
       merge: async () => oneState(CHECK_STATE.passing),
